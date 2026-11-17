@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARVENTA · Vivienda nueva en Durango</title>
+<meta name="description" content="ARVENTA: todos los fraccionamientos y edificios nuevos de Durango en un mapa: precios, qué tienes cerca y cuánto tardas a tu trabajo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="panel" aria-label="Desarrollos">
+    <div id="vista-lista">
+      <header class="cabeza">
+        <p class="marca">ARVENTA</p>
+        <h1 class="titulo">Toda la vivienda nueva de Durango, sin ir de oficina en oficina.</h1>
+        <p class="bajada">Precios, qué tienes cerca y cuánto tardarías a tu trabajo desde cada fraccionamiento y edificio.</p>
+      </header>
+      <form class="trabajo" id="form-trabajo">
+        <label for="trabajo">¿Dónde trabajas o estudias?</label>
+        <div class="fila">
+          <input id="trabajo" type="text" placeholder="Ej. Hospital 450, UJED, Ciudad Industrial" autocomplete="off">
+          <button class="btn" type="submit">Calcular</button>
+        </div>
+        <p class="ayuda" id="ayuda-trabajo">O <button type="button" id="marcar">márcalo en el mapa</button> y ordenamos todo por minutos de camino.</p>
+      </form>
+      <div class="filtros" role="group" aria-label="Filtrar">
+        <button class="chip" type="button" data-tipo="todos" aria-pressed="true">Todo</button>
+        <button class="chip" type="button" data-tipo="casa" aria-pressed="false">Casas</button>
+        <button class="chip" type="button" data-tipo="departamento" aria-pressed="false">Departamentos</button>
+        <button class="chip" type="button" data-tipo="terreno" aria-pressed="false">Terrenos</button>
+        <select id="precio-max" aria-label="Precio máximo">
+          <option value="">Cualquier precio</option>
+          <option value="1000000">Hasta $1 millón</option>
+          <option value="1500000">Hasta $1.5 millones</option>
+          <option value="2000000">Hasta $2 millones</option>
+          <option value="3000000">Hasta $3 millones</option>
+          <option value="5000000">Hasta $5 millones</option>
+        </select>
+      </div>
+    </div>
+    <div class="cuerpo" id="cuerpo"></div>
+  </aside>
+  <main class="mapa">
+    <div id="mapa" role="application" aria-label="Mapa de desarrollos en Durango"></div>
+    <div class="modo-marcar">Toca el mapa donde trabajas</div>
+    <div class="estado-mapa" id="estado" role="status"></div>
+  </main>
+</div>
+
+<dialog id="dlg-visita">
+  <form method="dialog" id="form-visita">
+    <h2>Agendar visita</h2>
+    <p id="visita-a" style="margin:0;color:var(--tinta-suave)"></p>
+    <label for="v-nombre">Tu nombre</label>
+    <input id="v-nombre" required autocomplete="name">
+    <label for="v-tel">Tu WhatsApp</label>
+    <input id="v-tel" required inputmode="tel" autocomplete="tel" placeholder="618 123 4567">
+    <label for="v-cuando">¿Cuándo te queda?</label>
+    <select id="v-cuando">
+      <option>Este fin de semana</option>
+      <option>Entre semana por la tarde</option>
+      <option>Entre semana por la mañana</option>
+      <option>Primero quiero más información</option>
+    </select>
+    <label for="v-credito">¿Cómo pagarías?</label>
+    <select id="v-credito">
+      <option>Infonavit</option>
+      <option>Fovissste</option>
+      <option>Crédito bancario</option>
+      <option>Cofinavit (Infonavit + banco)</option>
+      <option>Contado</option>
+      <option>Aún no sé</option>
+    </select>
+    <div class="fila">
+      <button class="btn claro" value="cancelar" formnovalidate>Cancelar</button>
+      <button class="btn" id="v-enviar" value="enviar">Enviar por WhatsApp</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-copiar">
+  <h2>Tu solicitud está lista</h2>
+  <p style="margin:0 0 10px;color:var(--tinta-suave)">Todavía no hay un número de WhatsApp configurado en el sitio. Copia este mensaje y mándalo al asesor.</p>
+  <textarea id="txt-copiar" readonly></textarea>
+  <div class="fila"><button class="btn claro" id="cerrar-copiar">Cerrar</button><button class="btn" id="btn-copiar">Copiar mensaje</button></div>
+</dialog>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="datos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
