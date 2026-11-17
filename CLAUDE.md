@@ -23,6 +23,39 @@ ARVENTA es una inmobiliaria de Durango, Dgo. Este repositorio es su sitio web: m
 - **Accesible:** contraste suficiente, foco visible con teclado y respeto a `prefers-reduced-motion`.
 - **Privacidad:** los datos de quien agenda una visita no se publican ni se guardan en el navegador de otros. Cualquier formulario que guarde datos necesita aviso de privacidad.
 
+## Requisitos obligatorios (no se negocian)
+
+### 1. Cada ficha de desarrollo (NOM-247-SE-2021, publicidad de vivienda)
+La información y publicidad debe ser veraz, comprobable, clara y sin nada que lleve a error. Cada ficha debe mostrar:
+- [ ] Precio "desde" y, si aplica, "hasta", con la leyenda de que puede variar al cerrar la operación.
+- [ ] Fuente del precio y fecha en que se verificó.
+- [ ] Formas de pago y créditos que acepta (Infonavit, Fovissste, banco, Cofinavit, contado), solo si están confirmados.
+- [ ] Condiciones de entrega: preventa o entrega inmediata, y fecha estimada si existe.
+- [ ] Qué incluye y qué no (cocina, closets, boiler, cisterna), si se sabe.
+- [ ] Si la ubicación es aproximada, decirlo.
+- [ ] Imágenes de render marcadas como "imagen ilustrativa".
+- [ ] Estado del convenio con la desarrolladora: si ARVENTA no tiene convenio de asesor externo firmado, la ficha no puede decir "ARVENTA vende este desarrollo"; solo "información pública, agenda una visita".
+
+### 2. La empresa (Ley de Servicios de Intermediación Inmobiliaria de Durango, 2026)
+- [ ] El sitio debe mostrar en el pie la razón social de ARVENTA y su número de licencia o registro estatal de asesor inmobiliario. Mientras no exista, el campo queda pendiente y no se cobran comisiones.
+- [ ] Se necesita contrato de intermediación por escrito con cada desarrolladora (comisión, plazos, cómo se registra un cliente) antes de llevarle compradores.
+
+### 3. Antilavado (LFPIORPI, fracción V)
+- [ ] La intermediación en compraventa de inmuebles es actividad vulnerable: hay que identificar siempre al cliente y presentar aviso al SAT cuando la operación llega a 8,025 UMA ($941,412.75 en 2026). Casi todos los desarrollos de la lista pasan ese monto.
+- [ ] El sitio **no** pide ni guarda INE, comprobantes ni datos financieros. Eso se integra en persona, en el expediente del cliente, fuera del sitio.
+- [ ] No ofrecer ni aceptar pagos en efectivo por el inmueble a partir de ese umbral.
+
+### 4. Datos personales (Ley Federal de Protección de Datos Personales)
+- [ ] Aviso de privacidad visible antes de enviar el formulario de visita: quién recibe los datos, para qué, y cómo pedir que se borren.
+- [ ] Pedir solo nombre, WhatsApp, horario y forma de pago. Nada más.
+- [ ] Casilla de consentimiento para compartir los datos con la desarrolladora del desarrollo elegido.
+
+### 5. Servicios gratuitos que usa el sitio
+- [ ] Mostrar siempre la atribución de OpenStreetMap y CARTO en el mapa.
+- [ ] Nominatim y OSRM públicos son para uso ligero; si el sitio crece, cambiar a un plan propio o de pago.
+
+Si un cambio choca con alguno de estos puntos, no lo hagas y explica por qué.
+
 ## Estructura
 | Archivo | Qué tiene |
 |---|---|
