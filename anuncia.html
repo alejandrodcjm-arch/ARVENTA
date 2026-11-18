@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anuncia tu desarrollo · ARVENTA</title>
+<meta name="description" content="Para desarrolladoras de Durango: tu desarrollo en el mapa de ARVENTA, con compradores que ya saben si les alcanza. Comisión solo por venta escriturada.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ARVENTA">
+<meta property="og:locale" content="es_MX">
+<meta property="og:title" content="Anuncia tu desarrollo en ARVENTA">
+<meta property="og:description" content="Compradores que llegan sabiendo precio, qué hay cerca, cuánto tardan a su trabajo y si les alcanza con su crédito.">
+<meta name="theme-color" content="#2F6B5E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="estilos.css">
+<link rel="stylesheet" href="paginas.css">
+</head>
+<body>
+<header class="barra-sup"><a class="marca" href="./">ARVENTA</a><a href="#contacto">Quiero anunciarme</a></header>
+<main class="pag">
+  <p class="marca" style="font-size:14px;margin:12px 0 0">PARA DESARROLLADORAS</p>
+  <h1>Anuncia tu desarrollo en ARVENTA</h1>
+  <p class="entrada">Quien te encuentra aquí ya vio tu precio, qué tienes cerca, cuánto tardaría a su trabajo y si le alcanza con banco o Infonavit. Cuando pide visita, ya sabe a qué va.</p>
+  <div class="cifras" id="cifras" aria-live="polite"></div>
+  <p><a class="btn" href="#contacto" style="display:inline-block;padding:14px 20px">Quiero anunciarme</a></p>
+
+  <h2>Qué ganas</h2>
+  <div class="ventajas-grid">
+    <div class="caja"><h3>Compradores que ya hicieron cuentas</h3><p>Con “¿Qué me alcanza?” cada persona ve si tu desarrollo le alcanza con banco o con Infonavit antes de pedir la visita.</p></div>
+    <div class="caja"><h3>Lo que la gente pregunta, resuelto</h3><p>Precio, escuelas, súper, farmacias y hospitales cercanos, y los minutos en auto a su trabajo.</p></div>
+    <div class="caja"><h3>Solicitudes listas para agendar</h3><p>Llegan por WhatsApp con nombre, cuándo puede visitar, cómo pagaría y un folio.</p></div>
+    <div class="caja"><h3>Un reporte de tu desarrollo</h3><p>Cuántas veces lo vieron, cuántos pidieron visita, cómo pagarían y en qué zonas trabajan los interesados. Sin nombres.</p></div>
+    <div class="caja"><h3>Enlace para compartir</h3><p>Tu desarrollo tiene su propio enlace. Al pegarlo en WhatsApp sale con nombre, precio e imagen.</p></div>
+    <div class="caja"><h3>Comparado con justicia</h3><p>Los compradores pueden poner tu desarrollo junto a otros. Si tu precio por m² o tu ubicación ganan, se nota.</p></div>
+  </div>
+
+  <h2>Cómo funciona</h2>
+  <ol class="pasos">
+    <li><b>Nos escribes</b>Con el formulario de abajo o por WhatsApp.</li>
+    <li><b>Revisamos los datos contigo</b>Precios, modelos, ubicación exacta y amenidades. Publicamos solo lo que tiene una fuente.</li>
+    <li><b>Publicamos tu desarrollo</b>En el mapa, con su página y su imagen para compartir.</li>
+    <li><b>Te pasamos cada solicitud</b>Con su folio, para que reciban a la persona.</li>
+    <li><b>Recibes tu reporte</b>Visitas, solicitudes y de dónde vienen los interesados.</li>
+  </ol>
+
+  <h2>Cómo funciona la comisión</h2>
+  <div class="caja">
+    <ul style="margin:0;padding-left:20px">
+      <li><b>Pagas solo cuando se escritura una venta que llegó por ARVENTA.</b></li>
+      <li><b>Cómo se sabe que llegó por ARVENTA:</b> cada solicitud de visita queda registrada con folio y fecha en el momento en que la persona la pide, y te la pasamos antes de la visita. Los dos tienen el mismo registro.</li>
+      <li><b>El porcentaje, los plazos y cómo se registra a cada cliente</b> quedan en un contrato de intermediación por escrito, firmado antes de llevarte compradores.</li>
+    </ul>
+    <p class="nota" id="nota-licencia" hidden style="margin:12px 0 0">ARVENTA está tramitando su licencia de asesor inmobiliario del Estado de Durango. Mientras no la tenga, no cobra comisiones.</p>
+  </div>
+
+  <h2 id="contacto">Platiquemos</h2>
+  <p>Déjanos tus datos y te contactamos. Si prefieres, escríbenos directo por <a href="https://wa.me/526184463867?text=Hola%2C%20quiero%20anunciar%20mi%20desarrollo%20en%20ARVENTA.">WhatsApp</a>.</p>
+  <form class="form caja" id="form-dev" novalidate>
+    <div class="dos">
+      <div><label for="f-nombre">Tu nombre</label><input id="f-nombre" required autocomplete="name"></div>
+      <div><label for="f-empresa">Empresa <small>(opcional)</small></label><input id="f-empresa" autocomplete="organization"></div>
+    </div>
+    <div class="dos">
+      <div><label for="f-desarrollo">Nombre del desarrollo</label><input id="f-desarrollo" required></div>
+      <div><label for="f-ubicacion">Ubicación o zona</label><input id="f-ubicacion" placeholder="Ej. Salida a Mazatlán"></div>
+    </div>
+    <div class="dos">
+      <div><label for="f-tipo">Qué vendes</label>
+        <select id="f-tipo"><option>Casas</option><option>Departamentos</option><option>Terrenos</option><option>Varios</option></select></div>
+      <div><label for="f-unidades">Unidades disponibles <small>(opcional)</small></label><input id="f-unidades" inputmode="numeric"></div>
+    </div>
+    <div class="dos">
+      <div><label for="f-precio">Precio desde <small>(opcional)</small></label><input id="f-precio" inputmode="numeric" placeholder="Ej. 1,450,000"></div>
+      <div><label for="f-whatsapp">WhatsApp</label><input id="f-whatsapp" inputmode="tel" autocomplete="tel" placeholder="618 123 4567"></div>
+    </div>
+    <label for="f-correo">Correo <small>(opcional si dejaste WhatsApp)</small></label><input id="f-correo" type="email" autocomplete="email">
+    <label for="f-mensaje">¿Algo más que debamos saber? <small>(opcional)</small></label><textarea id="f-mensaje"></textarea>
+    <input id="f-sitio" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <p class="aviso-corto">Usamos estos datos solo para contactarte sobre tu anuncio. <a href="aviso-privacidad.html">Aviso de privacidad</a></p>
+    <p class="form-error" id="f-error" role="alert" hidden></p>
+    <button class="btn" type="submit" id="f-enviar">Enviar</button>
+  </form>
+  <div class="form-ok" id="f-ok" hidden tabindex="-1"></div>
+</main>
+<footer class="pie-pag" data-pie></footer>
+
+<script src="config.js"></script>
+<script src="datos.js"></script>
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  // Cifras reales del sitio, salen de datos.js
+  const D = window.DESARROLLOS || [];
+  if(D.length){
+    const conMapa = D.filter(d => d.lat != null).length;
+    const tipos = new Set(D.map(d => d.tipo)).size;
+    $("#cifras").innerHTML = `<div><b>${D.length}</b>desarrollos publicados</div><div><b>${conMapa}</b>ya ubicados en el mapa</div><div><b>${tipos}</b>tipos: casas, departamentos y terrenos</div>`;
+  }
+
+  if(!ARVENTA.LICENCIA) $("#nota-licencia").hidden = false;
+  const val = id => $("#" + id).value.trim();
+  function mensajeWhatsApp(r){
+    return `Hola, quiero anunciar mi desarrollo en ARVENTA.\nNombre: ${r.nombre}${r.empresa ? " (" + r.empresa + ")" : ""}\nDesarrollo: ${r.desarrollo}${r.ubicacion ? ", " + r.ubicacion : ""}\nTipo: ${r.tipoVivienda}${r.unidades ? " · " + r.unidades + " unidades" : ""}${r.precio ? " · desde " + r.precio : ""}${r.mensaje ? "\n" + r.mensaje : ""}\nFolio: ${r.folio}`;
+  }
+  $("#form-dev").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("#f-error"); err.hidden = true;
+    const r = {tipo:"desarrolladora", folio:nuevoFolio("D"), nombre:val("f-nombre"), empresa:val("f-empresa"), desarrollo:val("f-desarrollo"),
+      ubicacion:val("f-ubicacion"), tipoVivienda:val("f-tipo"), unidades:val("f-unidades"), precio:val("f-precio"),
+      whatsapp:val("f-whatsapp"), correo:val("f-correo"), mensaje:val("f-mensaje"), sitio:val("f-sitio")};
+    const falta = !r.nombre ? "f-nombre" : !r.desarrollo ? "f-desarrollo" : null;
+    if(falta){ err.textContent = "Escribe tu nombre y el nombre del desarrollo."; err.hidden = false; $("#" + falta).focus(); return; }
+    if(r.whatsapp.replace(/\D/g, "").length < 10 && !/^\S+@\S+\.\S+$/.test(r.correo)){
+      err.textContent = "Déjanos un WhatsApp de 10 dígitos o un correo para contactarte."; err.hidden = false; $("#f-whatsapp").focus(); return;
+    }
+    medir("contacto-desarrolladora");
+    const wa = `https://wa.me/${ARVENTA.WHATSAPP}?text=${encodeURIComponent(mensajeWhatsApp(r))}`;
+    if(!ARVENTA.HOJA_URL){ location.href = wa; return; } // sin hoja configurada, se manda por WhatsApp
+    const boton = $("#f-enviar"); boton.disabled = true; boton.textContent = "Enviando…";
+    let res;
+    try{ res = await enviarAHoja(r, {esperar:true}); }catch(x){ res = {ok:false}; }
+    boton.disabled = false; boton.textContent = "Enviar";
+    if(res && res.ok){
+      $("#form-dev").hidden = true;
+      const ok = $("#f-ok");
+      ok.innerHTML = `<b>¡Gracias, ${r.nombre.replace(/[<>&]/g, "")}! Recibimos tus datos.</b><br>Tu folio es <b>${r.folio}</b>. Te contactamos pronto. Si quieres adelantar, <a href="${wa}">mándanos tu folio por WhatsApp</a>.`;
+      ok.hidden = false; ok.focus();
+    }else{
+      err.innerHTML = `No pudimos enviar el formulario. <a href="${wa}">Mándalo por WhatsApp</a> y te atendemos igual.`;
+      err.hidden = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@
 const WHATSAPP = window.ARVENTA?.WHATSAPP || "";
 const CENTRO = {lat:24.0248, lng:-104.6705, nombre:"el Centro Histórico"};
 const CAJA = {s:23.95, w:-104.77, n:24.10, e:-104.56};
-const TASA_BANCO = 11;     // % anual de referencia para cálculos
+const TASA_BANCO = 11.3;   // % anual de referencia; promedio reportado por Banxico en junio de 2026 (11.33%)
 const PLAZO_BANCO = 20;    // años
 
 /* ===== Datos ===== */
@@ -188,7 +188,7 @@ function laminas(d){
 /* ===== Estado ===== */
 const estado = {
   cat: "todo", q: "", max: null, presEtiqueta: null,
-  recMin: 0, creditos: new Set(), amen: new Set(), cercaReq: new Set(), entrega: new Set(),
+  recMin: 0, trabajo15: false, creditos: new Set(), amen: new Set(), cercaReq: new Set(), entrega: new Set(),
   ref: null,          // {tipo, lat, lng, nombre}
   orden: "cerca", vista: "lista"
 };
@@ -233,6 +233,7 @@ function pasa(d){
   const am = amenidades(d);
   for (const a of estado.amen) if (!am.includes(a)) return false;
   if (estado.entrega.size && !estado.entrega.has(d.entrega || "Por confirmar")) return false;
+  if (estado.trabajo15 && estado.ref?.tipo === "trabajo" && !(MINUTOS[d.id] < 15)) return false;
   if (estado.cercaReq.size) {
     const c = cercanos(d);
     if (!c) return false;
@@ -295,9 +296,79 @@ function tarjeta(d){
       <p class="gris">${esc(TIPO[d.tipo])} · ${esc(zonaCorta(d))}</p>
       ${bueno ? `<p class="bueno">${esc(bueno)}</p>` : ""}
       <p class="precio">desde <b>${corto(d.desde)}</b>${d.tipo !== "terreno" ? ` · ${esc(d.recamaras)} rec.` : ""}</p>
+      <div class="pie-tarjeta">${PERFIL ? (([cls, txt]) => `<span class="alc ${cls}">${txt}</span>`)(etiquetaAlcance(d)) : ""}${botonComparar(d)}</div>
     </div>
   </div>`;
 }
+function botonComparar(d, claseExtra = ""){
+  const en = COMPARAR.includes(d.id);
+  return `<button class="cmp ${claseExtra}" type="button" data-comparar="${esc(d.id)}" aria-pressed="${en}">${en ? "✓ Comparando" : "+ Comparar"}</button>`;
+}
+
+/* ===== Comparador: 2 o 3 desarrollos lado a lado ===== */
+const MAX_COMPARAR = 3;
+let COMPARAR = [];
+try { COMPARAR = (JSON.parse(localStorage.getItem("arventa-comparar")) || []).filter(id => DESARROLLOS.some(d => d.id === id)).slice(0, MAX_COMPARAR); } catch (e) {}
+function alternarComparar(id){
+  const i = COMPARAR.indexOf(id);
+  if (i >= 0) COMPARAR.splice(i, 1);
+  else if (COMPARAR.length >= MAX_COMPARAR) { toast(`Puedes comparar hasta ${MAX_COMPARAR}. Quita uno para agregar otro.`); return; }
+  else COMPARAR.push(id);
+  sincronizarComparar();
+}
+function sincronizarComparar(){
+  try { localStorage.setItem("arventa-comparar", JSON.stringify(COMPARAR)); } catch (e) {}
+  $$("[data-comparar]").forEach(b => { const en = COMPARAR.includes(b.dataset.comparar); b.setAttribute("aria-pressed", en); b.textContent = en ? "✓ Comparando" : "+ Comparar"; });
+  pintarBarraComparar();
+  if ($("#dlg-comparar").open) { if (COMPARAR.length < 2) $("#dlg-comparar").close(); else verComparar(); }
+}
+function pintarBarraComparar(){
+  const b = $("#barra-comparar"), n = COMPARAR.length;
+  b.hidden = !n || document.body.classList.contains("en-ficha");
+  document.body.classList.toggle("comparando", !b.hidden);
+  if (b.hidden) return;
+  b.innerHTML = `<div class="txt">${n === 1 ? "Elige otro para comparar" : `${n} desarrollos elegidos`}<small>${COMPARAR.map(id => esc(DESARROLLOS.find(d => d.id === id).nombre)).join(" · ")}</small></div>
+    <button type="button" class="btn claro" id="limpiar-comparar">Limpiar</button>
+    <button type="button" class="btn" id="ver-comparar"${n < 2 ? " disabled" : ""}>Comparar</button>`;
+  $("#limpiar-comparar").onclick = () => { COMPARAR = []; sincronizarComparar(); };
+  $("#ver-comparar").onclick = () => { medir("comparar", {cuantos:COMPARAR.length}); verComparar(); };
+}
+function verComparar(){
+  const ds = COMPARAR.map(id => DESARROLLOS.find(d => d.id === id));
+  if (ds.length < 2) return;
+  const cs = ds.map(cercanos), trabajo = estado.ref?.tipo === "trabajo";
+  // Cada renglón: los de valor más bajo (precio, distancia, minutos) se marcan en verde
+  const renglon = (titulo, vals, marcar = true) => {
+    const nums = vals.map(v => v.num).filter(n => n != null), min = Math.min(...nums);
+    const marca = marcar && nums.length >= 2 && Math.max(...nums) > min;
+    return `<div class="cmp-et">${titulo}</div>` + vals.map(v => { const m = marca && v.num === min; return `<div class="cmp-v${m ? " mejor" : ""}">${v.txt}${m ? '<span class="sr"> (el mejor)</span>' : ""}</div>`; }).join("");
+  };
+  let h = `<div class="cmp-tabla" style="--n:${ds.length}">` + ds.map(d => `<div class="cmp-cab"><h3>${esc(d.nombre)}</h3><small>${esc(TIPO[d.tipo])}</small>
+    <div class="acc"><a class="btn" href="#${esc(d.id)}" data-cerrar-comparar>Ver</a><button type="button" class="btn claro" data-comparar="${esc(d.id)}" aria-label="Quitar ${esc(d.nombre)}">Quitar</button></div></div>`).join("");
+  h += renglon("Precio desde", ds.map(d => ({txt:`${dinero(d.desde)}${d.hasta ? `<small>hasta ${dinero(d.hasta)}</small>` : ""}`, num:d.desde})));
+  h += renglon("Precio por m²", ds.map(d => { const p = porM2(d); return p ? {txt:`${dinero(p)}<small>${m2Num(d)} m²</small>`, num:p} : {txt:d.tipo === "terreno" ? "Terreno" : "Sin dato", num:null}; }));
+  h += renglon("Recámaras", ds.map(d => ({txt:d.tipo === "terreno" ? "—" : esc(d.recamaras), num:null})), false);
+  h += renglon("Créditos confirmados", ds.map(d => ({txt:d.creditos.length ? esc(d.creditos.join(", ")) : "Por confirmar", num:null})), false);
+  h += renglon("Entrega", ds.map(d => ({txt:d.entrega ? esc(d.entrega) : "Por confirmar", num:null})), false);
+  if (PERFIL) h += renglon("¿Te alcanza?", ds.map(d => ({txt:etiquetaAlcance(d)[1], num:null})), false);
+  if (trabajo) h += renglon(`Minutos a ${esc(estado.ref.nombre)}`, ds.map(d => MINUTOS[d.id] != null ? {txt:`${MINUTOS[d.id]} min en auto`, num:MINUTOS[d.id]} : {txt:d.lat == null ? "Sin ubicación" : "Calculando…", num:null}));
+  else h += `<div class="cmp-et">Minutos a tu trabajo</div><div class="cmp-v" style="grid-column:1/-1"><button type="button" class="enlace" id="cmp-trabajo">Dinos dónde trabajas</button> para compararlos.</div>`;
+  for (const k of ["escuela", "super", "oxxo", "farmacia", "salud", "parque"]) {
+    h += renglon(`${CATS[k].ico} ${CATS[k].nombre} más ${CATS[k].f ? "cercana" : "cercano"}`, ds.map((d, i) => {
+      const l = cs[i]?.mas[k];
+      return l ? {txt:`${textoDist(l.m)}<small>${esc(l.nombre)}</small>`, num:l.m} : {txt:d.lat == null ? "Sin ubicación" : "Sin dato", num:null};
+    }));
+  }
+  h += `</div><p class="nota">En verde, lo mejor de cada renglón. Precio por m² = precio “desde” ÷ m² del modelo más chico. Distancias en línea recta según OpenStreetMap.</p>`;
+  $("#comparar-cuerpo").innerHTML = h;
+  $("#cmp-trabajo")?.addEventListener("click", () => { $("#dlg-comparar").close(); abrirCerca("trabajo"); });
+  if (!$("#dlg-comparar").open) $("#dlg-comparar").showModal();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-comparar]");
+  if (b) { e.stopPropagation(); alternarComparar(b.dataset.comparar); return; }
+  if (e.target.closest("[data-cerrar-comparar]")) $("#dlg-comparar").close();
+});
 function activarTarjetas(raiz){
   raiz.querySelectorAll(".tarjeta").forEach(t => {
     const id = t.dataset.id, carril = t.querySelector(".carril"), puntos = t.querySelectorAll(".puntos i");
@@ -351,7 +422,8 @@ function pintar(){
   $("#limpiar-todo")?.addEventListener("click", limpiarTodo);
   activarTarjetas($("#rejilla"));
   if (estado.vista === "mapa") pintarPines(l);
-  const n = estado.creditos.size + estado.amen.size + estado.cercaReq.size + estado.entrega.size + (estado.recMin ? 1 : 0);
+  const n = estado.creditos.size + estado.amen.size + estado.cercaReq.size + estado.entrega.size + (estado.recMin ? 1 : 0) + (estado.trabajo15 && estado.ref?.tipo === "trabajo" ? 1 : 0);
+  pintarBarraComparar();
   $("#n-filtros").hidden = !n; $("#n-filtros").textContent = n;
   // resumen del buscador
   $("#val-cerca").textContent = estado.ref ? estado.ref.nombre : "Mi ubicación, trabajo o escuela";
@@ -362,7 +434,7 @@ function pintar(){
   $("#resumen-movil").textContent = `${estado.q || (estado.ref ? "Cerca de " + estado.ref.nombre : "Cualquier zona")} · ${pres}`;
 }
 function limpiarTodo(){
-  Object.assign(estado, {cat:"todo", q:"", max:null, recMin:0});
+  Object.assign(estado, {cat:"todo", q:"", max:null, recMin:0, trabajo15:false});
   ["creditos", "amen", "cercaReq", "entrega"].forEach(k => estado[k].clear());
   $("#q").value = ""; $("#q2").value = "";
   pintarCategorias(); pintarFiltros(); pintar();
@@ -435,13 +507,96 @@ function pintarPresupuesto(){
   $("#chips-pres").innerHTML = TOPES.map(t => `<button type="button" class="chip" data-max="${t}" aria-pressed="${estado.max === t && !estado.presEtiqueta}">Hasta ${corto(t)}</button>`).join("");
   $$("#chips-pres .chip").forEach(b => b.onclick = () => { estado.max = +b.dataset.max; estado.presEtiqueta = null; $("#res-alcance").textContent = ""; pintarPresupuesto(); pintar(); });
 }
+/* ===== ¿Qué me alcanza? Banco e Infonavit =====
+   Supuestos de noviembre de 2026. Si cambian las tasas o el tope, cámbialos aquí: la explicación
+   que ve la persona se arma con estos mismos números.
+   Fórmula del crédito: crédito = pago × (1 − (1 + i)^−n) ÷ i, con i = tasa anual ÷ 12 y n = meses. */
+const SUPUESTOS = {
+  bancoPorcentaje:.30,  // la mensualidad no debe pasar de 30% del ingreso (criterio común de los bancos)
+  engancheMin:.10,      // enganche mínimo que pide el banco
+  gastos:.06,           // escrituración, avalúo y comisión de apertura, aprox. % del precio
+  infPorcentaje:.30,    // Infonavit descuenta de la nómina hasta 30% del sueldo
+  infPlazo:30,
+  infTasaMin:3.69, infSueldoMin:9272,    // tasa para sueldos de hasta $9,272 al mes
+  infTasaMax:10.45, infSueldoMax:23537,  // tasa para sueldos de $23,537 al mes o más
+  infTope:2935002       // monto máximo de crédito Infonavit 2026 (DOF, 13 de mayo de 2026)
+};
+let PERFIL = null; // {sueldo, ahorro, subcuenta}; se guarda solo en este navegador
+try { PERFIL = JSON.parse(localStorage.getItem("arventa-perfil")); } catch (e) {}
+function tasaInfonavit(s){
+  const S = SUPUESTOS;
+  if (s <= S.infSueldoMin) return S.infTasaMin;
+  if (s >= S.infSueldoMax) return S.infTasaMax;
+  return S.infTasaMin + (S.infTasaMax - S.infTasaMin) * (s - S.infSueldoMin) / (S.infSueldoMax - S.infSueldoMin);
+}
+function capacidad(p){
+  const S = SUPUESTOS;
+  const bPago = p.sueldo * S.bancoPorcentaje, bCredito = creditoMax(bPago, TASA_BANCO, PLAZO_BANCO);
+  const porSueldo = (bCredito + p.ahorro) / (1 + S.gastos), porAhorro = p.ahorro / (S.engancheMin + S.gastos);
+  const tasa = tasaInfonavit(p.sueldo), iPago = p.sueldo * S.infPorcentaje, iCalc = creditoMax(iPago, tasa, S.infPlazo);
+  const iCredito = Math.min(iCalc, S.infTope);
+  return {
+    banco:{pago:bPago, credito:bCredito, porSueldo, porAhorro, max:Math.min(porSueldo, porAhorro)},
+    inf:{tasa, pago:iPago, calculado:iCalc, credito:iCredito, topado:iCalc > S.infTope, max:(iCredito + p.subcuenta + p.ahorro) / (1 + S.gastos)}
+  };
+}
+function alcance(d){
+  const c = capacidad(PERFIL);
+  return {banco:d.desde <= c.banco.max, inf:d.desde <= c.inf.max, falta:d.desde - Math.max(c.banco.max, c.inf.max)};
+}
+function etiquetaAlcance(d){
+  const a = alcance(d);
+  if (a.banco && a.inf) return ["si", "Te alcanza con banco o Infonavit"];
+  if (a.banco) return ["si", "Te alcanza con banco"];
+  if (a.inf) return ["si", "Te alcanza con Infonavit"];
+  return ["no", `Te faltan unos ${corto(a.falta)}`];
+}
+const pct = x => (x * 100).toLocaleString("es-MX", {maximumFractionDigits:2}) + "%";
+function htmlExplicacion(){
+  const S = SUPUESTOS, p = PERFIL, c = capacidad(p), b = c.banco, i = c.inf, k = (1 + S.gastos).toFixed(2);
+  return `<details class="como"><summary>¿Cómo lo calculamos?</summary>
+    <h4>Con banco</h4><ol>
+      <li>Los bancos piden que la mensualidad no pase de ${pct(S.bancoPorcentaje)} de tu ingreso: ${pct(S.bancoPorcentaje)} × ${dinero(p.sueldo)} = <b>${dinero(b.pago)} al mes</b>.</li>
+      <li>Con esa mensualidad, a ${PLAZO_BANCO} años y ${TASA_BANCO}% anual, el banco te presta hasta <b>${dinero(b.credito)}</b>. <span class="formula">crédito = pago × (1 − (1 + i)<sup>−n</sup>) ÷ i</span>, con i = ${TASA_BANCO}% ÷ 12 y n = ${PLAZO_BANCO * 12} meses.</li>
+      <li>Tu ahorro tiene que cubrir el enganche mínimo (${pct(S.engancheMin)}) y los gastos de escrituración (≈${pct(S.gastos)}): ${dinero(p.ahorro)} ÷ ${pct(S.engancheMin + S.gastos)} = vivienda de hasta <b>${dinero(b.porAhorro)}</b>.</li>
+      <li>Por tu ingreso: (crédito + ahorro) ÷ ${k} = <b>${dinero(b.porSueldo)}</b>.</li>
+      <li>Te alcanza el menor de los dos: <b>${dinero(b.max)}</b> (te limita ${b.porAhorro < b.porSueldo ? "el ahorro" : "el ingreso"}).</li>
+    </ol>
+    <h4>Con Infonavit</h4><ol>
+      <li>Infonavit descuenta de tu nómina hasta ${pct(S.infPorcentaje)} del sueldo: <b>${dinero(i.pago)} al mes</b>.</li>
+      <li>Su tasa va de ${S.infTasaMin}% (sueldos hasta ${dinero(S.infSueldoMin)}) a ${S.infTasaMax}% (desde ${dinero(S.infSueldoMax)}). ${p.sueldo > S.infSueldoMin && p.sueldo < S.infSueldoMax ? "Entre esos sueldos la estimamos en proporción; para ti" : "Para ti"}: <b>${i.tasa.toFixed(2)}%</b>.</li>
+      <li>${i.topado ? `Con la misma fórmula, a ${S.infPlazo} años, saldría ${dinero(i.calculado)}, pero Infonavit presta como máximo ${dinero(S.infTope)}.` : `Con la misma fórmula, a ${S.infPlazo} años, Infonavit te presta hasta <b>${dinero(i.credito)}</b> (su tope es ${dinero(S.infTope)}).`}</li>
+      <li>Vivienda de hasta: (crédito + subcuenta + ahorro) ÷ ${k} = <b>${dinero(i.max)}</b>.</li>
+    </ol>
+    <p class="nota">Es una estimación. El banco también revisa tu historial y tus deudas; Infonavit, tu edad y tu antigüedad. Juntando Infonavit y banco (Cofinavit) te puede alcanzar más. Confirma tu monto en la precalificación de <a href="https://micuenta.infonavit.org.mx/" target="_blank" rel="noopener">Mi Cuenta Infonavit</a> o con tu banco.</p>
+  </details>`;
+}
+// Veredicto para un desarrollo: si el anuncio no confirma ese crédito, no se promete
+function htmlAlcanceFicha(d){
+  if (!PERFIL) return `<p class="nota" style="margin:0"><button type="button" class="enlace" id="f-alcanza">Dinos tu ingreso y tu ahorro</button> y te decimos si te alcanza con banco o con Infonavit.</p>`;
+  const S = SUPUESTOS, P = d.desde, c = capacidad(PERFIL), g = P * S.gastos, ah = PERFIL.ahorro, sub = PERFIL.subcuenta;
+  const acepta = k => !d.creditos.length || d.creditos.includes(k);
+  const bOk = P <= c.banco.max, iOk = P <= c.inf.max;
+  const bCred = Math.min(P * (1 - S.engancheMin), Math.max(0, P + g - ah)), iCred = Math.max(0, P + g - ah - sub);
+  const bTxt = bOk ? (bCred <= 0 ? "Tu ahorro cubre el precio y los gastos." : `Pones ${dinero(P + g - bCred)} de tu ahorro y el banco te presta ${dinero(bCred)}: unos <b>${dinero(pago(bCred, TASA_BANCO, PLAZO_BANCO))} al mes</b> a ${PLAZO_BANCO} años.`)
+    : P > c.banco.porAhorro ? `Para enganche y gastos necesitas unos ${dinero(P * (S.engancheMin + S.gastos))} ahorrados y tienes ${dinero(ah)}.`
+    : `Tendría que prestarte ${dinero(bCred)} y con tu ingreso te presta hasta ${dinero(c.banco.credito)}.`;
+  const iTxt = iOk ? (iCred <= 0 ? "Tu ahorro y tu subcuenta cubren el precio y los gastos." : `Infonavit te presta ${dinero(iCred)}: unos <b>${dinero(pago(iCred, c.inf.tasa, S.infPlazo))} al mes</b> a ${S.infPlazo} años, descontados de tu nómina.`)
+    : `Tendría que prestarte ${dinero(iCred)} y con tu sueldo te presta hasta ${dinero(c.inf.credito)}.`;
+  const nota = k => acepta(k) ? "" : ` <i>Su anuncio no confirma ${k === "Banco" ? "crédito bancario" : k}: pregunta si lo acepta.</i>`;
+  const item = (ok, t, x) => `<li><span class="${ok ? "ok" : "nok"}" aria-hidden="true">${ok ? "✓" : "✗"}</span><span><b>${t}: ${ok ? "sí" : "todavía no"}.</b> ${x}</span></li>`;
+  return `<ul class="veredicto">${item(bOk, "Con banco", bTxt + nota("Banco"))}${item(iOk, "Con Infonavit", iTxt + nota("Infonavit"))}</ul>
+    <p class="nota">Con el precio “desde”, tu ingreso de ${dinero(PERFIL.sueldo)} y tu ahorro de ${dinero(ah)}.${d.creditos.length ? "" : " Su anuncio no confirma qué créditos acepta."} <button type="button" class="enlace" id="f-alcanza">Cambiar mis datos</button></p>`;
+}
 function calcularAlcance(){
-  const ing = +$("#in-ingreso").value || 0, ah = +$("#in-ahorro").value || 0;
-  if (!ing) { $("#res-alcance").textContent = ""; return; }
-  const cred = creditoMax(ing * .3, TASA_BANCO, PLAZO_BANCO), tope = Math.round((cred + ah) / 10000) * 10000;
+  const p = {sueldo:+$("#in-ingreso").value || 0, ahorro:+$("#in-ahorro").value || 0, subcuenta:+$("#in-subcuenta").value || 0};
+  if (!p.sueldo) { $("#res-alcance").innerHTML = ""; return; }
+  PERFIL = p; try { localStorage.setItem("arventa-perfil", JSON.stringify(p)); } catch (e) {}
+  const c = capacidad(p), tope = Math.round(Math.max(c.banco.max, c.inf.max) / 10000) * 10000;
   estado.max = tope; estado.presEtiqueta = "ingreso";
-  const n = DESARROLLOS.filter(d => d.desde <= tope).length;
-  $("#res-alcance").innerHTML = `Con una mensualidad de hasta <b>${dinero(ing * .3)}</b> te podrían prestar unos <b>${dinero(cred)}</b> a ${PLAZO_BANCO} años al ${TASA_BANCO}%. Con tu ahorro, podrías buscar hasta <b>${dinero(tope)}</b>: hay <b>${n}</b> ${n === 1 ? "desarrollo" : "desarrollos"} en ese rango.<br><small>Es una estimación. Con Infonavit el monto depende de tu salario, tu edad y tu ahorro en la subcuenta.</small>`;
+  const n = DESARROLLOS.filter(d => { const a = alcance(d); return a.banco || a.inf; }).length;
+  $("#res-alcance").innerHTML = `<span class="topes"><span><small>Con banco</small><b>hasta ${dinero(c.banco.max)}</b></span><span><small>Con Infonavit</small><b>hasta ${dinero(c.inf.max)}</b></span></span>
+    Te ${n === 1 ? "alcanza" : "alcanzan"} <b>${n}</b> de ${DESARROLLOS.length} desarrollos; te mostramos los de hasta <b>${dinero(tope)}</b>.${htmlExplicacion()}`;
   pintarPresupuesto(); pintar();
 }
 
@@ -457,6 +612,11 @@ function pintarFiltros(){
   checks("#f-amen", Object.entries(AMEN).map(([k, a]) => [k, a.nombre]), estado.amen);
   checks("#f-cerca", Object.entries(CERCA_REQ).map(([k, r]) => [k, r.nombre]), estado.cercaReq);
   checks("#f-entrega", [["Preventa", "Preventa"], ["Entrega inmediata", "Entrega inmediata"], ["Por confirmar", "Por confirmar"]], estado.entrega);
+  $("#f-trabajo15").innerHTML = estado.ref?.tipo === "trabajo"
+    ? `<label><input type="checkbox" id="chk-15" ${estado.trabajo15 ? "checked" : ""}> Menos de 15 min en auto a ${esc(estado.ref.nombre)}</label>`
+    : `<p class="nota" style="margin:0"><button type="button" class="enlace" id="f15-trabajo">Dinos dónde trabajas</button> para filtrar por minutos.</p>`;
+  $("#chk-15")?.addEventListener("change", e => { estado.trabajo15 = e.target.checked; contarFiltros(); });
+  $("#f15-trabajo")?.addEventListener("click", () => { $("#dlg-filtros").close(); abrirCerca("trabajo"); });
   contarFiltros();
 }
 function contarFiltros(){
@@ -525,7 +685,10 @@ function cambiarVista(v){
 
 /* ===== Ficha del desarrollo ===== */
 let mapaFicha = null;
+let fichaActual = null;
 function abrirFicha(d){
+  fichaActual = d;
+  medir("ver-desarrollo", {id:d.id});
   document.body.classList.add("en-ficha");
   $("#principal").hidden = true; $(".categorias").hidden = true; $("#ficha").hidden = false;
   const c = cercanos(d), am = amenidades(d), pm = porM2(d);
@@ -569,6 +732,7 @@ function abrirFicha(d){
   $("#ficha").innerHTML = `
     <div class="ficha-texto-top">
       <button class="volver" type="button" id="volver"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>Todos los desarrollos</button>
+      <a class="compartir" id="compartir" href="${esc(enlaceWhatsApp(d))}" target="_blank" rel="noopener" aria-label="Compartir ${esc(d.nombre)} por WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4v11M7 9l5-5 5 5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Compartir</a>
     </div>
     <div class="galeria-movil"><div class="carril">${carrusel.map(x => `<div class="lamina">${x}</div>`).join("")}</div>${aviso}</div>
     <div class="ficha-texto">
@@ -584,6 +748,7 @@ function abrirFicha(d){
         ${mejores.length ? `<section class="seccion"><h2>Lo mejor de aquí</h2><ul class="lo-mejor">${mejores.map(([i, t]) => `<li><span class="i" aria-hidden="true">${i}</span><span>${t}</span></li>`).join("")}</ul></section>` : ""}
         <section class="seccion"><h2>Lo que tienes cerca</h2>${seccionCerca}</section>
         <section class="seccion"><h2>Tu camino al trabajo</h2>${camino}</section>
+        <section class="seccion"><h2>¿Te alcanza?</h2><div id="f-alc">${htmlAlcanceFicha(d)}</div></section>
         <section class="seccion"><h2>Condiciones</h2>
           <dl class="condiciones">
             <div><dt>Precio</dt><dd>Desde ${dinero(d.desde)}${d.hasta ? ` hasta ${dinero(d.hasta)}` : ""}</dd><dd class="pend">Puede variar al cerrar la operación</dd></div>
@@ -610,12 +775,16 @@ function abrirFicha(d){
           <div class="mensual" aria-live="polite">Mensualidad estimada con banco<b id="c-res"></b><span id="c-eng-txt"></span></div>
         </div>
         <button class="btn" type="button" id="agendar">Agendar visita</button>
+        ${botonComparar(d, "cmp-ficha")}
         <p class="leyenda">Agendar no te cuesta nada. Estimación sin seguros ni comisiones; las tasas en México van de 9% a 13%.</p>
       </aside>
     </div>
     <div class="barra-reserva"><span><b>desde ${corto(d.desde)}</b><small>${esc(TIPO[d.tipo])} · ${esc(zonaCorta(d))}</small></span><button class="btn" type="button" id="agendar-2">Agendar visita</button></div>`;
   $("#volver").onclick = () => { history.length > 1 && cameFromList ? history.back() : (location.hash = ""); };
   $("#agendar").onclick = $("#agendar-2").onclick = () => agendar(d);
+  $("#compartir").onclick = () => medir("compartir-whatsapp", {id:d.id});
+  enlazarAlcanceFicha();
+  pintarBarraComparar();
   $("#f-trabajo")?.addEventListener("click", () => abrirCerca("trabajo"));
   ["c-precio", "c-eng", "c-tasa", "c-plazo"].forEach(id => $("#" + id).oninput = calcular);
   calcular();
@@ -640,7 +809,14 @@ function mapaDeFicha(d, c){
   }
   if (pts.length > 1) mapaFicha.fitBounds(L.latLngBounds(pts).pad(.2), {maxZoom:16});
 }
+// El veredicto se actualiza al cerrar "¿Qué me alcanza?", sin mover la página
+function enlazarAlcanceFicha(){ $("#f-alcanza")?.addEventListener("click", () => { pintarPresupuesto(); $("#dlg-presupuesto").showModal(); }); }
+$("#dlg-presupuesto").addEventListener("close", () => {
+  if (!fichaActual || !document.body.classList.contains("en-ficha")) return;
+  $("#f-alc").innerHTML = htmlAlcanceFicha(fichaActual); enlazarAlcanceFicha();
+});
 function cerrarFicha(){
+  fichaActual = null;
   document.body.classList.remove("en-ficha");
   if (mapaFicha) { mapaFicha.remove(); mapaFicha = null; }
   $("#ficha").hidden = true; $("#principal").hidden = false; $(".categorias").hidden = false;
@@ -663,13 +839,33 @@ window.addEventListener("hashchange", () => { cameFromList = true; ruta(); });
 
 /* ===== Agendar visita ===== */
 let visitaDe = null;
-function agendar(d){ visitaDe = d; $("#visita-a").textContent = `${d.nombre}, desde ${dinero(d.desde)}`; $("#dlg-visita").showModal(); }
+function agendar(d){
+  visitaDe = d; $("#visita-a").textContent = `${d.nombre}, desde ${dinero(d.desde)}`;
+  $("#v-consent").checked = false; // el consentimiento se da cada vez, para cada desarrollo
+  $("#dlg-visita").showModal();
+}
+// Enlace para compartir: la página d/<id>.html tiene la vista previa para WhatsApp (ver generar-paginas.js)
+function enlaceDe(d){ return new URL("d/" + encodeURIComponent(d.id) + ".html", location.href).href; }
+function enlaceWhatsApp(d){
+  const texto = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${dinero(d.desde)} en Durango.\n${enlaceDe(d)}`;
+  return "https://wa.me/?text=" + encodeURIComponent(texto);
+}
 $("#form-visita").addEventListener("submit", e => {
   if (e.submitter && e.submitter.value === "cancelar") return;
   e.preventDefault();
   if (!$("#v-consent").checked) { $("#v-consent").focus(); return; }
-  const url = location.href.split("#")[0] + "#" + visitaDe.id;
-  const msg = `Hola ARVENTA, quiero visitar ${visitaDe.nombre} (desde ${dinero(visitaDe.desde)}).\nNombre: ${$("#v-nombre").value}\nWhatsApp: ${$("#v-tel").value}\nCuándo: ${$("#v-cuando").value}\nPago: ${$("#v-credito").value}\n${url}`;
+  const d = visitaDe, folio = nuevoFolio("V");
+  const registro = {tipo:"visita", folio, id:d.id, nombre:$("#v-nombre").value.trim(), whatsapp:$("#v-tel").value.trim(),
+    cuando:$("#v-cuando").value, pago:$("#v-credito").value, consentimiento:true, versionAviso:window.ARVENTA?.VERSION_AVISO || "",
+    sitio:$("#v-sitio").value, // campo trampa: una persona lo deja vacío
+    minutos:estado.ref?.tipo === "trabajo" ? MINUTOS[d.id] ?? null : null};
+  // Zona de trabajo redondeada a ~1 km aquí mismo: el punto exacto nunca sale del teléfono
+  if (estado.ref?.tipo === "trabajo") registro.trabajo = {texto:estado.ref.nombre === "el punto que marcaste" ? "" : estado.ref.nombre,
+    lat:Math.round(estado.ref.lat * 100) / 100, lng:Math.round(estado.ref.lng * 100) / 100};
+  enviarAHoja(registro);
+  medir("solicitar-visita", {id:d.id});
+  const url = enlaceDe(d);
+  const msg = `Hola ARVENTA, quiero visitar ${d.nombre} (desde ${dinero(d.desde)}).\nNombre: ${registro.nombre}\nWhatsApp: ${registro.whatsapp}\nCuándo: ${registro.cuando}\nPago: ${registro.pago}\nFolio: ${folio}\n${url}`;
   $("#dlg-visita").close();
   if (WHATSAPP) location.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   else { $("#txt-copiar").value = msg; $("#dlg-copiar").showModal(); }
@@ -687,8 +883,15 @@ $("#q2").addEventListener("input", () => { estado.q = $("#q2").value.trim(); $("
 $("#abrir-cerca").onclick = () => abrirCerca();
 $("#buscador-movil").onclick = () => abrirCerca();
 $("#abrir-presupuesto").onclick = $("#abrir-presupuesto-2").onclick = () => { pintarPresupuesto(); if ($("#dlg-cerca").open) $("#dlg-cerca").close(); $("#dlg-presupuesto").showModal(); };
-$("#in-ingreso").oninput = $("#in-ahorro").oninput = calcularAlcance;
-$("#quitar-pres").onclick = () => { estado.max = null; estado.presEtiqueta = null; $("#in-ingreso").value = ""; $("#in-ahorro").value = ""; $("#res-alcance").textContent = ""; pintarPresupuesto(); pintar(); };
+$("#in-ingreso").oninput = $("#in-ahorro").oninput = $("#in-subcuenta").oninput = calcularAlcance;
+$("#in-ingreso").onchange = () => medir("calcular-alcance"); // sin montos: el ingreso nunca sale del teléfono
+$("#quitar-pres").onclick = () => {
+  estado.max = null; estado.presEtiqueta = null; PERFIL = null;
+  try { localStorage.removeItem("arventa-perfil"); } catch (e) {}
+  ["#in-ingreso", "#in-ahorro", "#in-subcuenta"].forEach(s => $(s).value = ""); $("#res-alcance").innerHTML = "";
+  pintarPresupuesto(); pintar();
+};
+if (PERFIL) { $("#in-ingreso").value = PERFIL.sueldo || ""; $("#in-ahorro").value = PERFIL.ahorro || ""; $("#in-subcuenta").value = PERFIL.subcuenta || ""; }
 $$(".op[data-cerca]").forEach(b => b.onclick = () => {
   const t = b.dataset.cerca;
   if (t === "ubicacion") usarUbicacion();
@@ -718,9 +921,10 @@ $("#usar-lugar").onclick = () => {
 $("#quitar-cerca").onclick = () => { ponerRef(null); $("#dlg-cerca").close(); };
 $("#orden").onchange = e => { estado.orden = e.target.value; pintar(); };
 $("#abrir-filtros").onclick = () => { pintarFiltros(); $("#dlg-filtros").showModal(); };
-$("#limpiar-filtros").onclick = () => { estado.recMin = 0; ["creditos", "amen", "cercaReq", "entrega"].forEach(k => estado[k].clear()); pintarFiltros(); };
+$("#limpiar-filtros").onclick = () => { estado.recMin = 0; estado.trabajo15 = false; ["creditos", "amen", "cercaReq", "entrega"].forEach(k => estado[k].clear()); pintarFiltros(); };
 $("#dlg-filtros").addEventListener("close", pintar);
 $("#alternar").onclick = () => cambiarVista(estado.vista === "mapa" ? "lista" : "mapa");
+$("#cerrar-comparar").onclick = () => $("#dlg-comparar").close();
 $("#fecha-precios").textContent = window.PRECIOS_VERIFICADOS;
 // cerrar hojas tocando fuera
 $$("dialog").forEach(dl => dl.addEventListener("click", e => { if (e.target === dl) dl.close(); }));

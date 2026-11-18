@@ -83,13 +83,14 @@
 <footer class="pie">
   <div>
     <p class="logo-pie">ARVENTA</p>
-    <p>Asesoría inmobiliaria en Durango, Dgo. Razón social y licencia de asesor inmobiliario del Estado de Durango: <b>en trámite</b>.</p>
+    <p>Asesoría inmobiliaria en Durango, Dgo. Razón social: <b data-config="RAZON_SOCIAL">en trámite</b>. Licencia de asesor inmobiliario del Estado de Durango: <b data-config="LICENCIA">en trámite</b>.</p>
+    <p><a href="anuncia.html">¿Eres desarrolladora? Anuncia tu desarrollo</a></p>
   </div>
   <div>
     <p>Precios publicados en portales y verificados en <span id="fecha-precios"></span>. Pueden variar al cerrar la operación. Las imágenes son ilustrativas mientras no haya fotos de la desarrolladora.</p>
     <p><button type="button" class="enlace" id="abrir-privacidad">Aviso de privacidad</button></p>
   </div>
-  <p class="atrib">Mapa © OpenStreetMap y CARTO. Lugares cercanos: OpenStreetMap. Rutas: OSRM.</p>
+  <p class="atrib">Mapa y lugares cercanos © colaboradores de OpenStreetMap. Rutas: OSRM. Direcciones: Nominatim.</p>
 </footer>
 
 <!-- Panel: cerca de -->
@@ -133,13 +134,14 @@
   <form method="dialog">
     <h2 id="t-pres">¿Hasta cuánto quieres pagar?</h2>
     <div class="chips-pres" id="chips-pres"></div>
-    <h3>¿O cuánto ganas al mes?</h3>
-    <p class="nota" style="margin-top:0">Te mostramos lo que podrías pagar con crédito bancario, si la mensualidad no pasa del 30% de tu ingreso.</p>
+    <h3>¿Qué me alcanza?</h3>
+    <p class="nota" style="margin-top:0">Pon tu ingreso y tu ahorro y te decimos hasta cuánto te alcanza con banco y con Infonavit. Tus datos se quedan solo en este teléfono.</p>
     <div class="calc-mini">
-      <label>Ingreso mensual de tu familia<input id="in-ingreso" type="number" min="0" step="500" placeholder="Ej. 25000"></label>
-      <label>Ahorro para enganche<input id="in-ahorro" type="number" min="0" step="5000" placeholder="Ej. 150000"></label>
+      <label>Ingreso mensual antes de impuestos<input id="in-ingreso" type="number" inputmode="numeric" min="0" step="500" placeholder="Ej. 18000"></label>
+      <label>Ahorro para enganche y gastos<input id="in-ahorro" type="number" inputmode="numeric" min="0" step="5000" placeholder="Ej. 150000"></label>
+      <label>Subcuenta Infonavit (opcional)<input id="in-subcuenta" type="number" inputmode="numeric" min="0" step="1000" placeholder="Ej. 80000"></label>
     </div>
-    <p class="resultado-calc" id="res-alcance"></p>
+    <div class="resultado-calc" id="res-alcance" aria-live="polite"></div>
     <div class="fila pie-hoja">
       <button type="button" class="enlace" id="quitar-pres">Quitar</button>
       <button class="btn" value="cerrar">Ver resultados</button>
@@ -156,6 +158,7 @@
     <fieldset><legend>Que tenga</legend><div class="checks" id="f-amen"></div></fieldset>
     <fieldset><legend>Que tenga cerca, caminando</legend><div class="checks" id="f-cerca"></div></fieldset>
     <fieldset><legend>Entrega</legend><div class="checks" id="f-entrega"></div></fieldset>
+    <fieldset><legend>Tiempo a tu trabajo</legend><div class="checks" id="f-trabajo15"></div></fieldset>
     <div class="fila pie-hoja">
       <button type="button" class="enlace" id="limpiar-filtros">Quitar todo</button>
       <button class="btn" value="cerrar" id="ver-filtros">Mostrar resultados</button>
@@ -176,6 +179,8 @@
     <select id="v-cuando"><option>Este fin de semana</option><option>Entre semana por la tarde</option><option>Entre semana por la mañana</option><option>Primero quiero más información</option></select>
     <label for="v-credito">¿Cómo pagarías?</label>
     <select id="v-credito"><option>Infonavit</option><option>Fovissste</option><option>Crédito bancario</option><option>Cofinavit (Infonavit + banco)</option><option>Contado</option><option>Aún no sé</option></select>
+    <!-- Campo trampa: invisible para las personas; si un robot lo llena, la solicitud se descarta -->
+    <input id="v-sitio" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
     <label class="consent"><input type="checkbox" id="v-consent" required> Acepto el <button type="button" class="enlace" id="ver-privacidad-visita">aviso de privacidad</button> y que ARVENTA comparta mi nombre y WhatsApp con la desarrolladora de este desarrollo para agendar la visita.</label>
     <div class="fila pie-hoja">
       <button class="btn claro" value="cancelar" formnovalidate>Cancelar</button>
@@ -191,6 +196,14 @@
   <div class="fila pie-hoja"><button class="btn claro" type="button" id="cerrar-copiar">Cerrar</button><button class="btn" type="button" id="btn-copiar">Copiar mensaje</button></div>
 </dialog>
 
+<!-- Comparador: 2 o 3 desarrollos lado a lado -->
+<dialog class="hoja hoja-grande" id="dlg-comparar" aria-labelledby="t-comparar">
+  <h2 id="t-comparar">Comparar</h2>
+  <div id="comparar-cuerpo"></div>
+  <div class="fila pie-hoja"><button class="btn" type="button" id="cerrar-comparar">Cerrar</button></div>
+</dialog>
+<div class="barra-comparar" id="barra-comparar" hidden></div>
+
 <dialog class="hoja" id="dlg-privacidad" aria-labelledby="t-priv">
   <h2 id="t-priv">Aviso de privacidad</h2>
   <div class="texto-legal">
@@ -198,7 +211,9 @@
     <p><b>Qué datos pedimos:</b> solo tu nombre, tu WhatsApp, el horario que prefieres y cómo piensas pagar. No pedimos identificaciones, comprobantes ni datos bancarios en este sitio.</p>
     <p><b>Para qué:</b> agendar tu visita al desarrollo que elegiste y darte seguimiento. Con tu permiso, compartimos tu nombre y WhatsApp con esa desarrolladora para coordinar la visita.</p>
     <p><b>Tus derechos:</b> puedes pedir en cualquier momento ver, corregir o borrar tus datos, u oponerte a su uso, escribiéndonos por el mismo WhatsApp donde te contactamos.</p>
-    <p><b>Lugares cercanos y tiempos:</b> si usas “Donde estoy ahorita”, tu ubicación se usa solo en tu navegador para calcular distancias y no se guarda ni se envía a ARVENTA.</p>
+    <p><b>Lugares cercanos y tiempos:</b> si usas “Donde estoy ahorita”, tu ubicación se usa solo en tu navegador para calcular distancias y no se guarda ni se envía a ARVENTA. Si nos dices dónde trabajas y luego pides visita, guardamos solo la zona aproximada (≈1 km) para estadísticas sin nombres.</p>
+    <p><b>Tu solicitud</b> se guarda con un folio, que también va en el mensaje de WhatsApp. Lo que escribes en “¿Qué me alcanza?” (sueldo y ahorro) no sale de tu teléfono.</p>
+    <p><a href="aviso-privacidad.html" target="_blank">Leer el aviso de privacidad completo</a></p>
   </div>
   <div class="fila pie-hoja"><button class="btn" type="button" id="cerrar-privacidad">Entendido</button></div>
 </dialog>

@@ -1,0 +1,57 @@
+/* Páginas de texto (aviso, anuncia, reporte). Se carga después de estilos.css y usa sus colores. */
+:root{--radio:14px;--margen:24px;--cielo:#DCEBF3}
+@media (max-width:860px){:root{--margen:16px}}
+body{background:var(--cal)}
+.marca{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.14em;color:var(--agave);margin:0 0 10px}
+.aviso-corto{font-size:12.5px;color:var(--tinta-suave);margin:14px 0 0;line-height:1.4}
+.aviso-corto a{color:var(--agave)}
+/* En estilos.css .caja es la caja fija del precio de la ficha; aquí es una tarjeta normal */
+.pag .caja{position:static;top:auto;box-shadow:none;background:#fff;border:1px solid var(--niebla);border-radius:var(--radio);padding:18px 20px}
+html,body{height:auto}
+.barra-sup{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:1040px;margin:0 auto;padding:16px var(--margen)}
+.barra-sup .marca{margin:0;text-decoration:none}
+.barra-sup a{color:var(--agave);font-weight:700}
+.pag{max-width:760px;margin:0 auto;padding:8px var(--margen) 72px}
+.pag.ancha{max-width:1040px}
+.pag h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,6vw,48px);line-height:1.04;letter-spacing:-.02em;margin:12px 0 14px}
+.pag h2{font-family:var(--display);font-weight:800;font-size:clamp(22px,4vw,28px);letter-spacing:-.01em;margin:44px 0 12px;line-height:1.1}
+.pag h3{font-family:var(--display);font-size:19px;margin:22px 0 6px}
+.pag p,.pag li{max-width:68ch}
+.pag a{color:var(--agave)}
+.pag a.btn{color:#fff;text-decoration:none}
+.pag a.btn:hover{color:#fff}
+.entrada{font-size:19px;color:var(--tinta-suave);margin:0 0 20px}
+.caja{background:#fff;border:1px solid var(--niebla);border-radius:var(--radio);padding:18px 20px}
+.caja.sol{background:var(--sol-claro);border-color:#F1E2B8}
+.pendiente{background:#FFE9A8;color:var(--tinta);padding:0 4px;border-radius:4px;font-weight:700}
+.pie-pag{max-width:1040px;margin:0 auto;padding:24px var(--margen) 40px;border-top:1px solid var(--niebla);font-size:14px;color:var(--tinta-suave)}
+.pie-pag a{color:var(--agave)}
+.pie-pag p{margin:0 0 6px;max-width:none}
+
+/* Formularios */
+.form{display:grid;gap:4px}
+.form label{font-size:14px;color:var(--tinta-suave);margin-top:10px;font-weight:700}
+.form label small{font-weight:400}
+.form input,.form select,.form textarea{width:100%;padding:11px 12px;border:1px solid var(--niebla);border-radius:10px;background:#fff;font:inherit;font-size:16px;color:var(--tinta)}
+.form textarea{min-height:110px;resize:vertical}
+.form .dos{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.form .btn{margin-top:16px;padding:14px;font-size:17px}
+.form-ok{padding:18px 20px;border-radius:var(--radio);background:#E2F1EC;color:var(--agave-hondo)}
+.form-error{color:#8A4535;font-weight:700}
+@media (max-width:560px){.form .dos{grid-template-columns:1fr}}
+
+/* Anuncia */
+.ventajas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.ventajas-grid .caja h3{margin-top:0}
+.ventajas-grid .caja p{margin:0;color:var(--tinta-suave)}
+.pasos{counter-reset:paso;list-style:none;padding:0;margin:16px 0 0}
+.pasos li{counter-increment:paso;position:relative;padding:0 0 18px 52px;max-width:none}
+.pasos li::before{content:counter(paso);position:absolute;left:0;top:-2px;width:36px;height:36px;border-radius:50%;background:var(--agave);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:800}
+.pasos b{display:block;font-family:var(--display);font-size:18px}
+.cifras{display:flex;flex-wrap:wrap;gap:12px 28px;margin:22px 0 4px}
+.cifras div{font-size:14px;color:var(--tinta-suave)}
+.cifras b{display:block;font-family:var(--display);font-size:30px;color:var(--tinta);line-height:1.05}
+
+/* Aviso */
+.indice{columns:2;gap:24px;padding-left:18px}
+@media (max-width:560px){.indice{columns:1}}
