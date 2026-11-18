@@ -15,7 +15,7 @@ ARVENTA es una inmobiliaria de Durango, Dgo. Este repositorio es su sitio web: m
 - Desarrolladoras y agencias, que ven los reportes.
 
 ## Reglas
-- **Sencillo y rápido.** Es un sitio estático (HTML, CSS y JS sin framework). No agregues librerías ni pasos de compilación sin una razón clara; si los propones, explica qué ganamos. La página debe cargar rápido en un celular con 4G.
+- **Sencillo y rápido.** Es un sitio estático (HTML, CSS y JS sin framework). No agregues librerías sin una razón clara; si las propones, explica qué ganamos. Lo único que se agrega es lo que pide `docs/REQUISITOS.md` (páginas generadas, funciones en `/api`, Supabase). La página debe cargar rápido en un celular con 4G.
 - **Datos honestos.** Cada precio lleva su fuente y su fecha. No inventes plusvalía, rendimientos ni promesas. Si un dato no se conoce, se muestra como "por confirmar". Las ubicaciones aproximadas se marcan con `aprox:true`.
 - **Solo cosas buenas, pero ciertas.** Resalta lo positivo de cada desarrollo (lo que hay cerca, precio por m² abajo del promedio, amenidades), siempre con datos reales.
 - **Primero el celular.** Prueba cada cambio en 390 px de ancho y en escritorio.
@@ -69,6 +69,9 @@ Inspirado en Airbnb: buscador arriba, categorías con íconos, tarjetas con imá
 | `fotos/<id>/` | Fotos reales por desarrollo, listadas en `fotos:[]` de `datos.js` |
 
 Servicios externos gratuitos: CARTO para el mapa, Overpass para lugares, OSRM para rutas y Nominatim para direcciones. Respeta sus límites: una sola consulta a Overpass por carga, guardada 7 días en `localStorage`.
+
+## Requisitos técnicos para producción
+Están en `docs/REQUISITOS.md`: arquitectura, estructura de carpetas, solicitudes de visita, rendimiento, fiabilidad, seguridad, SEO, medición, legal, accesibilidad, pruebas y la lista para lanzar. Trabaja hacia esa estructura y marca los puntos que vayas cumpliendo.
 
 ## Antes de terminar cualquier cambio
 1. Abre el sitio (Live Server) y revisa la lista, el mapa, el detalle de un desarrollo y el formulario de visita.
