@@ -18,7 +18,7 @@ Necesita internet: el mapa (CARTO/OpenStreetMap), los lugares cercanos (Overpass
 | `index.html` | La estructura de la página |
 | `estilos.css` | Colores, letras y diseño |
 | `datos.js` | **Los desarrollos**: nombre, precios, ubicación, ventajas y fuentes. Aquí se agregan o corrigen |
-| `app.js` | Mapa, cercanía, tiempos al trabajo, calculadora y formulario de visita |
+| `app.js` | Buscador, tarjetas con galería, filtros, mapa, ficha de cada desarrollo, calculadora y formulario de visita |
 
 ## Agregar o corregir un desarrollo
 
@@ -35,6 +35,17 @@ Edita `datos.js`. Cada desarrollo es un bloque así:
 - `tipo`: `casa`, `departamento` o `terreno`.
 - `lat` y `lng`: en Google Maps, clic derecho sobre el lugar y copia las coordenadas. Si aún no se sabe, pon `null` y sale en la lista como “Ubicación por confirmar”.
 - `aprox:true` muestra “ubicación aproximada”. Cámbialo a `false` cuando confirmes el punto exacto.
+
+## Agregar fotos reales
+
+Mientras no haya fotos, cada desarrollo muestra una ilustración marcada como "Imagen ilustrativa".
+Cuando la desarrolladora te dé fotos o renders (con permiso para usarlos):
+
+1. Crea la carpeta `fotos/<id-del-desarrollo>/` (ej. `fotos/cienega-2/`).
+2. Guarda las imágenes en JPG o WebP, de unos 1200 px de ancho y menos de 300 KB cada una.
+3. En `datos.js`, agrega al desarrollo: `fotos:["fotos/cienega-2/1.jpg","fotos/cienega-2/2.jpg"]`. La primera es la portada.
+
+Si son renders (no fotos de la obra), la NOM-247 pide marcarlos como imagen ilustrativa.
 
 ## Configurar WhatsApp
 

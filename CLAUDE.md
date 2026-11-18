@@ -56,13 +56,17 @@ La información y publicidad debe ser veraz, comprobable, clara y sin nada que l
 
 Si un cambio choca con alguno de estos puntos, no lo hagas y explica por qué.
 
+## Cómo se ve
+Inspirado en Airbnb: buscador arriba, categorías con íconos, tarjetas con imágenes en cuadrícula y el mapa como vista alterna (botón flotante). Cada tarjeta enseña lo bueno en una línea (escuela cerca, alberca, buen precio por m²). La ficha tiene mosaico de imágenes, caja de precio fija con calculadora y botón de visita.
+
 ## Estructura
 | Archivo | Qué tiene |
 |---|---|
 | `index.html` | Estructura de la página |
 | `estilos.css` | Diseño. Paleta: tinta `#1D2B3A`, cal `#FBFBF8`, agave `#2F6B5E`, sol `#F0A202`, cantera `#B5654F`. Letras: Bricolage Grotesque (títulos) y Atkinson Hyperlegible (texto) |
 | `datos.js` | Lista de desarrollos (`window.DESARROLLOS`). Es la fuente de verdad |
-| `app.js` | Mapa (Leaflet), lugares cercanos (Overpass/OpenStreetMap), tiempos en auto (OSRM), búsqueda de direcciones (Nominatim), calculadora y formulario de visita |
+| `app.js` | Buscador (dónde, cerca de, presupuesto), categorías, tarjetas con carrusel, filtros, vista de mapa, ficha `#id`, ilustraciones SVG mientras no hay fotos, lugares cercanos (Overpass), tiempos en auto (OSRM), direcciones (Nominatim), calculadora y formulario de visita |
+| `fotos/<id>/` | Fotos reales por desarrollo, listadas en `fotos:[]` de `datos.js` |
 
 Servicios externos gratuitos: CARTO para el mapa, Overpass para lugares, OSRM para rutas y Nominatim para direcciones. Respeta sus límites: una sola consulta a Overpass por carga, guardada 7 días en `localStorage`.
 
