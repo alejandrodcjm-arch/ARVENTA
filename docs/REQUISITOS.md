@@ -4,6 +4,24 @@ Este documento dice qué debe tener el sistema para lanzarse como algo **fiable*
 
 Cada punto es **Esencial** (sin esto no se lanza) o **Después** (en los primeros 3 meses).
 
+## Estado (18 de noviembre de 2026)
+
+✅ hecho en el código · 🔧 hecho, falta configurarlo (cuenta o llave; pasos en el README) · ⏳ depende de ARVENTA
+
+| Sección | Estado |
+|---|---|
+| 1. Arquitectura y carpetas | ✅ Estructura, `scripts/`, `api/`, `tests/`, GitHub Actions y `vercel.json`. 🔧 Proyecto en Vercel. |
+| 2. Datos | ✅ `data/desarrollos.json`, `validar.mjs` bloquea el despliegue, `verificado` con aviso a 60 días, `aprox`, permiso de fotos obligatorio y renders marcados. ⏳ Verificar precios (hoy todos con fecha del 17 nov) y confirmar ubicaciones. |
+| 3. Solicitudes | ✅ `/api/visita` guarda antes de abrir WhatsApp, valida en el servidor, honeypot, 5 por hora por IP, aviso inmediato, 7 estados, fecha de registro con la desarrolladora, cola en el teléfono si falla, respaldo semanal cifrado. 🔧 Supabase, aviso (Resend o CallMeBot) y secretos del respaldo. |
+| 4. Rendimiento | ✅ LCP 0.9 s y CLS 0 en 4G lenta, 106 KB de JS propio, Leaflet solo al abrir el mapa, fotos con tamaño fijo y carga diferida, caché larga con versión. ⏳ Correr Lighthouse en el dominio real. |
+| 5. Que no se caiga | ✅ Plan B de cada servicio, lugares precalculados, `/api/salud` para el monitoreo, registro de errores del navegador, pruebas antes de publicar. 🔧 Llave de MapTiler, UptimeRobot, Sentry y proteger `main`. |
+| 6. Seguridad | ✅ Sin llaves en el código, encabezados (CSP, HSTS, etc.), RLS sin acceso público, todo texto escapado. 🔧 Autenticación en dos pasos en GitHub, Vercel y Supabase. |
+| 7. Encontrable | ✅ Página real por desarrollo, Open Graph con imagen, sitemap, robots y schema.org. 🔧 Search Console y Google Business. |
+| 8. Medición | ✅ `/api/evento` anónimo (búsquedas, filtros, presupuesto, vistas, clics, zona a ~1 km) y reporte por desarrollo. 🔧 Umami. |
+| 9. Legal | ✅ NOM-247 en cada ficha, aviso de privacidad, consentimiento, términos, borrado a 12 meses. ⏳ Razón social, domicilio, licencia, contratos y registro en el SAT. |
+| 10. Accesibilidad | ✅ Etiquetas en campos, textos alternativos, foco visible, `prefers-reduced-motion`. ⏳ Probar en Safari y Samsung Internet. |
+| 11. Pruebas | ✅ Las 7 de la lista, más mapa diferido y reporte (19 pruebas). |
+
 ---
 
 ## 1. Cómo está armado
@@ -178,13 +196,13 @@ Detalle en la sección "Requisitos obligatorios" de `CLAUDE.md`. Para lanzar:
 
 Corren en GitHub Actions en cada cambio; si fallan, no se publica.
 
-- [ ] Validación de datos (`scripts/validar.mjs`).
-- [ ] La página principal carga y muestra tarjetas.
-- [ ] Buscar, filtrar y ordenar cambian los resultados.
-- [ ] La ficha de cada desarrollo abre y tiene las secciones de la NOM-247.
-- [ ] Enviar una solicitud de visita la guarda en la base de pruebas.
-- [ ] Sin conexión a servicios externos (mapa, rutas, lugares), el sitio sigue funcionando.
-- [ ] Sin errores en la consola.
+- [x] Validación de datos (`scripts/validar.mjs`).
+- [x] La página principal carga y muestra tarjetas.
+- [x] Buscar, filtrar y ordenar cambian los resultados.
+- [x] La ficha de cada desarrollo abre y tiene las secciones de la NOM-247.
+- [x] Enviar una solicitud de visita la guarda en la base de pruebas.
+- [x] Sin conexión a servicios externos (mapa, rutas, lugares), el sitio sigue funcionando.
+- [x] Sin errores en la consola.
 
 ---
 
@@ -200,5 +218,5 @@ Se lanza cuando **todo** esto está marcado:
 - [ ] Lighthouse de 90 o más en celular.
 - [ ] Aviso de privacidad y términos con datos reales de la empresa.
 - [ ] Sitemap enviado a Google Search Console.
-- [ ] Pruebas automáticas en verde.
+- [x] Pruebas automáticas en verde.
 - [ ] Prueba con 5 personas reales (familia o amigos) buscando casa desde su celular, y corrección de lo que no entendieron.

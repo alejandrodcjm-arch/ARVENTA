@@ -13,12 +13,13 @@
 <meta name="theme-color" content="#2F6B5E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="estilos.css">
-<link rel="stylesheet" href="paginas.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/estilos.css?v=c697830053">
+<link rel="stylesheet" href="/assets/paginas.css?v=924bf83337">
+<link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
 </head>
 <body>
-<header class="barra-sup"><a class="marca" href="./">ARVENTA</a><a href="#contacto">Quiero anunciarme</a></header>
+<header class="barra-sup"><a class="marca" href="/">ARVENTA</a><a href="#contacto">Quiero anunciarme</a></header>
 <main class="pag">
   <p class="marca" style="font-size:14px;margin:12px 0 0">PARA DESARROLLADORAS</p>
   <h1>Anuncia tu desarrollo en ARVENTA</h1>
@@ -78,7 +79,7 @@
     <label for="f-correo">Correo <small>(opcional si dejaste WhatsApp)</small></label><input id="f-correo" type="email" autocomplete="email">
     <label for="f-mensaje">¿Algo más que debamos saber? <small>(opcional)</small></label><textarea id="f-mensaje"></textarea>
     <input id="f-sitio" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <p class="aviso-corto">Usamos estos datos solo para contactarte sobre tu anuncio. <a href="aviso-privacidad.html">Aviso de privacidad</a></p>
+    <p class="aviso-corto">Usamos estos datos solo para contactarte sobre tu anuncio. <a href="/aviso-privacidad.html">Aviso de privacidad</a></p>
     <p class="form-error" id="f-error" role="alert" hidden></p>
     <button class="btn" type="submit" id="f-enviar">Enviar</button>
   </form>
@@ -86,53 +87,8 @@
 </main>
 <footer class="pie-pag" data-pie></footer>
 
-<script src="config.js"></script>
-<script src="datos.js"></script>
-<script>
-(function(){
-  const $ = s => document.querySelector(s);
-  // Cifras reales del sitio, salen de datos.js
-  const D = window.DESARROLLOS || [];
-  if(D.length){
-    const conMapa = D.filter(d => d.lat != null).length;
-    const tipos = new Set(D.map(d => d.tipo)).size;
-    $("#cifras").innerHTML = `<div><b>${D.length}</b>desarrollos publicados</div><div><b>${conMapa}</b>ya ubicados en el mapa</div><div><b>${tipos}</b>tipos: casas, departamentos y terrenos</div>`;
-  }
-
-  if(!ARVENTA.LICENCIA) $("#nota-licencia").hidden = false;
-  const val = id => $("#" + id).value.trim();
-  function mensajeWhatsApp(r){
-    return `Hola, quiero anunciar mi desarrollo en ARVENTA.\nNombre: ${r.nombre}${r.empresa ? " (" + r.empresa + ")" : ""}\nDesarrollo: ${r.desarrollo}${r.ubicacion ? ", " + r.ubicacion : ""}\nTipo: ${r.tipoVivienda}${r.unidades ? " · " + r.unidades + " unidades" : ""}${r.precio ? " · desde " + r.precio : ""}${r.mensaje ? "\n" + r.mensaje : ""}\nFolio: ${r.folio}`;
-  }
-  $("#form-dev").addEventListener("submit", async e => {
-    e.preventDefault();
-    const err = $("#f-error"); err.hidden = true;
-    const r = {tipo:"desarrolladora", folio:nuevoFolio("D"), nombre:val("f-nombre"), empresa:val("f-empresa"), desarrollo:val("f-desarrollo"),
-      ubicacion:val("f-ubicacion"), tipoVivienda:val("f-tipo"), unidades:val("f-unidades"), precio:val("f-precio"),
-      whatsapp:val("f-whatsapp"), correo:val("f-correo"), mensaje:val("f-mensaje"), sitio:val("f-sitio")};
-    const falta = !r.nombre ? "f-nombre" : !r.desarrollo ? "f-desarrollo" : null;
-    if(falta){ err.textContent = "Escribe tu nombre y el nombre del desarrollo."; err.hidden = false; $("#" + falta).focus(); return; }
-    if(r.whatsapp.replace(/\D/g, "").length < 10 && !/^\S+@\S+\.\S+$/.test(r.correo)){
-      err.textContent = "Déjanos un WhatsApp de 10 dígitos o un correo para contactarte."; err.hidden = false; $("#f-whatsapp").focus(); return;
-    }
-    medir("contacto-desarrolladora");
-    const wa = `https://wa.me/${ARVENTA.WHATSAPP}?text=${encodeURIComponent(mensajeWhatsApp(r))}`;
-    if(!ARVENTA.HOJA_URL){ location.href = wa; return; } // sin hoja configurada, se manda por WhatsApp
-    const boton = $("#f-enviar"); boton.disabled = true; boton.textContent = "Enviando…";
-    let res;
-    try{ res = await enviarAHoja(r, {esperar:true}); }catch(x){ res = {ok:false}; }
-    boton.disabled = false; boton.textContent = "Enviar";
-    if(res && res.ok){
-      $("#form-dev").hidden = true;
-      const ok = $("#f-ok");
-      ok.innerHTML = `<b>¡Gracias, ${r.nombre.replace(/[<>&]/g, "")}! Recibimos tus datos.</b><br>Tu folio es <b>${r.folio}</b>. Te contactamos pronto. Si quieres adelantar, <a href="${wa}">mándanos tu folio por WhatsApp</a>.`;
-      ok.hidden = false; ok.focus();
-    }else{
-      err.innerHTML = `No pudimos enviar el formulario. <a href="${wa}">Mándalo por WhatsApp</a> y te atendemos igual.`;
-      err.hidden = false;
-    }
-  });
-})();
-</script>
+<script src="/assets/config.js?v=be39098ebf"></script>
+<script src="/assets/datos.js?v=67de0e0ef6"></script>
+<script src="/assets/anuncia.js?v=7fc2d6a564"></script>
 </body>
 </html>

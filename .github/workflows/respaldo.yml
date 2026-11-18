@@ -1,0 +1,30 @@
+# Cada domingo exporta solicitudes y contactos a CSV, CIFRADOS con RESPALDO_CLAVE (los datos personales
+# nunca quedan legibles en GitHub). Se guardan 35 días en Actions → Respaldo semanal → Artifacts.
+# Para abrir uno: openssl enc -d -aes-256-cbc -pbkdf2 -in solicitudes.csv.enc -out solicitudes.csv
+# Secretos necesarios (Settings → Secrets → Actions): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESPALDO_CLAVE
+name: Respaldo semanal
+on:
+  schedule:
+    - cron: "0 11 * * 0"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/respaldo.mjs respaldos
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Cifrar
+        env: { RESPALDO_CLAVE: "${{ secrets.RESPALDO_CLAVE }}" }
+        run: |
+          test -n "$RESPALDO_CLAVE" || (echo "::error::Falta el secreto RESPALDO_CLAVE" && exit 1)
+          for f in respaldos/*.csv; do openssl enc -aes-256-cbc -pbkdf2 -salt -in "$f" -out "$f.enc" -pass env:RESPALDO_CLAVE && rm "$f"; done
+      - uses: actions/upload-artifact@v4
+        with: { name: respaldo-${{ github.run_number }}, path: respaldos/*.enc, retention-days: 35 }

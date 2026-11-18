@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fracc. Valladolid, etapa II · casas desde $750,000 en Durango · ARVENTA</title>
+<meta name="description" content="De $750,000 a $798,000 · 2 recámaras · 45 m² en terreno de 90 m² · Salida al Mezquital y Circuito Interior. Mira qué tiene cerca y cuánto tardas a tu trabajo.">
+<!-- seo:inicio -->
+<link rel="canonical" href="https://arventa.mx/desarrollos/valladolid/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="ARVENTA"><meta property="og:locale" content="es_MX">
+<meta property="og:title" content="Fracc. Valladolid, etapa II · casas desde $750,000 en Durango"><meta property="og:description" content="De $750,000 a $798,000 · 2 recámaras · 45 m² en terreno de 90 m² · Salida al Mezquital y Circuito Interior. Mira qué tiene cerca y cuánto tardas a tu trabajo."><meta property="og:url" content="https://arventa.mx/desarrollos/valladolid/">
+<meta property="og:image" content="https://arventa.mx/desarrollos/valladolid/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Fracc. Valladolid, etapa II · casas desde $750,000 en Durango"><meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateListing","name":"Fracc. Valladolid, etapa II","url":"https://arventa.mx/desarrollos/valladolid/","description":"De $750,000 a $798,000 · 2 recámaras · 45 m² en terreno de 90 m² · Salida al Mezquital y Circuito Interior. Mira qué tiene cerca y cuánto tardas a tu trabajo.","datePosted":"2026-11-17","offers":{"@type":"Offer","price":750000,"priceCurrency":"MXN","priceSpecification":{"@type":"PriceSpecification","minPrice":750000,"maxPrice":798000,"priceCurrency":"MXN"},"availability":"https://schema.org/InStock","seller":{"@type":"RealEstateAgent","name":"ARVENTA"}},"about":{"@type":"SingleFamilyResidence","name":"Fracc. Valladolid, etapa II","address":{"@type":"PostalAddress","streetAddress":"Salida al Mezquital y Circuito Interior","addressLocality":"Durango","addressRegion":"Dgo.","addressCountry":"MX"},"geo":{"@type":"GeoCoordinates","latitude":24.002476,"longitude":-104.611748}},"image":"https://arventa.mx/desarrollos/valladolid/og.png"}</script>
+<!-- seo:fin -->
+<meta name="theme-color" content="#FBFBF8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://tile.openstreetmap.org">
+<!-- Las letras no bloquean la primera pintada: mientras llegan se usa la del sistema -->
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/estilos.css?v=c697830053">
+<link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
+</head>
+<body data-ficha="valladolid">
+
+<header class="barra">
+  <a class="logo" href="/" aria-label="ARVENTA, inicio">ARVENTA</a>
+
+  <!-- Buscador: en escritorio son tres secciones; en celular una sola píldora que abre el panel -->
+  <form class="buscador" id="buscador" role="search" autocomplete="off">
+    <div class="campo" id="campo-texto">
+      <label for="q">Dónde</label>
+      <input id="q" type="search" placeholder="Zona, colonia o fraccionamiento">
+    </div>
+    <button class="campo boton-campo" type="button" id="abrir-cerca" aria-haspopup="dialog">
+      <span class="etq">Cerca de</span>
+      <span class="val" id="val-cerca">Mi ubicación, trabajo o escuela</span>
+    </button>
+    <button class="campo boton-campo" type="button" id="abrir-presupuesto" aria-haspopup="dialog">
+      <span class="etq">Presupuesto</span>
+      <span class="val" id="val-presupuesto">Cualquier precio</span>
+    </button>
+    <button class="lupa" type="submit" aria-label="Buscar">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+    </button>
+  </form>
+  <button class="buscador-movil" type="button" id="buscador-movil">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span><b>¿Dónde quieres vivir?</b><small id="resumen-movil">Cualquier zona · Cualquier precio</small></span>
+  </button>
+</header>
+
+<nav class="categorias" hidden aria-label="Tipos de vivienda">
+  <div class="cats" id="cats"></div>
+  <button class="btn-filtros" type="button" id="abrir-filtros">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    Filtros<span class="contador" id="n-filtros" hidden></span>
+  </button>
+</nav>
+
+<main id="principal" hidden>
+  <section class="resultados" id="resultados" aria-live="polite">
+    <div class="cabeza-res">
+      <h1 id="titulo-res">Vivienda nueva en Durango</h1>
+      <label class="orden">Ordenar por
+        <select id="orden">
+          <option value="cerca">Más cerca</option>
+          <option value="barato">Más baratos</option>
+          <option value="m2">Mejor precio por m²</option>
+        </select>
+      </label>
+    </div>
+    <p class="contexto" id="contexto"></p>
+    <div class="rejilla" id="rejilla"></div>
+  </section>
+
+  <section class="vista-mapa" id="vista-mapa" hidden aria-label="Mapa de desarrollos">
+    <div id="mapa"></div>
+    <div class="tarjeta-flotante" id="tarjeta-flotante" hidden></div>
+  </section>
+
+  <button class="alternar" type="button" id="alternar">
+    <span id="alternar-txt">Mostrar mapa</span>
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" id="alternar-ico"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5L9 4Zm0 0v13.5m6-11V20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+  </button>
+</main>
+
+<article class="ficha" id="ficha" aria-labelledby="ficha-titulo"><div class="ficha-estatica">
+  <p><a href="/">← Todos los desarrollos</a></p>
+  <h1 id="ficha-titulo">Fracc. Valladolid, etapa II</h1>
+  <p>Casas · Salida al Mezquital y Circuito Interior</p>
+  <p class="precio">Desde <b>$750,000</b> hasta $798,000 según modelo. Puede variar al cerrar la operación. Verificado el 17 de noviembre de 2026.</p>
+  <h2>Condiciones</h2>
+  <dl>
+    <dt>Recámaras</dt><dd>2</dd><dt>Tamaño</dt><dd>45 m² en terreno de 90 m²</dd>
+    <dt>Créditos que acepta</dt><dd>Banco, Infonavit, Fovissste</dd>
+    <dt>Entrega</dt><dd>Preventa</dd>
+    <dt>Qué incluye</dt><dd>Por confirmar</dd>
+    <dt>Ubicación</dt><dd>Confirmada</dd>
+  </dl>
+  <h2>Lo mejor de aquí</h2><ul><li>Enganche desde 10%</li><li>Instalaciones subterráneas</li><li>Asesoría con banco, Infonavit y Fovissste</li><li>Visitas sábado y domingo</li></ul>
+  <h2>Lo que tienes cerca</h2><ul><li>Escuela más cercana(o): Escuela, a 540 m en línea recta</li><li>OXXO más cercana(o): Oxxo, a 2.1 km en línea recta</li><li>Supermercado más cercana(o): Bodega Aurrera, a 3.1 km en línea recta</li><li>Farmacia más cercana(o): Farmacia Guadalajara, a 4.6 km en línea recta</li><li>Hospital o clínica más cercana(o): Hospital Reforma, a 4.5 km en línea recta</li><li>Parque más cercana(o): Parque, a 260 m en línea recta</li><li>Universidad más cercana(o): Facultad de Trabajo Social, a 4.4 km en línea recta</li></ul>
+    <p>Lugares según OpenStreetMap (datos de julio de 2026).</p>
+  <p>Información pública de anuncios. ARVENTA te acompaña a la visita sin costo para ti.</p>
+  <p>Fuentes: <a href="https://aramilinmobiliaria.com/listado/preventa-casas-fraccionamiento-valladolit-durango/" rel="nofollow noopener" target="_blank">Aramil Inmobiliaria</a>. Precio verificado el 17 de noviembre de 2026.</p>
+  <p><a class="btn" href="https://wa.me/526184463867?text=Hola%20ARVENTA%2C%20quiero%20visitar%20Fracc.%20Valladolid%2C%20etapa%20II.">Agendar visita por WhatsApp</a></p>
+</div></article>
+
+<footer class="pie">
+  <div>
+    <p class="logo-pie">ARVENTA</p>
+    <p>Asesoría inmobiliaria en Durango, Dgo. Razón social: <b data-config="RAZON_SOCIAL">en trámite</b>. Licencia de asesor inmobiliario del Estado de Durango: <b data-config="LICENCIA">en trámite</b>.</p>
+    <p><a href="/anuncia.html">¿Eres desarrolladora? Anuncia tu desarrollo</a></p>
+  </div>
+  <div>
+    <p>Precios publicados en portales; cada ficha dice la fecha en que se verificó. Pueden variar al cerrar la operación. Las imágenes son ilustrativas mientras no haya fotos de la desarrolladora.</p>
+    <p><button type="button" class="enlace" id="abrir-privacidad">Aviso de privacidad</button> · <a href="/terminos.html">Términos de uso</a></p>
+  </div>
+  <p class="atrib">Mapa y lugares cercanos © colaboradores de OpenStreetMap. Rutas: OSRM. Direcciones: Nominatim.</p>
+</footer>
+
+<!-- Panel: cerca de -->
+<dialog class="hoja" id="dlg-cerca" aria-labelledby="t-cerca">
+  <form method="dialog">
+    <div class="solo-movil">
+      <h2>Buscar</h2>
+      <label for="q2">Zona, colonia o fraccionamiento</label>
+      <input id="q2" type="search" placeholder="Ej. Mezquital, salida a Mazatlán">
+      <button type="button" class="op" id="abrir-presupuesto-2" style="margin-top:10px;width:100%"><span class="op-ico">💰</span><span><b>Presupuesto</b><small id="val-presupuesto-2">Cualquier precio</small></span></button>
+    </div>
+    <h2 id="t-cerca">¿Cerca de qué quieres vivir?</h2>
+    <div class="opciones-cerca">
+      <button type="button" class="op" data-cerca="ubicacion"><span class="op-ico">📍</span><span><b>Donde estoy ahorita</b><small>Usa la ubicación de tu celular</small></span></button>
+      <button type="button" class="op" data-cerca="trabajo"><span class="op-ico">💼</span><span><b>Mi trabajo o escuela</b><small>Te decimos los minutos en auto</small></span></button>
+      <button type="button" class="op" data-cerca="escuela"><span class="op-ico">🎒</span><span><b>Una escuela para mis hijos</b><small>Elige la escuela por su nombre</small></span></button>
+      <button type="button" class="op" data-cerca="hospital"><span class="op-ico">🏥</span><span><b>Un hospital o clínica</b><small>IMSS, ISSSTE, privados</small></span></button>
+      <button type="button" class="op" data-cerca="centro"><span class="op-ico">⛪</span><span><b>El Centro Histórico</b><small>Desde la Catedral</small></span></button>
+    </div>
+    <div class="sub" id="sub-trabajo" hidden>
+      <label for="in-trabajo">Escribe tu trabajo, escuela o dirección</label>
+      <div class="fila"><input id="in-trabajo" placeholder="Ej. Hospital 450, UJED, Ciudad Industrial"><button class="btn" type="button" id="buscar-trabajo">Buscar</button></div>
+      <p class="nota">O <button type="button" class="enlace" id="marcar-mapa">márcalo en el mapa</button>.</p>
+    </div>
+    <div class="sub" id="sub-lugar" hidden>
+      <label for="in-lugar" id="lbl-lugar">Escribe el nombre</label>
+      <input id="in-lugar" list="lista-lugares" placeholder="Empieza a escribir…">
+      <datalist id="lista-lugares"></datalist>
+      <div class="fila" style="margin-top:10px"><button class="btn" type="button" id="usar-lugar">Usar este lugar</button></div>
+    </div>
+    <p class="aviso-form" id="msg-cerca" role="status"></p>
+    <div class="fila pie-hoja">
+      <button type="button" class="enlace" id="quitar-cerca">Quitar</button>
+      <button class="btn claro" value="cerrar">Cerrar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Panel: presupuesto -->
+<dialog class="hoja" id="dlg-presupuesto" aria-labelledby="t-pres">
+  <form method="dialog">
+    <h2 id="t-pres">¿Hasta cuánto quieres pagar?</h2>
+    <div class="chips-pres" id="chips-pres"></div>
+    <h3>¿Qué me alcanza?</h3>
+    <p class="nota" style="margin-top:0">Pon tu ingreso y tu ahorro y te decimos hasta cuánto te alcanza con banco y con Infonavit. Tus datos se quedan solo en este teléfono.</p>
+    <div class="calc-mini">
+      <label>Ingreso mensual antes de impuestos<input id="in-ingreso" type="number" inputmode="numeric" min="0" step="500" placeholder="Ej. 18000"></label>
+      <label>Ahorro para enganche y gastos<input id="in-ahorro" type="number" inputmode="numeric" min="0" step="5000" placeholder="Ej. 150000"></label>
+      <label>Subcuenta Infonavit (opcional)<input id="in-subcuenta" type="number" inputmode="numeric" min="0" step="1000" placeholder="Ej. 80000"></label>
+    </div>
+    <div class="resultado-calc" id="res-alcance" aria-live="polite"></div>
+    <div class="fila pie-hoja">
+      <button type="button" class="enlace" id="quitar-pres">Quitar</button>
+      <button class="btn" value="cerrar">Ver resultados</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Panel: filtros -->
+<dialog class="hoja hoja-grande" id="dlg-filtros" aria-labelledby="t-filtros">
+  <form method="dialog" id="form-filtros">
+    <h2 id="t-filtros">Filtros</h2>
+    <fieldset><legend>Recámaras mínimas</legend><div class="seg" id="f-rec"></div></fieldset>
+    <fieldset><legend>Crédito que vas a usar</legend><div class="checks" id="f-credito"></div><p class="nota">Solo mostramos los que confirmaron que lo aceptan.</p></fieldset>
+    <fieldset><legend>Que tenga</legend><div class="checks" id="f-amen"></div></fieldset>
+    <fieldset><legend>Que tenga cerca, caminando</legend><div class="checks" id="f-cerca"></div></fieldset>
+    <fieldset><legend>Entrega</legend><div class="checks" id="f-entrega"></div></fieldset>
+    <fieldset><legend>Tiempo a tu trabajo</legend><div class="checks" id="f-trabajo15"></div></fieldset>
+    <div class="fila pie-hoja">
+      <button type="button" class="enlace" id="limpiar-filtros">Quitar todo</button>
+      <button class="btn" value="cerrar" id="ver-filtros">Mostrar resultados</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Agendar visita -->
+<dialog class="hoja" id="dlg-visita" aria-labelledby="t-visita">
+  <form method="dialog" id="form-visita">
+    <h2 id="t-visita">Agendar visita</h2>
+    <p class="nota" id="visita-a" style="margin-top:0"></p>
+    <label for="v-nombre">Tu nombre</label>
+    <input id="v-nombre" required autocomplete="name">
+    <label for="v-tel">Tu WhatsApp</label>
+    <input id="v-tel" required inputmode="tel" autocomplete="tel" placeholder="618 123 4567" minlength="10">
+    <label for="v-cuando">¿Cuándo te queda?</label>
+    <select id="v-cuando"><option>Este fin de semana</option><option>Entre semana por la tarde</option><option>Entre semana por la mañana</option><option>Primero quiero más información</option></select>
+    <label for="v-credito">¿Cómo pagarías?</label>
+    <select id="v-credito"><option>Infonavit</option><option>Fovissste</option><option>Crédito bancario</option><option>Cofinavit (Infonavit + banco)</option><option>Contado</option><option>Aún no sé</option></select>
+    <!-- Campo trampa: invisible para las personas; si un robot lo llena, la solicitud se descarta -->
+    <input id="v-sitio" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="consent"><input type="checkbox" id="v-consent" required> Acepto el <button type="button" class="enlace" id="ver-privacidad-visita">aviso de privacidad</button> y que ARVENTA comparta mi nombre y WhatsApp con la desarrolladora de este desarrollo para agendar la visita.</label>
+    <div class="fila pie-hoja">
+      <button class="btn claro" value="cancelar" formnovalidate>Cancelar</button>
+      <button class="btn" id="v-enviar" value="enviar">Enviar por WhatsApp</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="hoja" id="dlg-copiar" aria-labelledby="t-copiar">
+  <h2 id="t-copiar">Tu solicitud está lista</h2>
+  <p class="nota" style="margin-top:0">El sitio todavía no tiene un número de WhatsApp configurado. Copia el mensaje y mándalo al asesor.</p>
+  <textarea id="txt-copiar" readonly aria-label="Mensaje para copiar"></textarea>
+  <div class="fila pie-hoja"><button class="btn claro" type="button" id="cerrar-copiar">Cerrar</button><button class="btn" type="button" id="btn-copiar">Copiar mensaje</button></div>
+</dialog>
+
+<!-- Comparador: 2 o 3 desarrollos lado a lado -->
+<dialog class="hoja hoja-grande" id="dlg-comparar" aria-labelledby="t-comparar">
+  <h2 id="t-comparar">Comparar</h2>
+  <div id="comparar-cuerpo"></div>
+  <div class="fila pie-hoja"><button class="btn" type="button" id="cerrar-comparar">Cerrar</button></div>
+</dialog>
+<div class="barra-comparar" id="barra-comparar" hidden></div>
+
+<dialog class="hoja" id="dlg-privacidad" aria-labelledby="t-priv">
+  <h2 id="t-priv">Aviso de privacidad</h2>
+  <div class="texto-legal">
+    <p><b>Quién es responsable:</b> ARVENTA, asesoría inmobiliaria con domicilio en Durango, Dgo. (razón social en trámite).</p>
+    <p><b>Qué datos pedimos:</b> solo tu nombre, tu WhatsApp, el horario que prefieres y cómo piensas pagar. No pedimos identificaciones, comprobantes ni datos bancarios en este sitio.</p>
+    <p><b>Para qué:</b> agendar tu visita al desarrollo que elegiste y darte seguimiento. Con tu permiso, compartimos tu nombre y WhatsApp con esa desarrolladora para coordinar la visita.</p>
+    <p><b>Tus derechos:</b> puedes pedir en cualquier momento ver, corregir o borrar tus datos, u oponerte a su uso, escribiéndonos por el mismo WhatsApp donde te contactamos.</p>
+    <p><b>Lugares cercanos y tiempos:</b> si usas “Donde estoy ahorita”, tu ubicación se usa solo en tu navegador para calcular distancias y no se guarda ni se envía a ARVENTA. Si nos dices dónde trabajas y luego pides visita, guardamos solo la zona aproximada (≈1 km) para estadísticas sin nombres.</p>
+    <p><b>Tu solicitud</b> se guarda con un folio, que también va en el mensaje de WhatsApp. Lo que escribes en “¿Qué me alcanza?” (sueldo y ahorro) no sale de tu teléfono.</p>
+    <p><a href="/aviso-privacidad.html" target="_blank">Leer el aviso de privacidad completo</a></p>
+  </div>
+  <div class="fila pie-hoja"><button class="btn" type="button" id="cerrar-privacidad">Entendido</button></div>
+</dialog>
+
+<div class="aviso-marcar" id="aviso-marcar" hidden>Toca el mapa donde trabajas</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="/assets/config.js?v=be39098ebf"></script>
+<script src="/assets/datos.js?v=67de0e0ef6"></script>
+<script src="/assets/app.js?v=69299cc5a2"></script>
+</body>
+</html>

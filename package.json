@@ -1,0 +1,19 @@
+{
+  "name": "arventa",
+  "private": true,
+  "type": "module",
+  "description": "Sitio de ARVENTA: vivienda nueva en Durango",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "validar": "node scripts/validar.mjs",
+    "construir": "node scripts/construir.mjs",
+    "lugares": "node scripts/lugares.mjs",
+    "dev": "node scripts/servidor.mjs",
+    "test": "node --test tests/api.test.mjs && npx playwright test",
+    "test:api": "node --test tests/api.test.mjs",
+    "test:e2e": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}

@@ -1,0 +1,665 @@
+{
+ "fecha": "datos de julio de 2026",
+ "porDesarrollo": {
+  "cienega-2": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.00506,
+     "lng": -104.63203,
+     "m": 204
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.99662,
+     "lng": -104.63784,
+     "m": 1149
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 2984
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 2565
+    },
+    "super": {
+     "nombre": "Chedraui",
+     "lat": 24.02072,
+     "lng": -104.6464,
+     "m": 2073
+    },
+    "uni": {
+     "nombre": "Instituto Tecnologico De Durango",
+     "lat": 24.03246,
+     "lng": -104.64638,
+     "m": 3195
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.00579,
+     "lng": -104.63294,
+     "m": 81
+    }
+   },
+   "conteo": {
+    "parque": 20,
+    "escuela": 13
+   }
+  },
+  "valencia": {
+   "mas": {
+    "escuela": {
+     "nombre": "Jardín de niños Juan Amoscomenio",
+     "lat": 24.00373,
+     "lng": -104.63053,
+     "m": 684
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.99662,
+     "lng": -104.63784,
+     "m": 1393
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 3764
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 3637
+    },
+    "super": {
+     "nombre": "Bodega Aurrera",
+     "lat": 24.0259,
+     "lng": -104.62878,
+     "m": 2853
+    },
+    "uni": {
+     "nombre": "Facultad de Trabajo Social",
+     "lat": 24.0358,
+     "lng": -104.63528,
+     "m": 4067
+    },
+    "parque": {
+     "nombre": "Parque Fraccionamiento Nuevo durango",
+     "lat": 24.00387,
+     "lng": -104.63113,
+     "m": 744
+    }
+   },
+   "conteo": {
+    "escuela": 4,
+    "parque": 15
+   }
+  },
+  "valladolid": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.00733,
+     "lng": -104.61155,
+     "m": 540
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.98433,
+     "lng": -104.60446,
+     "m": 2149
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 24.04067,
+     "lng": -104.62985,
+     "m": 4628
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 4546
+    },
+    "super": {
+     "nombre": "Bodega Aurrera",
+     "lat": 24.0259,
+     "lng": -104.62878,
+     "m": 3127
+    },
+    "uni": {
+     "nombre": "Facultad de Trabajo Social",
+     "lat": 24.0358,
+     "lng": -104.63528,
+     "m": 4409
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.0029,
+     "lng": -104.60922,
+     "m": 261
+    }
+   },
+   "conteo": {
+    "escuela": 6,
+    "parque": 12
+   }
+  },
+  "altamira": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.00733,
+     "lng": -104.61155,
+     "m": 1273
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.99662,
+     "lng": -104.63784,
+     "m": 1969
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 4400
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 4307
+    },
+    "super": {
+     "nombre": "Bodega Aurrera",
+     "lat": 24.0259,
+     "lng": -104.62878,
+     "m": 3294
+    },
+    "uni": {
+     "nombre": "Facultad de Trabajo Social",
+     "lat": 24.0358,
+     "lng": -104.63528,
+     "m": 4556
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 23.99436,
+     "lng": -104.6216,
+     "m": 495
+    }
+   },
+   "conteo": {
+    "parque": 1
+   }
+  },
+  "ancira": {
+   "mas": {
+    "escuela": {
+     "nombre": "Jardín de niños Juan Amoscomenio",
+     "lat": 24.00373,
+     "lng": -104.63053,
+     "m": 238
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.99662,
+     "lng": -104.63784,
+     "m": 1243
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 3455
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 3157
+    },
+    "super": {
+     "nombre": "Bodega Aurrera",
+     "lat": 24.0259,
+     "lng": -104.62878,
+     "m": 2491
+    },
+    "uni": {
+     "nombre": "Facultad de Trabajo Social",
+     "lat": 24.0358,
+     "lng": -104.63528,
+     "m": 3663
+    },
+    "parque": {
+     "nombre": "Parque Fraccionamiento Nuevo durango",
+     "lat": 24.00387,
+     "lng": -104.63113,
+     "m": 300
+    }
+   },
+   "conteo": {
+    "parque": 20,
+    "escuela": 10
+   }
+  },
+  "paseo-bosque": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.01198,
+     "lng": -104.69901,
+     "m": 583
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 24.00982,
+     "lng": -104.69285,
+     "m": 1252
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 24.03539,
+     "lng": -104.6836,
+     "m": 3230
+    },
+    "salud": {
+     "nombre": "Hospital Municipal del Niño",
+     "lat": 24.01039,
+     "lng": -104.69329,
+     "m": 1190
+    },
+    "super": {
+     "nombre": "",
+     "lat": 24.01195,
+     "lng": -104.69171,
+     "m": 1310
+    },
+    "uni": {
+     "nombre": "Escuela Superior de Música",
+     "lat": 24.02392,
+     "lng": -104.69111,
+     "m": 1787
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.01647,
+     "lng": -104.69531,
+     "m": 990
+    }
+   },
+   "conteo": {
+    "escuela": 4,
+    "parque": 1
+   }
+  },
+  "santos-california": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.05181,
+     "lng": -104.63899,
+     "m": 524
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 24.0614,
+     "lng": -104.63361,
+     "m": 809
+    },
+    "farmacia": {
+     "nombre": "Farmacia Economik",
+     "lat": 24.04068,
+     "lng": -104.63126,
+     "m": 1948
+    },
+    "salud": {
+     "nombre": "Hospital General 450",
+     "lat": 24.05641,
+     "lng": -104.64139,
+     "m": 192
+    },
+    "super": {
+     "nombre": "Soriana",
+     "lat": 24.04409,
+     "lng": -104.63061,
+     "m": 1649
+    },
+    "uni": {
+     "nombre": "UIM Universidad Internacional Mexicana",
+     "lat": 24.0526,
+     "lng": -104.62886,
+     "m": 1164
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.06211,
+     "lng": -104.63427,
+     "m": 819
+    }
+   },
+   "conteo": {
+    "oxxo": 2,
+    "salud": 1,
+    "escuela": 7,
+    "parque": 14
+   }
+  },
+  "santa-rosa": {
+   "mas": {
+    "escuela": {
+     "nombre": "Colegio España",
+     "lat": 23.99463,
+     "lng": -104.63597,
+     "m": 302
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.99662,
+     "lng": -104.63784,
+     "m": 386
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 2444
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 3593
+    },
+    "super": {
+     "nombre": "Alsuper",
+     "lat": 24.00263,
+     "lng": -104.6612,
+     "m": 2533
+    },
+    "uni": {
+     "nombre": "Instituto Tecnologico De Durango",
+     "lat": 24.03246,
+     "lng": -104.64638,
+     "m": 4438
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 23.99041,
+     "lng": -104.6403,
+     "m": 360
+    }
+   },
+   "conteo": {
+    "escuela": 6,
+    "oxxo": 2,
+    "parque": 21
+   }
+  },
+  "el-cielo": {
+   "mas": {
+    "escuela": {
+     "nombre": "Colegio España",
+     "lat": 23.99463,
+     "lng": -104.63597,
+     "m": 616
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.98987,
+     "lng": -104.64092,
+     "m": 805
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 3087
+    },
+    "salud": {
+     "nombre": "Hospital Reforma",
+     "lat": 24.02377,
+     "lng": -104.64996,
+     "m": 4152
+    },
+    "super": {
+     "nombre": "Alsuper",
+     "lat": 24.00263,
+     "lng": -104.6612,
+     "m": 3200
+    },
+    "uni": {
+     "nombre": "Instituto Tecnologico De Durango",
+     "lat": 24.03246,
+     "lng": -104.64638,
+     "m": 4934
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 23.99522,
+     "lng": -104.63159,
+     "m": 619
+    }
+   },
+   "conteo": {
+    "oxxo": 2,
+    "escuela": 2,
+    "parque": 15
+   }
+  },
+  "scorpio-5": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 23.99566,
+     "lng": -104.64539,
+     "m": 308
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 23.99662,
+     "lng": -104.63784,
+     "m": 474
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 1975
+    },
+    "salud": {
+     "nombre": "Hospital Nuestra Señora de Fátima",
+     "lat": 24.02115,
+     "lng": -104.65726,
+     "m": 3124
+    },
+    "super": {
+     "nombre": "Alsuper",
+     "lat": 24.00263,
+     "lng": -104.6612,
+     "m": 2018
+    },
+    "uni": {
+     "nombre": "Instituto Tecnologico De Durango",
+     "lat": 24.03246,
+     "lng": -104.64638,
+     "m": 4018
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.0011,
+     "lng": -104.64096,
+     "m": 535
+    }
+   },
+   "conteo": {
+    "escuela": 5,
+    "oxxo": 2,
+    "parque": 24
+   }
+  },
+  "real-vizcaya": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.04024,
+     "lng": -104.62558,
+     "m": 308
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 24.04122,
+     "lng": -104.62957,
+     "m": 220
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 24.04067,
+     "lng": -104.62985,
+     "m": 189
+    },
+    "salud": {
+     "nombre": "Mónaco",
+     "lat": 24.0492,
+     "lng": -104.61644,
+     "m": 1632
+    },
+    "super": {
+     "nombre": "Soriana",
+     "lat": 24.04405,
+     "lng": -104.63053,
+     "m": 546
+    },
+    "uni": {
+     "nombre": "Facultad de Trabajo Social",
+     "lat": 24.0358,
+     "lng": -104.63528,
+     "m": 802
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.04138,
+     "lng": -104.62755,
+     "m": 230
+    }
+   },
+   "conteo": {
+    "farmacia": 2,
+    "super": 5,
+    "oxxo": 4,
+    "escuela": 11,
+    "parque": 24,
+    "uni": 1
+   }
+  },
+  "torre-oriente": {
+   "mas": {
+    "escuela": {
+     "nombre": "Escuela Secundaria Técnica #1",
+     "lat": 24.033,
+     "lng": -104.64318,
+     "m": 166
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 24.02735,
+     "lng": -104.65318,
+     "m": 1275
+    },
+    "farmacia": {
+     "nombre": "Benavides",
+     "lat": 24.02804,
+     "lng": -104.65269,
+     "m": 1199
+    },
+    "salud": {
+     "nombre": "Hospital San Jorge",
+     "lat": 24.02828,
+     "lng": -104.65252,
+     "m": 1173
+    },
+    "super": {
+     "nombre": "Soriana",
+     "lat": 24.03099,
+     "lng": -104.64826,
+     "m": 670
+    },
+    "uni": {
+     "nombre": "Instituto Tecnologico De Durango",
+     "lat": 24.03246,
+     "lng": -104.64638,
+     "m": 466
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.03183,
+     "lng": -104.64078,
+     "m": 111
+    }
+   },
+   "conteo": {
+    "escuela": 11,
+    "super": 3,
+    "parque": 20,
+    "uni": 2
+   }
+  },
+  "torre-patricia": {
+   "mas": {
+    "escuela": {
+     "nombre": "",
+     "lat": 24.00467,
+     "lng": -104.6494,
+     "m": 353
+    },
+    "oxxo": {
+     "nombre": "Oxxo",
+     "lat": 24.00716,
+     "lng": -104.65905,
+     "m": 1182
+    },
+    "farmacia": {
+     "nombre": "Farmacia Guadalajara",
+     "lat": 23.99867,
+     "lng": -104.6618,
+     "m": 1318
+    },
+    "salud": {
+     "nombre": "Hospital Nuestra Señora de Fátima",
+     "lat": 24.02115,
+     "lng": -104.65726,
+     "m": 2333
+    },
+    "super": {
+     "nombre": "Alsuper",
+     "lat": 24.00263,
+     "lng": -104.6612,
+     "m": 1225
+    },
+    "uni": {
+     "nombre": "",
+     "lat": 24.03094,
+     "lng": -104.65731,
+     "m": 3376
+    },
+    "parque": {
+     "nombre": "",
+     "lat": 24.00152,
+     "lng": -104.64929,
+     "m": 9
+    }
+   },
+   "conteo": {
+    "escuela": 12,
+    "parque": 15
+   }
+  }
+ }
+}

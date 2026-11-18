@@ -60,23 +60,27 @@ Si un cambio choca con alguno de estos puntos, no lo hagas y explica por qué.
 Inspirado en Airbnb: buscador arriba, categorías con íconos, tarjetas con imágenes en cuadrícula y el mapa como vista alterna (botón flotante). Cada tarjeta enseña lo bueno en una línea (escuela cerca, alberca, buen precio por m²). La ficha tiene mosaico de imágenes, caja de precio fija con calculadora y botón de visita.
 
 ## Estructura
-| Archivo | Qué tiene |
-|---|---|
-| `index.html` | Estructura de la página |
-| `estilos.css` | Diseño. Paleta: tinta `#1D2B3A`, cal `#FBFBF8`, agave `#2F6B5E`, sol `#F0A202`, cantera `#B5654F`. Letras: Bricolage Grotesque (títulos) y Atkinson Hyperlegible (texto) |
-| `datos.js` | Lista de desarrollos (`window.DESARROLLOS`). Es la fuente de verdad |
-| `app.js` | Buscador (dónde, cerca de, presupuesto), categorías, tarjetas con carrusel, filtros, vista de mapa, ficha `#id`, ilustraciones SVG mientras no hay fotos, lugares cercanos, tiempos en auto (OSRM), direcciones (Nominatim), calculadora y formulario de visita |
-| `config.js` | WhatsApp, dirección de la hoja de Google, medición (Umami) y datos legales |
-| `lugares.js` | Lugares cercanos de OpenStreetMap; lo genera `actualizar-lugares.js` |
-| `fotos/<id>/` | Fotos reales por desarrollo, listadas en `fotos:[]` de `datos.js` |
+Sigue la de `docs/REQUISITOS.md`. Lo principal:
 
-Servicios externos gratuitos: OpenStreetMap para el mapa, OSRM para rutas y Nominatim para direcciones. Los lugares cercanos se guardan en `lugares.js` y se actualizan una vez al mes con `node actualizar-lugares.js` (Overpass); el sitio ya no consulta Overpass en cada visita porque tardaba minutos o fallaba. Configuración (WhatsApp, hoja de Google, medición y datos legales) en `config.js`.
+| Ruta | Qué tiene |
+|---|---|
+| `data/desarrollos.json` | Fuente de verdad de los desarrollos (con `verificado`, `creditos`, `entrega`, `incluye`, `convenio`, `fotos`) |
+| `index.html`, `assets/app.js`, `assets/estilos.css` | La app: buscador, tarjetas, filtros, mapa (Leaflet se carga solo al abrirlo), ficha, ¿qué me alcanza?, comparador y formulario de visita |
+| `assets/config.js` | Configuración pública: WhatsApp, mapa, Umami, Sentry y datos legales. Nunca llaves secretas |
+| `desarrollos/<id>/`, `assets/datos.js`, `data/lugares.json`, `sitemap.xml`, `robots.txt` | **Generados** por `scripts/construir.mjs`; no se editan a mano |
+| `api/` | Funciones de Vercel (`visita`, `evento`, `contacto`, `reporte`, `salud`) con Supabase por REST, sin librerías |
+| `supabase/esquema.sql` | Tablas, RLS y borrado a los 12 meses |
+| `scripts/` | `validar`, `construir`, `lugares` (Overpass, semanal), `servidor` (local), `respaldo` |
+| `tests/` | `api.test.mjs` (node --test) y `sitio.spec.mjs` (Playwright) |
+
+Servicios externos: OpenStreetMap o MapTiler para el mapa, OSRM para rutas, Nominatim para direcciones, Supabase para datos y Vercel para el sitio. Los lugares cercanos se precalculan (no se consulta Overpass al cargar). Cada servicio tiene plan B: sin mapa se usa la lista, sin rutas se estiman minutos por distancia, sin búsqueda de direcciones se marca en el mapa, y sin `/api` la solicitud se manda por WhatsApp y queda en cola.
 
 ## Requisitos técnicos para producción
 Están en `docs/REQUISITOS.md`: arquitectura, estructura de carpetas, solicitudes de visita, rendimiento, fiabilidad, seguridad, SEO, medición, legal, accesibilidad, pruebas y la lista para lanzar. Trabaja hacia esa estructura y marca los puntos que vayas cumpliendo.
 
 ## Antes de terminar cualquier cambio
-1. Abre el sitio (Live Server) y revisa la lista, el mapa, el detalle de un desarrollo y el formulario de visita.
-2. Revisa la consola del navegador: no debe haber errores.
-3. Si cambiaste `datos.js`, cada desarrollo debe tener `id` único, `tipo` (`casa`, `departamento` o `terreno`), `desde` numérico y al menos una fuente.
-4. Haz commit con un mensaje en español que diga qué cambió y por qué.
+1. `npm run dev` y revisa en 390 px y en escritorio la lista, el mapa, una ficha y el formulario de visita.
+2. Si cambiaste `data/`, `assets/` o una página: `npm run validar` y `npm run construir`.
+3. `npm test`: pruebas de `/api` y del sitio, sin errores en la consola. Son las mismas que bloquean la publicación en GitHub.
+4. Marca en `docs/REQUISITOS.md` lo que quedó cumplido.
+5. Haz commit con un mensaje en español que diga qué cambió y por qué.

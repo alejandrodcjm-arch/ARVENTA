@@ -5,19 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ARVENTA · Vivienda nueva en Durango</title>
 <meta name="description" content="ARVENTA: todos los fraccionamientos y edificios nuevos de Durango con fotos, precios, lo que tienes cerca y cuánto tardas a tu trabajo.">
+<!-- seo:inicio -->
+<link rel="canonical" href="https://arventa.mx/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="ARVENTA"><meta property="og:locale" content="es_MX">
+<meta property="og:title" content="ARVENTA · Vivienda nueva en Durango">
+<meta property="og:description" content="Todos los fraccionamientos y edificios nuevos de Durango: precios, lo que tienes cerca y cuánto tardas a tu trabajo.">
+<meta property="og:url" content="https://arventa.mx/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateAgent","name":"ARVENTA","url":"https://arventa.mx/","areaServed":{"@type":"City","name":"Durango, Dgo."},"address":{"@type":"PostalAddress","addressLocality":"Durango","addressRegion":"Dgo.","addressCountry":"MX"}}</script>
+<!-- seo:fin -->
 <meta name="theme-color" content="#FBFBF8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://tile.openstreetmap.org">
 <!-- Las letras no bloquean la primera pintada: mientras llegan se usa la del sistema -->
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/estilos.css?v=c697830053">
+<link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
 </head>
 <body>
 
 <header class="barra">
-  <a class="logo" href="#" aria-label="ARVENTA, inicio">ARVENTA</a>
+  <a class="logo" href="/" aria-label="ARVENTA, inicio">ARVENTA</a>
 
   <!-- Buscador: en escritorio son tres secciones; en celular una sola píldora que abre el panel -->
   <form class="buscador" id="buscador" role="search" autocomplete="off">
@@ -84,11 +92,11 @@
   <div>
     <p class="logo-pie">ARVENTA</p>
     <p>Asesoría inmobiliaria en Durango, Dgo. Razón social: <b data-config="RAZON_SOCIAL">en trámite</b>. Licencia de asesor inmobiliario del Estado de Durango: <b data-config="LICENCIA">en trámite</b>.</p>
-    <p><a href="anuncia.html">¿Eres desarrolladora? Anuncia tu desarrollo</a></p>
+    <p><a href="/anuncia.html">¿Eres desarrolladora? Anuncia tu desarrollo</a></p>
   </div>
   <div>
-    <p>Precios publicados en portales y verificados en <span id="fecha-precios"></span>. Pueden variar al cerrar la operación. Las imágenes son ilustrativas mientras no haya fotos de la desarrolladora.</p>
-    <p><button type="button" class="enlace" id="abrir-privacidad">Aviso de privacidad</button></p>
+    <p>Precios publicados en portales; cada ficha dice la fecha en que se verificó. Pueden variar al cerrar la operación. Las imágenes son ilustrativas mientras no haya fotos de la desarrolladora.</p>
+    <p><button type="button" class="enlace" id="abrir-privacidad">Aviso de privacidad</button> · <a href="/terminos.html">Términos de uso</a></p>
   </div>
   <p class="atrib">Mapa y lugares cercanos © colaboradores de OpenStreetMap. Rutas: OSRM. Direcciones: Nominatim.</p>
 </footer>
@@ -192,7 +200,7 @@
 <dialog class="hoja" id="dlg-copiar" aria-labelledby="t-copiar">
   <h2 id="t-copiar">Tu solicitud está lista</h2>
   <p class="nota" style="margin-top:0">El sitio todavía no tiene un número de WhatsApp configurado. Copia el mensaje y mándalo al asesor.</p>
-  <textarea id="txt-copiar" readonly></textarea>
+  <textarea id="txt-copiar" readonly aria-label="Mensaje para copiar"></textarea>
   <div class="fila pie-hoja"><button class="btn claro" type="button" id="cerrar-copiar">Cerrar</button><button class="btn" type="button" id="btn-copiar">Copiar mensaje</button></div>
 </dialog>
 
@@ -213,7 +221,7 @@
     <p><b>Tus derechos:</b> puedes pedir en cualquier momento ver, corregir o borrar tus datos, u oponerte a su uso, escribiéndonos por el mismo WhatsApp donde te contactamos.</p>
     <p><b>Lugares cercanos y tiempos:</b> si usas “Donde estoy ahorita”, tu ubicación se usa solo en tu navegador para calcular distancias y no se guarda ni se envía a ARVENTA. Si nos dices dónde trabajas y luego pides visita, guardamos solo la zona aproximada (≈1 km) para estadísticas sin nombres.</p>
     <p><b>Tu solicitud</b> se guarda con un folio, que también va en el mensaje de WhatsApp. Lo que escribes en “¿Qué me alcanza?” (sueldo y ahorro) no sale de tu teléfono.</p>
-    <p><a href="aviso-privacidad.html" target="_blank">Leer el aviso de privacidad completo</a></p>
+    <p><a href="/aviso-privacidad.html" target="_blank">Leer el aviso de privacidad completo</a></p>
   </div>
   <div class="fila pie-hoja"><button class="btn" type="button" id="cerrar-privacidad">Entendido</button></div>
 </dialog>
@@ -221,10 +229,8 @@
 <div class="aviso-marcar" id="aviso-marcar" hidden>Toca el mapa donde trabajas</div>
 <div class="toast" id="toast" role="status" hidden></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="config.js"></script>
-<script src="datos.js"></script>
-<script src="lugares.js"></script>
-<script src="app.js"></script>
+<script src="/assets/config.js?v=be39098ebf"></script>
+<script src="/assets/datos.js?v=67de0e0ef6"></script>
+<script src="/assets/app.js?v=69299cc5a2"></script>
 </body>
 </html>

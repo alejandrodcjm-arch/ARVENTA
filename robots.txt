@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /reporte.html
+
+Sitemap: https://arventa.mx/sitemap.xml
