@@ -51,8 +51,8 @@ La información y publicidad debe ser veraz, comprobable, clara y sin nada que l
 - [ ] Casilla de consentimiento para compartir los datos con la desarrolladora del desarrollo elegido.
 
 ### 5. Servicios gratuitos que usa el sitio
-- [ ] Mostrar siempre la atribución de OpenStreetMap y CARTO en el mapa.
-- [ ] Nominatim y OSRM públicos son para uso ligero; si el sitio crece, cambiar a un plan propio o de pago.
+- [ ] Mostrar siempre la atribución de OpenStreetMap en el mapa (los mosaicos y los lugares vienen de OpenStreetMap). CARTO dejó de usarse en noviembre de 2026 porque ya exige clave de API.
+- [ ] Nominatim, OSRM y los mosaicos de tile.openstreetmap.org son para uso ligero; si el sitio crece, cambiar a un plan propio o de pago.
 
 Si un cambio choca con alguno de estos puntos, no lo hagas y explica por qué.
 
@@ -65,10 +65,12 @@ Inspirado en Airbnb: buscador arriba, categorías con íconos, tarjetas con imá
 | `index.html` | Estructura de la página |
 | `estilos.css` | Diseño. Paleta: tinta `#1D2B3A`, cal `#FBFBF8`, agave `#2F6B5E`, sol `#F0A202`, cantera `#B5654F`. Letras: Bricolage Grotesque (títulos) y Atkinson Hyperlegible (texto) |
 | `datos.js` | Lista de desarrollos (`window.DESARROLLOS`). Es la fuente de verdad |
-| `app.js` | Buscador (dónde, cerca de, presupuesto), categorías, tarjetas con carrusel, filtros, vista de mapa, ficha `#id`, ilustraciones SVG mientras no hay fotos, lugares cercanos (Overpass), tiempos en auto (OSRM), direcciones (Nominatim), calculadora y formulario de visita |
+| `app.js` | Buscador (dónde, cerca de, presupuesto), categorías, tarjetas con carrusel, filtros, vista de mapa, ficha `#id`, ilustraciones SVG mientras no hay fotos, lugares cercanos, tiempos en auto (OSRM), direcciones (Nominatim), calculadora y formulario de visita |
+| `config.js` | WhatsApp, dirección de la hoja de Google, medición (Umami) y datos legales |
+| `lugares.js` | Lugares cercanos de OpenStreetMap; lo genera `actualizar-lugares.js` |
 | `fotos/<id>/` | Fotos reales por desarrollo, listadas en `fotos:[]` de `datos.js` |
 
-Servicios externos gratuitos: CARTO para el mapa, Overpass para lugares, OSRM para rutas y Nominatim para direcciones. Respeta sus límites: una sola consulta a Overpass por carga, guardada 7 días en `localStorage`.
+Servicios externos gratuitos: OpenStreetMap para el mapa, OSRM para rutas y Nominatim para direcciones. Los lugares cercanos se guardan en `lugares.js` y se actualizan una vez al mes con `node actualizar-lugares.js` (Overpass); el sitio ya no consulta Overpass en cada visita porque tardaba minutos o fallaba. Configuración (WhatsApp, hoja de Google, medición y datos legales) en `config.js`.
 
 ## Requisitos técnicos para producción
 Están en `docs/REQUISITOS.md`: arquitectura, estructura de carpetas, solicitudes de visita, rendimiento, fiabilidad, seguridad, SEO, medición, legal, accesibilidad, pruebas y la lista para lanzar. Trabaja hacia esa estructura y marca los puntos que vayas cumpliendo.

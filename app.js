@@ -3,8 +3,8 @@
    Todo corre en el navegador; los datos viven en datos.js. */
 
 /* ===== Configuración ===== */
-// Tu número de WhatsApp con lada de país, sin espacios. Ej. "5216181234567".
-const WHATSAPP = "";
+// WhatsApp, hoja de Google, medición y datos legales se configuran en config.js
+const WHATSAPP = window.ARVENTA?.WHATSAPP || "";
 const CENTRO = {lat:24.0248, lng:-104.6705, nombre:"el Centro Histórico"};
 const CAJA = {s:23.95, w:-104.77, n:24.10, e:-104.56};
 const TASA_BANCO = 11;     // % anual de referencia para cálculos
@@ -40,56 +40,15 @@ const CATS = {
   parque:  {ico:"🌳", nombre:"Parque"},
   uni:     {ico:"🎓", nombre:"Universidad", f:1}
 };
-let LUGARES = null;
+/* Vienen de lugares.js (generado con `node actualizar-lugares.js`). Antes se consultaba Overpass
+   en cada visita: tardaba minutos o fallaba, y mientras tanto los filtros de cercanía no servían. */
+const OSM = window.LUGARES_OSM || {fecha:"", datos:[]};
+const LUGARES = OSM.datos.filter(l => CATS[l[0]])
+  .map(([cat, nombre, lat, lng]) => ({cat, nombre:nombre || CATS[cat].nombre, lat, lng, nombrado:!!nombre}));
 const CERCA_CACHE = new Map();
 
-function consultaOverpass(){
-  const b = `${CAJA.s},${CAJA.w},${CAJA.n},${CAJA.e}`;
-  return `[out:json][timeout:60];(
-    nwr["amenity"~"^(school|kindergarten)$"](${b});
-    nwr["shop"]["brand"~"oxxo",i](${b});
-    nwr["shop"]["name"~"^oxxo",i](${b});
-    nwr["shop"="supermarket"](${b});
-    nwr["amenity"="pharmacy"](${b});
-    nwr["amenity"~"^(hospital|clinic)$"](${b});
-    nwr["leisure"="park"](${b});
-    nwr["amenity"="university"](${b});
-  );out center tags;`;
-}
-function categoria(t){
-  if (/oxxo/i.test(t.brand || "") || /^oxxo/i.test(t.name || "")) return "oxxo";
-  if (t.amenity === "school" || t.amenity === "kindergarten") return "escuela";
-  if (t.shop === "supermarket") return "super";
-  if (t.amenity === "pharmacy") return "farmacia";
-  if (t.amenity === "hospital" || t.amenity === "clinic") return "salud";
-  if (t.leisure === "park") return "parque";
-  if (t.amenity === "university") return "uni";
-  return null;
-}
-async function cargarLugares(){
-  try {
-    const g = localStorage.getItem("lugares-v1");
-    if (g) { const o = JSON.parse(g); if (Date.now() - o.t < 7 * 864e5) { LUGARES = o.d; return; } }
-  } catch (e) {}
-  const servidores = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
-  for (const url of servidores) {
-    try {
-      const r = await fetch(url, {method:"POST", body:"data=" + encodeURIComponent(consultaOverpass()),
-        headers:{"Content-Type":"application/x-www-form-urlencoded"}});
-      if (!r.ok) continue;
-      const j = await r.json();
-      LUGARES = j.elements.map(e => {
-        const t = e.tags || {}, c = categoria(t), lat = e.lat ?? e.center?.lat, lng = e.lon ?? e.center?.lon;
-        if (!c || lat == null) return null;
-        return {cat:c, nombre:t.name || CATS[c].nombre, lat, lng, nombrado:!!t.name};
-      }).filter(Boolean);
-      try { localStorage.setItem("lugares-v1", JSON.stringify({t:Date.now(), d:LUGARES})); } catch (e) {}
-      return;
-    } catch (e) {}
-  }
-}
 function cercanos(d){
-  if (!LUGARES || d.lat == null) return null;
+  if (!LUGARES.length || d.lat == null) return null;
   if (CERCA_CACHE.has(d.id)) return CERCA_CACHE.get(d.id);
   const mas = {}, conteo = {};
   for (const l of LUGARES) {
@@ -120,6 +79,11 @@ function normal(s){ return String(s || "").toLowerCase().normalize("NFD").replac
 function m2Num(d){ const m = String(d.m2).match(/(\d+)/); return m ? +m[1] : null; }
 function porM2(d){ const m = m2Num(d); return m && d.tipo !== "terreno" ? d.desde / m : null; }
 function zonaCorta(d){ return d.zona.split(/[;,(]/)[0].trim(); }
+// fetch con tiempo límite: un servicio que no contesta no debe dejar la página esperando
+async function traer(url, opciones = {}, ms = 12000){
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+  try { return await fetch(url, {...opciones, signal:ctl.signal}); } finally { clearTimeout(t); }
+}
 function toast(t, ms = 3500){ const e = $("#toast"); e.textContent = t; e.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => e.hidden = true, ms); }
 function pago(monto, tasaAnual, anios){ const t = tasaAnual / 100 / 12, n = anios * 12; return t > 0 ? monto * t / (1 - Math.pow(1 + t, -n)) : monto / n; }
 function creditoMax(mensual, tasaAnual, anios){ const t = tasaAnual / 100 / 12, n = anios * 12; return mensual * (1 - Math.pow(1 + t, -n)) / t; }
@@ -378,7 +342,7 @@ function pintar(){
     else ctx = `Ordenado por distancia a <b>${esc(estado.ref.nombre)}</b>.`;
   } else if (estado.orden === "m2") ctx = "Ordenado por precio por metro cuadrado, del más bajo al más alto.";
   if (estado.max) ctx += ` Hasta <b>${dinero(estado.max)}</b>.`;
-  if (estado.cercaReq.size && !LUGARES) ctx += " Cargando lugares cercanos para aplicar tus filtros…";
+  if (estado.cercaReq.size && !LUGARES.length) ctx += " Los filtros de cercanía no están disponibles por ahora.";
   $("#contexto").innerHTML = ctx;
   $("#ctx-ubicacion")?.addEventListener("click", usarUbicacion);
   $("#ctx-trabajo")?.addEventListener("click", () => abrirCerca("trabajo"));
@@ -438,7 +402,7 @@ function prepararLugar(tipo){
   const cat = tipo === "escuela" ? "escuela" : "salud";
   $("#lbl-lugar").textContent = tipo === "escuela" ? "Nombre de la escuela" : "Nombre del hospital o clínica";
   $("#in-lugar").value = "";
-  if (!LUGARES) { $("#msg-cerca").textContent = "Todavía estamos cargando las escuelas y hospitales. Intenta en unos segundos."; return; }
+  if (!LUGARES.length) { $("#msg-cerca").textContent = "Por ahora no tenemos la lista de escuelas y hospitales. Usa tu ubicación o márcalo en el mapa."; return; }
   const nombres = [...new Set(LUGARES.filter(l => l.cat === cat && l.nombrado).map(l => l.nombre))].sort((a, b) => a.localeCompare(b, "es"));
   $("#lista-lugares").innerHTML = nombres.map(n => `<option value="${esc(n)}">`).join("");
 }
@@ -446,7 +410,7 @@ async function geocodificar(q){
   const u = new URL("https://nominatim.openstreetmap.org/search");
   u.search = new URLSearchParams({q:q + ", Durango, Durango, México", format:"json", limit:"1", countrycodes:"mx",
     viewbox:`${CAJA.w},${CAJA.n},${CAJA.e},${CAJA.s}`, bounded:"1"});
-  const r = await fetch(u, {headers:{"Accept-Language":"es"}});
+  const r = await traer(u, {headers:{"Accept-Language":"es"}}, 10000);
   const j = await r.json();
   return j[0] ? {lat:+j[0].lat, lng:+j[0].lon} : null;
 }
@@ -455,7 +419,7 @@ async function calcularTiempos(){
   try {
     const coords = [[ref.lng, ref.lat], ...con.map(d => [d.lng, d.lat])].map(c => c.join(",")).join(";");
     const fuentes = con.map((_, i) => i + 1).join(";");
-    const r = await fetch(`https://router.project-osrm.org/table/v1/driving/${coords}?sources=${fuentes}&destinations=0&annotations=duration`);
+    const r = await traer(`https://router.project-osrm.org/table/v1/driving/${coords}?sources=${fuentes}&destinations=0&annotations=duration`);
     const j = await r.json();
     if (j.code !== "Ok") throw new Error(j.code);
     con.forEach((d, i) => { const s = j.durations[i][0]; if (s != null) MINUTOS[d.id] = Math.max(1, Math.round(s / 60)); });
@@ -502,8 +466,10 @@ function contarFiltros(){
 
 /* ===== Mapa (vista alterna) ===== */
 let mapa = null, capaPines = null, marcaRef = null, marcando = false;
-const TILES = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const ATRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+// CARTO ya pide clave de API (sin ella cada mosaico sale en blanco con "API KEY REQUIRED").
+// OpenStreetMap no pide clave; es para tráfico moderado y necesita abrir el sitio desde un servidor.
+const TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const ATRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 function iniciarMapa(){
   if (mapa) return;
   mapa = L.map("mapa", {zoomControl:false}).setView([24.018, -104.655], 13);
@@ -592,8 +558,8 @@ function abrirFicha(d){
   }).join("") : "";
   const seccionCerca = d.lat == null
     ? `<p class="nota">Todavía no tenemos la ubicación exacta. En cuanto la confirmemos verás aquí qué tiene cerca.</p>`
-    : (c ? `<ul class="cerca">${filasCerca}</ul><div class="mapa-ficha" id="mapa-ficha" role="img" aria-label="Mapa de lo que hay cerca"></div><p class="nota">Distancias en línea recta según OpenStreetMap${d.aprox ? ", desde una ubicación aproximada" : ""}. El tiempo caminando considera las vueltas de las calles.</p>`
-         : `<p class="nota">Cargando lugares cercanos…</p><div class="mapa-ficha" id="mapa-ficha"></div>`);
+    : (c ? `<ul class="cerca">${filasCerca}</ul><div class="mapa-ficha" id="mapa-ficha" role="img" aria-label="Mapa de lo que hay cerca"></div><p class="nota">Distancias en línea recta según OpenStreetMap${OSM.fecha ? ` (${esc(OSM.fecha)})` : ""}${d.aprox ? ", desde una ubicación aproximada" : ""}. El tiempo caminando considera las vueltas de las calles.</p>`
+         : `<p class="nota">Por ahora no tenemos la lista de lugares cercanos; pregúntala en tu visita.</p><div class="mapa-ficha" id="mapa-ficha"></div>`);
   const camino = d.lat == null ? `<p class="nota">Disponible cuando confirmemos la ubicación.</p>`
     : estado.ref?.tipo === "trabajo" && MINUTOS[d.id] != null ? `<p class="resumen"><span><b>${MINUTOS[d.id]} min</b> en auto a ${esc(estado.ref.nombre)}</span></p>`
     : estado.ref ? `<p class="resumen"><span><b>${textoDist(metros(d, estado.ref))}</b> de ${esc(estado.ref.nombre)}</span></p><p class="nota"><button type="button" class="enlace" id="f-trabajo">Calcula los minutos a tu trabajo</button>.</p>`
@@ -770,8 +736,3 @@ window.addEventListener("resize", medirCabecera);
 pintarCategorias();
 medirCabecera();
 ruta();
-cargarLugares().then(() => {
-  CERCA_CACHE.clear();
-  const id = location.hash.slice(1), d = DESARROLLOS.find(x => x.id === id);
-  if (d) abrirFicha(d); else pintar();
-});
