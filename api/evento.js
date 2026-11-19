@@ -7,7 +7,7 @@ const NUM = v => (isFinite(Number(v)) ? Number(v) : null);
 const ZONA = v => (isFinite(Number(v)) ? Math.round(Number(v) * 100) / 100 : null); // ~1 km
 const ID = v => (desarrollos().some(d => d.id === v) ? v : null);
 export const TIPOS = {
-  "ver-ficha":{id:ID}, "clic-agendar":{id:ID}, "solicitud":{id:ID}, "compartir-whatsapp":{id:ID},
+  "ver-ficha":{id:ID}, "clic-agendar":{id:ID}, "solicitud":{id:ID}, "compartir-whatsapp":{id:ID}, "compartir":{id:ID, via:v => (["whatsapp", "copiar", "telefono"].includes(v) ? v : null)},
   "busqueda":{texto:v => texto(v, 60).toLowerCase()}, "filtro":{filtros:v => texto(v, 200)},
   "presupuesto":{hasta:NUM}, "zona-trabajo":{lat:ZONA, lng:ZONA}, "comparar":{cuantos:NUM},
   "calcular-alcance":{}, "contacto-desarrolladora":{},

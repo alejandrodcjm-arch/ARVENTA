@@ -51,7 +51,7 @@ test("la ficha interactiva abre desde la lista y el botón atrás regresa", asyn
   await page.goto("/");
   await page.locator(".tarjeta").first().locator(".titulo-enlace").click();
   await expect(page).toHaveURL(/\/desarrollos\/[a-z0-9-]+\/$/);
-  for(const t of ["Condiciones", "Créditos que acepta", "Puede variar al cerrar", "¿Te alcanza?"]) await expect(page.locator("#ficha")).toContainText(t);
+  for(const t of ["Condiciones", "Créditos que acepta", "Puede variar al cerrar", "Cómo podrías pagarlo"]) await expect(page.locator("#ficha")).toContainText(t);
   await page.goBack();
   await expect(page.locator(".tarjeta").first()).toBeVisible();
 });

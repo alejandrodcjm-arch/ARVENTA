@@ -21,7 +21,7 @@ export function agregar(solicitudes, eventos, desde, hasta, id){
   const cuenta = (tipo, k) => ev.filter(e => e.tipo === tipo && e.desarrollo === k).length;
   const ids = new Set([...sel.map(s => s.desarrollo), ...ev.filter(e => e.desarrollo).map(e => e.desarrollo)]);
   const lista = [...ids].filter(k => !id || k === id).map(k => ({id:k, vistas:cuenta("ver-ficha", k), clics:cuenta("clic-agendar", k),
-    compartidos:cuenta("compartir-whatsapp", k), solicitudes:sel.filter(s => s.desarrollo === k).length}))
+    compartidos:cuenta("compartir-whatsapp", k) + cuenta("compartir", k), solicitudes:sel.filter(s => s.desarrollo === k).length}))
     .sort((a, b) => b.solicitudes - a.solicitudes || b.vistas - a.vistas);
   const semanas = [];
   for(let s = lunes(desde); s <= hasta; s = new Date(s.getTime() + 7 * 864e5)){
@@ -61,7 +61,7 @@ export async function GET(request){
     const filtroId = id ? `&desarrollo=eq.${id}` : "";
     const [solicitudes, eventos] = await Promise.all([
       sbTodo(`solicitudes?select=creado,desarrollo,cuando,pago,estado,trabajo_texto,trabajo_lat,trabajo_lng,minutos&creado=gte.${iso}${filtroId}`),
-      sbTodo(`eventos?select=tipo,desarrollo,datos&creado=gte.${iso}&tipo=in.(ver-ficha,clic-agendar,compartir-whatsapp${id ? "" : ",presupuesto,busqueda"})${filtroId}`)
+      sbTodo(`eventos?select=tipo,desarrollo,datos&creado=gte.${iso}&tipo=in.(ver-ficha,clic-agendar,compartir-whatsapp,compartir${id ? "" : ",presupuesto,busqueda"})${filtroId}`)
     ]);
     return respuesta(200, agregar(solicitudes, eventos, desde, hasta, id));
   }catch(e){

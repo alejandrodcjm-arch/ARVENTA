@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://tile.openstreetmap.org">
 <!-- Las letras no bloquean la primera pintada: mientras llegan se usa la del sistema -->
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/estilos.css?v=c697830053">
+<link rel="stylesheet" href="/assets/estilos.css?v=7144dbf62d">
 <link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
 </head>
 <body data-ficha="linzea">
@@ -125,15 +125,15 @@
       <h2>Buscar</h2>
       <label for="q2">Zona, colonia o fraccionamiento</label>
       <input id="q2" type="search" placeholder="Ej. Mezquital, salida a Mazatlán">
-      <button type="button" class="op" id="abrir-presupuesto-2" style="margin-top:10px;width:100%"><span class="op-ico">💰</span><span><b>Presupuesto</b><small id="val-presupuesto-2">Cualquier precio</small></span></button>
+      <button type="button" class="op" id="abrir-presupuesto-2" style="margin-top:10px;width:100%"><span class="op-ico"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 9.5h.01M18 15.5h.01"/></svg></span><span><b>Presupuesto</b><small id="val-presupuesto-2">Cualquier precio</small></span></button>
     </div>
     <h2 id="t-cerca">¿Cerca de qué quieres vivir?</h2>
     <div class="opciones-cerca">
-      <button type="button" class="op" data-cerca="ubicacion"><span class="op-ico">📍</span><span><b>Donde estoy ahorita</b><small>Usa la ubicación de tu celular</small></span></button>
-      <button type="button" class="op" data-cerca="trabajo"><span class="op-ico">💼</span><span><b>Mi trabajo o escuela</b><small>Te decimos los minutos en auto</small></span></button>
-      <button type="button" class="op" data-cerca="escuela"><span class="op-ico">🎒</span><span><b>Una escuela para mis hijos</b><small>Elige la escuela por su nombre</small></span></button>
-      <button type="button" class="op" data-cerca="hospital"><span class="op-ico">🏥</span><span><b>Un hospital o clínica</b><small>IMSS, ISSSTE, privados</small></span></button>
-      <button type="button" class="op" data-cerca="centro"><span class="op-ico">⛪</span><span><b>El Centro Histórico</b><small>Desde la Catedral</small></span></button>
+      <button type="button" class="op" data-cerca="ubicacion"><span class="op-ico"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><span><b>Donde estoy ahorita</b><small>Usa la ubicación de tu celular</small></span></button>
+      <button type="button" class="op" data-cerca="trabajo"><span class="op-ico"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></svg></span><span><b>Mi trabajo o escuela</b><small>Te decimos los minutos en auto</small></span></button>
+      <button type="button" class="op" data-cerca="escuela"><span class="op-ico"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c2.5-1 5.5-1 9 1 3.5-2 6.5-2 9-1V19c-2.5-1-5.5-1-9 1-3.5-2-6.5-2-9-1z"/><path d="M12 6.5V20"/></svg></span><span><b>Una escuela para mis hijos</b><small>Elige la escuela por su nombre</small></span></button>
+      <button type="button" class="op" data-cerca="hospital"><span class="op-ico"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5h16v16M9 21v-4h6v4M12 8v5M9.5 10.5h5"/></svg></span><span><b>Un hospital o clínica</b><small>IMSS, ISSSTE, privados</small></span></button>
+      <button type="button" class="op" data-cerca="centro"><span class="op-ico"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6"/></svg></span><span><b>El Centro Histórico</b><small>Desde la Catedral</small></span></button>
     </div>
     <div class="sub" id="sub-trabajo" hidden>
       <label for="in-trabajo">Escribe tu trabajo, escuela o dirección</label>
@@ -159,7 +159,7 @@
   <form method="dialog">
     <h2 id="t-pres">¿Hasta cuánto quieres pagar?</h2>
     <div class="chips-pres" id="chips-pres"></div>
-    <h3>¿Qué me alcanza?</h3>
+    <h3>Calcula tu presupuesto</h3>
     <p class="nota" style="margin-top:0">Pon tu ingreso y tu ahorro y te decimos hasta cuánto te alcanza con banco y con Infonavit. Tus datos se quedan solo en este teléfono.</p>
     <div class="calc-mini">
       <label>Ingreso mensual antes de impuestos<input id="in-ingreso" type="number" inputmode="numeric" min="0" step="500" placeholder="Ej. 18000"></label>
@@ -229,6 +229,19 @@
 </dialog>
 <div class="barra-comparar" id="barra-comparar" hidden></div>
 
+<!-- Compartir un desarrollo -->
+<dialog class="hoja" id="dlg-compartir" aria-labelledby="t-compartir">
+  <h2 id="t-compartir">Compartir</h2>
+  <p class="nota" id="comp-nombre" style="margin-top:0"></p>
+  <label class="comp-enlace">Enlace<input id="comp-url" readonly></label>
+  <div class="comp-opciones">
+    <button type="button" class="btn" id="comp-copiar">Copiar enlace</button>
+    <a class="btn claro" id="comp-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
+    <button type="button" class="btn claro" id="comp-mas" hidden>Más opciones</button>
+  </div>
+  <div class="fila pie-hoja"><button class="btn claro" type="button" id="cerrar-compartir">Cerrar</button></div>
+</dialog>
+
 <dialog class="hoja" id="dlg-privacidad" aria-labelledby="t-priv">
   <h2 id="t-priv">Aviso de privacidad</h2>
   <div class="texto-legal">
@@ -248,6 +261,6 @@
 
 <script src="/assets/config.js?v=be39098ebf"></script>
 <script src="/assets/datos.js?v=67de0e0ef6"></script>
-<script src="/assets/app.js?v=ab435e8d47"></script>
+<script src="/assets/app.js?v=3e985ea2b9"></script>
 </body>
 </html>

@@ -341,3 +341,42 @@ body.comparando .pie{padding-bottom:90px}
 .ficha-estatica dd{margin:0}
 .ficha-estatica a{color:var(--agave)}
 .ficha-estatica .btn{display:inline-block;color:#fff;text-decoration:none;margin-top:12px}
+
+/* ===== Íconos de línea ===== */
+.icono{width:20px;height:20px;flex:none;display:block}
+.ico{background:#EEF5F3;color:var(--agave)}
+.ico .icono{width:18px;height:18px}
+.lo-mejor .i{color:var(--agave);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#EEF5F3}
+.lo-mejor .i .icono{width:17px;height:17px}
+.poi{color:#fff}
+.poi .icono{width:16px;height:16px;stroke-width:2}
+.yo span{display:grid;place-items:center;color:#fff}
+.yo .icono{width:16px;height:16px;stroke-width:2}
+.op-ico{display:grid;place-items:center;color:var(--tinta)}
+.op-ico .icono{width:22px;height:22px}
+.et-ico{display:inline-grid;vertical-align:-4px;margin-right:6px;color:var(--agave)}
+.et-ico .icono{width:16px;height:16px}
+
+/* Tarjeta: datos debajo de la imagen */
+.info .datos-t{margin:2px 0 0;font-size:14px;color:var(--tinta-suave)}
+.cerca-t{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;color:var(--tinta)}
+.cerca-t li{display:flex;align-items:center;gap:5px}
+.cerca-t .icono{width:16px;height:16px;color:var(--agave)}
+.info .mensual-t{color:var(--tinta-suave);font-size:14px}
+
+/* Presupuesto: tonos neutros, sin juzgar */
+.veredicto .ok,.veredicto .nok{display:grid;place-items:center}
+.veredicto .icono{width:15px;height:15px;stroke-width:2.2}
+.veredicto .nok{background:#EEF1F4;color:var(--tinta-suave)}
+.alc.no{background:#EEF1F4;color:var(--tinta-suave)}
+
+/* Compartir */
+button.compartir{background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline}
+.comp-enlace{display:block;font-size:14px;color:var(--tinta-suave);margin:4px 0 12px}
+.comp-enlace input{display:block;width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--niebla);border-radius:10px;font:inherit;font-size:15px;color:var(--tinta);background:var(--cal)}
+.comp-opciones{display:grid;gap:8px}
+.comp-opciones .btn{width:100%;text-align:center;text-decoration:none;display:block}
+
+/* Los mapas no se salen de su caja (Leaflet usa z-index altos) */
+.mapa-ficha{isolation:isolate;position:relative;z-index:0}
+#mapa{isolation:isolate;z-index:0}

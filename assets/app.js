@@ -18,27 +18,58 @@ const TIPO = {casa:"Casas", departamento:"Departamentos", terreno:"Terrenos"};
 const TIPO_UNO = {casa:"Casa", departamento:"Departamento", terreno:"Terreno"};
 
 const AMEN = {
-  alberca:   {nombre:"Alberca", ico:"🏊", re:/alberca/i},
-  vigilancia:{nombre:"Vigilancia o acceso controlado", ico:"🛡️", re:/vigilan|caseta|control de acceso|acceso con tarjeta/i},
-  gimnasio:  {nombre:"Gimnasio", ico:"🏋️", re:/gimnas/i},
-  verdes:    {nombre:"Áreas verdes", ico:"🌳", re:/verde|pista para correr/i},
-  juegos:    {nombre:"Juegos infantiles", ico:"🛝", re:/juegos|ludoteca/i},
-  canchas:   {nombre:"Canchas", ico:"🎾", re:/cancha|pádel|tenis/i},
+  alberca:   {nombre:"Alberca", re:/alberca/i},
+  vigilancia:{nombre:"Vigilancia o acceso controlado", re:/vigilan|caseta|control de acceso|acceso con tarjeta/i},
+  gimnasio:  {nombre:"Gimnasio", re:/gimnas/i},
+  verdes:    {nombre:"Áreas verdes", re:/verde|pista para correr/i},
+  juegos:    {nombre:"Juegos infantiles", re:/juegos|ludoteca/i},
+  canchas:   {nombre:"Canchas", re:/cancha|pádel|tenis/i},
 };
 function amenidades(d){
   const t = [d.nombre, ...(d.ventajas || [])].join(" ");
   return Object.keys(AMEN).filter(k => AMEN[k].re.test(t));
 }
 
+/* ===== Íconos de línea (mismo trazo en todo el sitio) ===== */
+const ICONOS = {
+  escuela:'<path d="M3 5.5c2.5-1 5.5-1 9 1 3.5-2 6.5-2 9-1V19c-2.5-1-5.5-1-9 1-3.5-2-6.5-2-9-1z"/><path d="M12 6.5V20"/>',
+  oxxo:'<path d="M4 10v10h16V10M3 10l2-5h14l2 5zM10 20v-5h4v5"/>',
+  super:'<circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/><path d="M3 4h2l2.4 11h11l2-8H6.2"/>',
+  farmacia:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/>',
+  salud:'<path d="M4 21V5h16v16M9 21v-4h6v4M12 8v5M9.5 10.5h5"/>',
+  parque:'<path d="M12 21v-6"/><path d="M12 3a5 5 0 0 0-5 5 4 4 0 0 0 1 7h8a4 4 0 0 0 1-7 5 5 0 0 0-5-5z"/>',
+  uni:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6"/>',
+  ubicacion:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  precio:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 11v6h-6"/>',
+  alberca:'<path d="M2 17c2 0 2 1.5 4 1.5S8 17 10 17s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5M8 14V6a2 2 0 0 1 4 0M14 14V6a2 2 0 0 1 4 0M8 9h6M8 12h6"/>',
+  vigilancia:'<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  gimnasio:'<path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"/>',
+  verdes:'<path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15M5 19l7-7"/>',
+  juegos:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0M9 9.5h.01M15 9.5h.01"/>',
+  canchas:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6c3.5 3.5 3.5 9.3 0 12.8M18.4 5.6c-3.5 3.5-3.5 9.3 0 12.8"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  trabajo:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
+  centro:'<path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6"/>',
+  hospital:'<path d="M4 21V5h16v16M9 21v-4h6v4M12 8v5M9.5 10.5h5"/>',
+  compartir:'<path d="M12 4v11M7 9l5-5 5 5M5 14v5h14v-5"/>',
+  enlace:'<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>',
+  mensaje:'<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/>',
+  mas:'<circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/>'
+};
+function icono(nombre, clase = ""){
+  return `<svg class="icono ${clase}" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ICONOS[nombre] || ICONOS.check}</svg>`;
+}
+
 /* ===== Lugares cercanos (OpenStreetMap) ===== */
 const CATS = {
-  escuela: {ico:"🎒", nombre:"Escuela", f:1},
-  oxxo:    {ico:"🏪", nombre:"OXXO"},
-  super:   {ico:"🛒", nombre:"Supermercado"},
-  farmacia:{ico:"💊", nombre:"Farmacia", f:1},
-  salud:   {ico:"🏥", nombre:"Hospital o clínica"},
-  parque:  {ico:"🌳", nombre:"Parque"},
-  uni:     {ico:"🎓", nombre:"Universidad", f:1}
+  escuela: {nombre:"Escuela", f:1},
+  oxxo:    {nombre:"OXXO"},
+  super:   {nombre:"Supermercado"},
+  farmacia:{nombre:"Farmacia", f:1},
+  salud:   {nombre:"Hospital o clínica"},
+  parque:  {nombre:"Parque"},
+  uni:     {nombre:"Universidad", f:1}
 };
 /* Vienen de lugares.js (generado con `node actualizar-lugares.js`). Antes se consultaba Overpass
    en cada visita: tardaba minutos o fallaba, y mientras tanto los filtros de cercanía no servían. */
@@ -160,6 +191,13 @@ function ilustracion(d, variante = 0){
 }
 
 /* Láminas informativas que acompañan a las imágenes en el carrusel */
+// Fila de lugares cercanos para la tarjeta: ícono + distancia (el nombre queda para lectores de pantalla)
+function cercaTarjeta(d){
+  const c = cercanos(d);
+  if (!c) return "";
+  const items = ["escuela", "super", "oxxo", "farmacia", "salud", "parque"].filter(k => c.mas[k] && c.mas[k].m <= 2000).slice(0, 4);
+  return items.length ? `<ul class="cerca-t">${items.map(k => `<li title="${CATS[k].nombre} más ${CATS[k].f ? "cercana" : "cercano"}">${icono(k)}<span class="sr">${CATS[k].nombre}: </span>${textoDist(c.mas[k].m)}</li>`).join("")}</ul>` : "";
+}
 function laminaCerca(d){
   const c = cercanos(d);
   if (!c) return null;
@@ -189,8 +227,6 @@ function laminas(d){
   const l = [];
   d.fotos.forEach((f, i) => l.push(fotoHTML(d, f, i)));
   if (!d.fotos.length) l.push(ilustracion(d, 0) + `<span class="ilustrativa">Imagen ilustrativa</span>`);
-  const c = laminaCerca(d); if (c) l.push(c);
-  l.push(laminaBasico(d));
   return l;
 }
 
@@ -274,11 +310,9 @@ function etiquetaCercania(d){
 }
 function loBueno(d){
   const c = cercanos(d), partes = [];
-  if (c?.mas.escuela && c.mas.escuela.m <= 800) partes.push(`Escuela a ${textoDist(c.mas.escuela.m)}`);
   const am = amenidades(d);
   if (am.includes("alberca")) partes.push("Alberca");
   else if (am.includes("vigilancia")) partes.push("Vigilancia");
-  if (partes.length < 2 && c?.mas.oxxo && c.mas.oxxo.m <= 600) partes.push(`OXXO a ${textoDist(c.mas.oxxo.m)}`);
   const pm = porM2(d);
   if (partes.length < 2 && pm && pm < PROM_M2[d.tipo] * .9) partes.push(`m² ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo del promedio`);
   return partes.slice(0, 2).join(" · ");
@@ -303,8 +337,10 @@ function tarjeta(d){
     <div class="info">
       <div class="l1"><h3><a class="titulo-enlace" href="/desarrollos/${d.id}/">${esc(d.nombre)}</a></h3>${cerc ? `<span class="cercania">${cerc}</span>` : ""}</div>
       <p class="gris">${esc(TIPO[d.tipo])} · ${esc(zonaCorta(d))}</p>
+      <p class="datos-t">${[d.tipo !== "terreno" && /^\d/.test(d.recamaras) ? `${esc(d.recamaras)} rec.` : "", esc(d.m2.replace(/\s*\(.*\)$/, "")), pm ? `${dinero(pm)}/m²` : ""].filter(Boolean).join(" · ")}</p>
+      ${cercaTarjeta(d)}
       ${bueno ? `<p class="bueno">${esc(bueno)}</p>` : ""}
-      <p class="precio">${vencido(d) ? "<b>Precio por confirmar</b>" : `desde <b>${corto(d.desde)}</b>`}${d.tipo !== "terreno" ? ` · ${esc(d.recamaras)} rec.` : ""}</p>
+      <p class="precio">${vencido(d) ? "<b>Precio por confirmar</b>" : `desde <b>${corto(d.desde)}</b><span class="mensual-t"> · aprox. ${dinero(pago(d.desde * .8, TASA_BANCO, PLAZO_BANCO))} al mes</span>`}</p>
       <div class="pie-tarjeta">${PERFIL ? (([cls, txt]) => `<span class="alc ${cls}">${txt}</span>`)(etiquetaAlcance(d)) : ""}${botonComparar(d)}</div>
     </div>
   </div>`;
@@ -359,11 +395,11 @@ function verComparar(){
   h += renglon("Recámaras", ds.map(d => ({txt:d.tipo === "terreno" ? "—" : esc(d.recamaras), num:null})), false);
   h += renglon("Créditos confirmados", ds.map(d => ({txt:d.creditos.length ? esc(d.creditos.join(", ")) : "Por confirmar", num:null})), false);
   h += renglon("Entrega", ds.map(d => ({txt:d.entrega ? esc(d.entrega) : "Por confirmar", num:null})), false);
-  if (PERFIL) h += renglon("¿Te alcanza?", ds.map(d => ({txt:etiquetaAlcance(d)[1], num:null})), false);
+  if (PERFIL) h += renglon("Con tu presupuesto", ds.map(d => ({txt:etiquetaAlcance(d)[1], num:null})), false);
   if (trabajo) h += renglon(`Minutos a ${esc(estado.ref.nombre)}`, ds.map(d => MINUTOS[d.id] != null ? {txt:`${MINUTOS[d.id]} min en auto`, num:MINUTOS[d.id]} : {txt:d.lat == null ? "Sin ubicación" : "Calculando…", num:null}));
   else h += `<div class="cmp-et">Minutos a tu trabajo</div><div class="cmp-v" style="grid-column:1/-1"><button type="button" class="enlace" id="cmp-trabajo">Dinos dónde trabajas</button> para compararlos.</div>`;
   for (const k of ["escuela", "super", "oxxo", "farmacia", "salud", "parque"]) {
-    h += renglon(`${CATS[k].ico} ${CATS[k].nombre} más ${CATS[k].f ? "cercana" : "cercano"}`, ds.map((d, i) => {
+    h += renglon(`<span class="et-ico">${icono(k)}</span>${CATS[k].nombre} más ${CATS[k].f ? "cercana" : "cercano"}`, ds.map((d, i) => {
       const l = cs[i]?.mas[k];
       return l ? {txt:`${textoDist(l.m)}<small>${esc(l.nombre)}</small>`, num:l.m} : {txt:d.lat == null ? "Sin ubicación" : "Sin dato", num:null};
     }));
@@ -557,10 +593,10 @@ function alcance(d){
 }
 function etiquetaAlcance(d){
   const a = alcance(d);
-  if (a.banco && a.inf) return ["si", "Te alcanza con banco o Infonavit"];
-  if (a.banco) return ["si", "Te alcanza con banco"];
-  if (a.inf) return ["si", "Te alcanza con Infonavit"];
-  return ["no", `Te faltan unos ${corto(a.falta)}`];
+  if (a.banco && a.inf) return ["si", "En tu presupuesto"];
+  if (a.banco) return ["si", "En tu presupuesto con banco"];
+  if (a.inf) return ["si", "En tu presupuesto con Infonavit"];
+  return ["no", "Arriba de tu presupuesto"];
 }
 const pct = x => (x * 100).toLocaleString("es-MX", {maximumFractionDigits:2}) + "%";
 function htmlExplicacion(){
@@ -571,7 +607,7 @@ function htmlExplicacion(){
       <li>Con esa mensualidad, a ${PLAZO_BANCO} años y ${TASA_BANCO}% anual, el banco te presta hasta <b>${dinero(b.credito)}</b>. <span class="formula">crédito = pago × (1 − (1 + i)<sup>−n</sup>) ÷ i</span>, con i = ${TASA_BANCO}% ÷ 12 y n = ${PLAZO_BANCO * 12} meses.</li>
       <li>Tu ahorro tiene que cubrir el enganche mínimo (${pct(S.engancheMin)}) y los gastos de escrituración (≈${pct(S.gastos)}): ${dinero(p.ahorro)} ÷ ${pct(S.engancheMin + S.gastos)} = vivienda de hasta <b>${dinero(b.porAhorro)}</b>.</li>
       <li>Por tu ingreso: (crédito + ahorro) ÷ ${k} = <b>${dinero(b.porSueldo)}</b>.</li>
-      <li>Te alcanza el menor de los dos: <b>${dinero(b.max)}</b> (te limita ${b.porAhorro < b.porSueldo ? "el ahorro" : "el ingreso"}).</li>
+      <li>Tu presupuesto con banco es el menor de los dos: <b>${dinero(b.max)}</b> (te limita ${b.porAhorro < b.porSueldo ? "el ahorro" : "el ingreso"}).</li>
     </ol>
     <h4>Con Infonavit</h4><ol>
       <li>Infonavit descuenta de tu nómina hasta ${pct(S.infPorcentaje)} del sueldo: <b>${dinero(i.pago)} al mes</b>.</li>
@@ -584,18 +620,18 @@ function htmlExplicacion(){
 }
 // Veredicto para un desarrollo: si el anuncio no confirma ese crédito, no se promete
 function htmlAlcanceFicha(d){
-  if (!PERFIL) return `<p class="nota" style="margin:0"><button type="button" class="enlace" id="f-alcanza">Dinos tu ingreso y tu ahorro</button> y te decimos si te alcanza con banco o con Infonavit.</p>`;
+  if (!PERFIL) return `<p class="nota" style="margin:0"><button type="button" class="enlace" id="f-alcanza">Calcula tu presupuesto</button> con tu ingreso y tu ahorro, y te mostramos cómo podrías pagarlo con banco o con Infonavit.</p>`;
   const S = SUPUESTOS, P = d.desde, c = capacidad(PERFIL), g = P * S.gastos, ah = PERFIL.ahorro, sub = PERFIL.subcuenta;
   const acepta = k => !d.creditos.length || d.creditos.includes(k);
   const bOk = P <= c.banco.max, iOk = P <= c.inf.max;
   const bCred = Math.min(P * (1 - S.engancheMin), Math.max(0, P + g - ah)), iCred = Math.max(0, P + g - ah - sub);
   const bTxt = bOk ? (bCred <= 0 ? "Tu ahorro cubre el precio y los gastos." : `Pones ${dinero(P + g - bCred)} de tu ahorro y el banco te presta ${dinero(bCred)}: unos <b>${dinero(pago(bCred, TASA_BANCO, PLAZO_BANCO))} al mes</b> a ${PLAZO_BANCO} años.`)
-    : P > c.banco.porAhorro ? `Para enganche y gastos necesitas unos ${dinero(P * (S.engancheMin + S.gastos))} ahorrados y tienes ${dinero(ah)}.`
-    : `Tendría que prestarte ${dinero(bCred)} y con tu ingreso te presta hasta ${dinero(c.banco.credito)}.`;
+    : P > c.banco.porAhorro ? `Para enganche y gastos se necesitan unos ${dinero(P * (S.engancheMin + S.gastos))}; con lo que llevas ahorrado (${dinero(ah)}) sería cuestión de reunir la diferencia.`
+    : `El crédito necesario (${dinero(bCred)}) es mayor al que calculamos con tu ingreso (${dinero(c.banco.credito)}). Un enganche mayor o juntar Infonavit y banco (Cofinavit) puede ayudarte.`;
   const iTxt = iOk ? (iCred <= 0 ? "Tu ahorro y tu subcuenta cubren el precio y los gastos." : `Infonavit te presta ${dinero(iCred)}: unos <b>${dinero(pago(iCred, c.inf.tasa, S.infPlazo))} al mes</b> a ${S.infPlazo} años, descontados de tu nómina.`)
-    : `Tendría que prestarte ${dinero(iCred)} y con tu sueldo te presta hasta ${dinero(c.inf.credito)}.`;
+    : `El crédito necesario (${dinero(iCred)}) es mayor al que calculamos con tu sueldo (${dinero(c.inf.credito)}). Con Cofinavit o un enganche mayor podrías acercarte.`;
   const nota = k => acepta(k) ? "" : ` <i>Su anuncio no confirma ${k === "Banco" ? "crédito bancario" : k}: pregunta si lo acepta.</i>`;
-  const item = (ok, t, x) => `<li><span class="${ok ? "ok" : "nok"}" aria-hidden="true">${ok ? "✓" : "✗"}</span><span><b>${t}: ${ok ? "sí" : "todavía no"}.</b> ${x}</span></li>`;
+  const item = (ok, t, x) => `<li><span class="${ok ? "ok" : "nok"}">${icono(ok ? "check" : "info")}</span><span><b>${t}.</b> ${x}</span></li>`;
   return `<ul class="veredicto">${item(bOk, "Con banco", bTxt + nota("Banco"))}${item(iOk, "Con Infonavit", iTxt + nota("Infonavit"))}</ul>
     <p class="nota">Con el precio “desde”, tu ingreso de ${dinero(PERFIL.sueldo)} y tu ahorro de ${dinero(ah)}.${d.creditos.length ? "" : " Su anuncio no confirma qué créditos acepta."} <button type="button" class="enlace" id="f-alcanza">Cambiar mis datos</button></p>`;
 }
@@ -607,7 +643,7 @@ function calcularAlcance(){
   estado.max = tope; estado.presEtiqueta = "ingreso";
   const n = DESARROLLOS.filter(d => { const a = alcance(d); return a.banco || a.inf; }).length;
   $("#res-alcance").innerHTML = `<span class="topes"><span><small>Con banco</small><b>hasta ${dinero(c.banco.max)}</b></span><span><small>Con Infonavit</small><b>hasta ${dinero(c.inf.max)}</b></span></span>
-    Te ${n === 1 ? "alcanza" : "alcanzan"} <b>${n}</b> de ${DESARROLLOS.length} desarrollos; te mostramos los de hasta <b>${dinero(tope)}</b>.${htmlExplicacion()}`;
+    <b>${n}</b> de ${DESARROLLOS.length} desarrollos entran en tu presupuesto; te mostramos los de hasta <b>${dinero(tope)}</b>.${htmlExplicacion()}`;
   pintarPresupuesto(); pintar();
 }
 
@@ -678,7 +714,7 @@ async function iniciarMapa(){
 }
 function ponerMarcaRef(){
   if (marcaRef) marcaRef.remove();
-  const ico = {trabajo:"💼", ubicacion:"📍", escuela:"🎒", hospital:"🏥", centro:"⛪"}[estado.ref.tipo] || "📍";
+  const ico = icono({trabajo:"trabajo", ubicacion:"ubicacion", escuela:"escuela", hospital:"hospital", centro:"centro"}[estado.ref.tipo] || "ubicacion");
   marcaRef = L.marker([estado.ref.lat, estado.ref.lng], {icon:L.divIcon({className:"", html:`<div class="yo"><span>${ico}</span></div>`, iconSize:[0, 0]}), title:estado.ref.nombre, keyboard:false}).addTo(mapa);
 }
 function pintarPines(l){
@@ -726,9 +762,9 @@ function abrirFicha(d){
   const imgs = [
     ...(d.fotos.length ? d.fotos.map((f, i) => fotoHTML(d, f, i)) : [ilustracion(d, 0)]),
   ];
-  const extra = [ilustracion(d, 1), laminaCerca(d) || ilustracion(d, 3), laminaBasico(d), ilustracion(d, 2)];
-  const mosaico = [...imgs, ...extra].slice(0, 5);
-  const carrusel = [...imgs, ...extra.filter(x => !x.startsWith("<svg")).slice(0, 2)];
+  const extra = [ilustracion(d, 1), ilustracion(d, 2), ilustracion(d, 3), ilustracion(d, 4)];
+  const mosaico = [...imgs, ...(d.fotos.length > 4 ? [] : extra)].slice(0, 5);
+  const carrusel = imgs;
   const aviso = d.fotos.length ? "" : `<span class="ilustrativa">Imagen ilustrativa</span>`;
 
   // Lo mejor de aquí: solo cosas buenas y ciertas
@@ -738,16 +774,16 @@ function abrirFicha(d){
     if (n.escuela) f.push(`${n.escuela} ${n.escuela === 1 ? "escuela" : "escuelas"}`);
     if (n.oxxo) f.push(`${n.oxxo} ${n.oxxo === 1 ? "OXXO" : "OXXOs"}`);
     if (n.farmacia) f.push(`${n.farmacia} ${n.farmacia === 1 ? "farmacia" : "farmacias"}`);
-    if (f.length) mejores.push(["🚶", `<b>A menos de 1 km tienes ${f.join(", ")}.</b>`]);
+    if (f.length) mejores.push([icono("ubicacion"), `<b>A menos de 1 km tienes ${f.join(", ")}.</b>`]);
   }
-  if (pm && pm < PROM_M2[d.tipo] * .97) mejores.push(["📉", `<b>Su precio por m² (${dinero(pm)}) está ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo</b> del promedio de los ${d.tipo === "casa" ? "fraccionamientos" : "edificios"} nuevos de Durango en ARVENTA.`]);
+  if (pm && pm < PROM_M2[d.tipo] * .97) mejores.push([icono("precio"), `<b>Su precio por m² (${dinero(pm)}) está ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo</b> del promedio de los ${d.tipo === "casa" ? "fraccionamientos" : "edificios"} nuevos de Durango en ARVENTA.`]);
   const usadas = new Set();
-  for (const a of am) { const v = (d.ventajas || []).find(v => AMEN[a].re.test(v)) || AMEN[a].nombre; if (usadas.has(v)) continue; usadas.add(v); mejores.push([AMEN[a].ico, esc(v)]); }
-  for (const v of d.ventajas || []) if (!am.some(a => AMEN[a].re.test(v)) && !/crédito|infonavit|fovissste/i.test(v)) mejores.push(["✔️", esc(v)]);
+  for (const a of am) { const v = (d.ventajas || []).find(v => AMEN[a].re.test(v)) || AMEN[a].nombre; if (usadas.has(v)) continue; usadas.add(v); mejores.push([icono(a), esc(v)]); }
+  for (const v of d.ventajas || []) if (!am.some(a => AMEN[a].re.test(v)) && !/crédito|infonavit|fovissste/i.test(v)) mejores.push([icono("check"), esc(v)]);
 
   const filasCerca = c ? Object.keys(CATS).filter(k => c.mas[k] && c.mas[k].m <= 5000).map(k => {
     const l = c.mas[k], cam = minCaminando(l.m), modo = cam <= 20 ? `${cam} min caminando` : `${minAuto(l.m)} min en auto`;
-    return `<li><span class="ico" aria-hidden="true">${CATS[k].ico}</span><span class="nombre">${esc(l.nombre)}<small>${CATS[k].nombre} más ${CATS[k].f ? "cercana" : "cercano"}</small></span><span class="dist">${textoDist(l.m)}<small>${modo}</small></span></li>`;
+    return `<li><span class="ico">${icono(k)}</span><span class="nombre">${esc(l.nombre)}<small>${CATS[k].nombre} más ${CATS[k].f ? "cercana" : "cercano"}</small></span><span class="dist">${textoDist(l.m)}<small>${modo}</small></span></li>`;
   }).join("") : "";
   const seccionCerca = d.lat == null
     ? `<p class="nota">Todavía no tenemos la ubicación exacta. En cuanto la confirmemos verás aquí qué tiene cerca.</p>`
@@ -762,14 +798,14 @@ function abrirFicha(d){
   $("#ficha").innerHTML = `
     <div class="ficha-texto-top">
       <button class="volver" type="button" id="volver"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>Todos los desarrollos</button>
-      <a class="compartir" id="compartir" href="${esc(enlaceWhatsApp(d))}" target="_blank" rel="noopener" aria-label="Compartir ${esc(d.nombre)} por WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4v11M7 9l5-5 5 5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Compartir</a>
+      <button class="compartir" type="button" id="compartir" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4v11M7 9l5-5 5 5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Compartir</button>
     </div>
     <div class="galeria-movil"><div class="carril">${carrusel.map(x => `<div class="lamina">${x}</div>`).join("")}</div>${aviso}</div>
     <div class="ficha-texto">
       <h1 id="ficha-titulo">${esc(d.nombre)}</h1>
       <p class="sub-titulo">${esc(TIPO[d.tipo])} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
     </div>
-    <div class="mosaico">${mosaico.map((x, i) => `<div>${x}${i === 0 ? aviso : ""}</div>`).join("")}</div>
+    <div class="mosaico">${mosaico.map((x, i) => `<div>${x}${x.startsWith("<svg") || i === 0 ? aviso || (x.startsWith("<svg") ? '<span class="ilustrativa">Imagen ilustrativa</span>' : "") : ""}</div>`).join("")}</div>
     <div class="cuerpo-ficha">
       <div>
         <section class="seccion">
@@ -778,7 +814,7 @@ function abrirFicha(d){
         ${mejores.length ? `<section class="seccion"><h2>Lo mejor de aquí</h2><ul class="lo-mejor">${mejores.map(([i, t]) => `<li><span class="i" aria-hidden="true">${i}</span><span>${t}</span></li>`).join("")}</ul></section>` : ""}
         <section class="seccion"><h2>Lo que tienes cerca</h2>${seccionCerca}</section>
         <section class="seccion"><h2>Tu camino al trabajo</h2>${camino}</section>
-        <section class="seccion"><h2>¿Te alcanza?</h2><div id="f-alc">${htmlAlcanceFicha(d)}</div></section>
+        <section class="seccion"><h2>Cómo podrías pagarlo</h2><div id="f-alc">${htmlAlcanceFicha(d)}</div></section>
         <section class="seccion"><h2>Condiciones</h2>
           <dl class="condiciones">
             <div><dt>Precio</dt><dd>${vencido(d) ? "Por confirmar. Último publicado: d" : "D"}esde ${dinero(d.desde)}${d.hasta ? ` hasta ${dinero(d.hasta)}` : ""}. Verificado el ${fechaLarga(d.verificado)}.</dd><dd class="pend">Puede variar al cerrar la operación</dd></div>
@@ -812,7 +848,7 @@ function abrirFicha(d){
     <div class="barra-reserva"><span><b>desde ${corto(d.desde)}</b><small>${esc(TIPO[d.tipo])} · ${esc(zonaCorta(d))}</small></span><button class="btn" type="button" id="agendar-2">Agendar visita</button></div>`;
   $("#volver").onclick = irAInicio;
   $("#agendar").onclick = $("#agendar-2").onclick = () => agendar(d);
-  $("#compartir").onclick = () => medir("compartir-whatsapp", {id:d.id});
+  $("#compartir").onclick = () => abrirCompartir(d);
   enlazarAlcanceFicha();
   pintarBarraComparar();
   $("#f-trabajo")?.addEventListener("click", () => abrirCerca("trabajo"));
@@ -836,7 +872,7 @@ async function mapaDeFicha(d, c){
   if (c) for (const k of ["escuela", "oxxo", "super", "farmacia", "salud", "parque"]) {
     const l = c.mas[k]; if (!l || l.m > 2500) continue;
     L.polyline([[d.lat, d.lng], [l.lat, l.lng]], {color:"#F0A202", weight:3, opacity:.9, interactive:false}).addTo(mapaFicha);
-    L.marker([l.lat, l.lng], {icon:L.divIcon({className:"", html:`<div class="poi" title="${esc(l.nombre)}">${CATS[k].ico}</div><span class="poi-etq">${textoDist(l.m)}</span>`, iconSize:[0, 0]}), title:l.nombre, keyboard:false}).addTo(mapaFicha);
+    L.marker([l.lat, l.lng], {icon:L.divIcon({className:"", html:`<div class="poi" title="${esc(l.nombre)}">${icono(k)}</div><span class="poi-etq">${textoDist(l.m)}</span>`, iconSize:[0, 0]}), title:l.nombre, keyboard:false}).addTo(mapaFicha);
     pts.push([l.lat, l.lng]);
   }
   if (pts.length > 1) mapaFicha.fitBounds(L.latLngBounds(pts).pad(.2), {maxZoom:16});
@@ -922,6 +958,21 @@ function agendar(d){
 }
 // Enlace para compartir: la página d/<id>.html tiene la vista previa para WhatsApp (ver generar-paginas.js)
 function enlaceDe(d){ return `${location.origin}/desarrollos/${d.id}/`; }
+function abrirCompartir(d){
+  const url = enlaceDe(d), texto = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${dinero(d.desde)} en Durango.`;
+  $("#comp-nombre").textContent = d.nombre;
+  $("#comp-url").value = url;
+  $("#comp-whatsapp").href = enlaceWhatsApp(d);
+  $("#comp-whatsapp").onclick = () => { medir("compartir", {id:d.id, via:"whatsapp"}); $("#dlg-compartir").close(); };
+  $("#comp-copiar").textContent = "Copiar enlace";
+  $("#comp-copiar").onclick = async () => {
+    try { await navigator.clipboard.writeText(url); } catch (e) { $("#comp-url").select(); document.execCommand("copy"); }
+    $("#comp-copiar").textContent = "Enlace copiado"; medir("compartir", {id:d.id, via:"copiar"});
+  };
+  $("#comp-mas").hidden = !navigator.share;
+  $("#comp-mas").onclick = () => navigator.share({title:d.nombre, text:texto, url}).then(() => { medir("compartir", {id:d.id, via:"telefono"}); $("#dlg-compartir").close(); }).catch(() => {});
+  $("#dlg-compartir").showModal();
+}
 function enlaceWhatsApp(d){
   const texto = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${dinero(d.desde)} en Durango.\n${enlaceDe(d)}`;
   return "https://wa.me/?text=" + encodeURIComponent(texto);
@@ -1003,6 +1054,7 @@ $("#limpiar-filtros").onclick = () => { estado.recMin = 0; estado.trabajo15 = fa
 $("#dlg-filtros").addEventListener("close", () => { pintar(); const f = [...estado.creditos, ...estado.amen, ...estado.cercaReq, ...estado.entrega]; if (estado.recMin) f.push("rec" + estado.recMin); if (estado.trabajo15) f.push("trabajo15"); if (f.length) medir("filtro", {filtros:f.join(",")}); });
 $("#alternar").onclick = () => cambiarVista(estado.vista === "mapa" ? "lista" : "mapa");
 $("#cerrar-comparar").onclick = () => $("#dlg-comparar").close();
+$("#cerrar-compartir").onclick = () => $("#dlg-compartir").close();
 // cerrar hojas tocando fuera
 $$("dialog").forEach(dl => dl.addEventListener("click", e => { if (e.target === dl) dl.close(); }));
 
