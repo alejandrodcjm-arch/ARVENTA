@@ -117,7 +117,7 @@ function pdf({d, e, c}, codigo, folio){
   y += 30;
   y = doc.parrafo(M, y, `Cotización informativa, sujeta a disponibilidad y cambio de precio. No es una oferta vinculante: el precio y las condiciones finales los define ${d.desarrolladora || "la desarrolladora"} en el contrato. No incluye gastos de escrituración (aprox. 6%), avalúo ni comisiones del crédito.`, D - M, {tam:9, color:gris});
   y = doc.parrafo(M, y + 4, `Precio verificado el ${fecha(new Date(d.verificado + "T12:00:00"))}. Esquema confirmado por ${e.confirmadoPor} el ${fecha(new Date(e.confirmado + "T12:00:00"))}. Vigente hasta el ${fecha(vigencia(d, e))}.`, D - M, {tam:9, color:gris});
-  doc.parrafo(M, y + 4, `ARVENTA · ${window.ARVENTA?.SITIO?.replace("https://", "") || "arventa.mx"} · WhatsApp 618 446 3867 · Licencia de asesor inmobiliario: ${window.ARVENTA?.LICENCIA || "en trámite"}`, D - M, {tam:8, color:gris});
+  doc.parrafo(M, y + 4, `ARVENTA · ${window.ARVENTA?.SITIO?.replace("https://", "") || "arventa.mx"} · WhatsApp 618 446 3867 · ARVENTA es un portal: no vende inmuebles.`, D - M, {tam:8, color:gris});
   const limpio = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "");
   doc.descargar(`Cotizacion-${limpio(d.nombre)}${nombre ? "-" + limpio(nombre) : ""}.pdf`);
 }

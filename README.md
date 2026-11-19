@@ -35,7 +35,7 @@ Cada desarrollo lleva:
 | `creditos` | Solo los confirmados: `Infonavit`, `Fovissste`, `Banco`, `Cofinavit`, `Contado`. `[]` = por confirmar. |
 | `entrega` | `"Preventa"`, `"Entrega inmediata"` o `null`. Opcional `fechaEntrega`. |
 | `incluye` | Texto (cocina, closets, boiler…) o `null`. |
-| `convenio` | `true` solo con convenio de asesor externo firmado. |
+| `convenio` | `true` si es anunciante (firmó los términos de anunciante y confirmó sus datos). Con `false` la ficha dice "Información pública de anuncios". |
 | `esquemas` | Esquemas de pago **confirmados por escrito** por la desarrolladora (ver abajo). Sin esto, el desarrollo solo muestra la calculadora general. |
 | `beneficioArventa` | Opcional: lo que el cliente recibe al registrar su llegada (solo si lo acordaste con la desarrolladora). |
 | `logo` | Opcional: logo de la desarrolladora para el cotizador de su oficina (`fotos/<id>/logo.webp`). |
@@ -111,8 +111,8 @@ Todo lo que es código ya está hecho; esto son cuentas y configuración que sol
 3. Analítica: cuenta en [Umami](https://cloud.umami.is) y pon el Website ID en `UMAMI_ID` de `assets/config.js`.
 
 **7. Legal** (detalle en `CLAUDE.md`)
-- Razón social, domicilio, correo y licencia en `assets/config.js` (salen en el pie, el aviso y los términos).
-- Licencia de asesor inmobiliario de Durango **antes de cobrar comisiones**, contrato con cada desarrolladora y registro en el SAT como actividad vulnerable antes de la primera venta.
+- Razón social, domicilio y correo en `assets/config.js` (salen en el pie, el aviso y los términos).
+- Confirmar con un abogado que, como portal que no intermedia, ARVENTA no necesita licencia de asesor ni registro antilavado, y firmar los términos de anunciante con cada desarrolladora (precio por cita, cita válida, reclamos y facturación).
 
 ## Operación diaria
 

@@ -3,7 +3,10 @@
 ## Qué es
 ARVENTA es una inmobiliaria de Durango, Dgo. Este repositorio es su sitio web: muestra en un mapa toda la vivienda nueva de la ciudad (fraccionamientos, torres de departamentos y lotes) con precios, lo que hay cerca y cuánto tardas a tu trabajo.
 
-**Cómo gana dinero:** ARVENTA es asesor externo de las desarrolladoras. La gente agenda una visita desde el sitio, ARVENTA la acompaña y, si compra, la desarrolladora le paga una comisión (normalmente del 3% al 4%). Al comprador no le cuesta nada.
+**Cómo gana dinero:** ARVENTA es un portal: da información y junta a quien busca casa con quien la vende. **No vende ni acompaña la venta**; eso lo hace el asesor de la desarrolladora o inmobiliaria. Cobra a quien anuncia, nunca a quien busca:
+1. **Pago por cita:** publicar es gratis; la desarrolladora paga una cuota fija por cada solicitud de visita verificada que ARVENTA le manda.
+2. **Plan destacado:** cuota mensual por aparecer primero en su zona y tener la ficha completa (fotos, precio verificado, reporte).
+3. **Reporte de demanda:** qué busca la gente en Durango (presupuesto, zona, recámaras), sin datos personales.
 
 **El sitio tiene dos trabajos:**
 1. Que una familia de Durango encuentre su casa sin ir de oficina en oficina, y agende una visita.
@@ -34,14 +37,14 @@ La información y publicidad debe ser veraz, comprobable, clara y sin nada que l
 - [ ] Qué incluye y qué no (cocina, closets, boiler, cisterna), si se sabe.
 - [ ] Si la ubicación es aproximada, decirlo.
 - [ ] Imágenes de render marcadas como "imagen ilustrativa".
-- [ ] Estado del convenio con la desarrolladora: si ARVENTA no tiene convenio de asesor externo firmado, la ficha no puede decir "ARVENTA vende este desarrollo"; solo "información pública, agenda una visita".
+- [ ] Quién vende: la ficha nunca dice que ARVENTA vende. Dice quién comercializa el desarrollo y si es anunciante (pagó o dio sus datos) o información pública de anuncios.
 
 ### 2. La empresa (Ley de Servicios de Intermediación Inmobiliaria de Durango, 2026)
-- [ ] El sitio debe mostrar en el pie la razón social de ARVENTA y su número de licencia o registro estatal de asesor inmobiliario. Mientras no exista, el campo queda pendiente y no se cobran comisiones.
-- [ ] Se necesita contrato de intermediación por escrito con cada desarrolladora (comisión, plazos, cómo se registra un cliente) antes de llevarle compradores.
+- [ ] El pie muestra la razón social de ARVENTA. Como portal de anuncios que no intermedia ni cobra comisión por venta, posiblemente no necesita licencia de asesor; confirmarlo con un abogado antes de lanzar. Si algún día ARVENTA acompaña ventas, sí la necesita.
+- [ ] Contrato o términos de anunciante firmados con cada desarrolladora: precio por cita, qué cuenta como cita válida, cómo se reclama una cita inválida y cómo se factura.
 
 ### 3. Antilavado (LFPIORPI, fracción V)
-- [ ] La intermediación en compraventa de inmuebles es actividad vulnerable: hay que identificar siempre al cliente y presentar aviso al SAT cuando la operación llega a 8,025 UMA ($941,412.75 en 2026). Casi todos los desarrollos de la lista pasan ese monto.
+- [ ] La intermediación en compraventa de inmuebles es actividad vulnerable. Mientras ARVENTA solo anuncie y no intermedie, la obligación es de quien vende; confirmarlo con un abogado o contador.
 - [ ] El sitio **no** pide ni guarda INE, comprobantes ni datos financieros. Eso se integra en persona, en el expediente del cliente, fuera del sitio.
 - [ ] No ofrecer ni aceptar pagos en efectivo por el inmueble a partir de ese umbral.
 

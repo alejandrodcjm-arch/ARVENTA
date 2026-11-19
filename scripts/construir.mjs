@@ -108,7 +108,7 @@ function fichaEstatica(d){
   </dl>
   ${d.ventajas.length ? `<h2>Lo mejor de aquí</h2><ul>${d.ventajas.map(v => `<li>${esc(v)}</li>`).join("")}</ul>` : ""}
   <h2>Lo que tienes cerca</h2>${cerca(d)}
-  <p>${d.convenio ? "ARVENTA es asesor externo autorizado de esta desarrolladora." : "Información pública de anuncios. ARVENTA te acompaña a la visita sin costo para ti."}</p>
+  <p>${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.</p>
   <p>Fuentes: ${d.fuentes.map(f => `<a href="${esc(f[1])}" rel="nofollow noopener" target="_blank">${esc(f[0])}</a>`).join(", ")}. Precio verificado el ${fechaLarga(d.verificado)}.</p>
   <p><a class="btn" href="https://wa.me/526184463867?text=${encodeURIComponent(`Hola ARVENTA, quiero visitar ${d.nombre}.`)}">Agendar visita por WhatsApp</a></p>
 </div>`;

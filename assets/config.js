@@ -22,7 +22,7 @@ window.ARVENTA = {
   RAZON_SOCIAL: "",
   DOMICILIO: "",
   CORREO: "",
-  LICENCIA: "",
+  LICENCIA: "",       // Solo si ARVENTA llega a acompañar ventas (como portal, posiblemente no aplica: confirmarlo con un abogado)
   VERSION_AVISO: "18 de noviembre de 2026"
 };
 
@@ -65,12 +65,12 @@ window.ARVENTA = {
       RESPONSABLE: c.RAZON_SOCIAL ? e(c.RAZON_SOCIAL) : "ARVENTA (razón social en trámite)",
       DOMICILIO: c.DOMICILIO ? e(c.DOMICILIO) : pendiente("Domicilio pendiente"),
       CORREO: c.CORREO ? `<a href="mailto:${e(c.CORREO)}">${e(c.CORREO)}</a>` : pendiente("Correo pendiente"),
-      LICENCIA: c.LICENCIA ? e(c.LICENCIA) : "en trámite",
+      LICENCIA: c.LICENCIA ? e(c.LICENCIA) : "",
       VERSION_AVISO: e(c.VERSION_AVISO)
     };
     document.querySelectorAll("[data-config]").forEach(el => { el.innerHTML = t[el.dataset.config] ?? ""; });
     document.querySelectorAll("[data-pie]").forEach(el => {
-      el.innerHTML = `<p>ARVENTA · Razón social: ${t.RAZON_SOCIAL} · Licencia de asesor inmobiliario del Estado de Durango: ${t.LICENCIA}</p>
+      el.innerHTML = `<p>ARVENTA · Portal de vivienda nueva en Durango. No vende inmuebles: conecta a quien busca con quien vende. Razón social: ${t.RAZON_SOCIAL}${t.LICENCIA ? ` · Licencia: ${t.LICENCIA}` : ""}</p>
         <p>Los precios y datos vienen de anuncios públicos y de las desarrolladoras; pueden variar al cerrar la operación y se confirman en la visita.
         <a href="/aviso-privacidad.html">Aviso de privacidad</a> · <a href="/terminos.html">Términos de uso</a> · <a href="/anuncia.html">Anuncia tu desarrollo</a></p>`;
     });

@@ -9,7 +9,6 @@
     $("#cifras").innerHTML = `<div><b>${D.length}</b>desarrollos publicados</div><div><b>${conMapa}</b>ya ubicados en el mapa</div><div><b>${tipos}</b>tipos: casas, departamentos y terrenos</div>`;
   }
 
-  if(!ARVENTA.LICENCIA) $("#nota-licencia").hidden = false;
   const val = id => $("#" + id).value.trim();
   function mensajeWhatsApp(r){
     return `Hola, quiero anunciar mi desarrollo en ARVENTA.\nNombre: ${r.nombre}${r.empresa ? " (" + r.empresa + ")" : ""}\nDesarrollo: ${r.desarrollo}${r.ubicacion ? ", " + r.ubicacion : ""}\nTipo: ${r.tipoVivienda}${r.unidades ? " · " + r.unidades + " unidades" : ""}${r.precio ? " · desde " + r.precio : ""}${r.mensaje ? "\n" + r.mensaje : ""}\nFolio: ${r.folio}`;

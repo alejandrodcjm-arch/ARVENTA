@@ -97,7 +97,7 @@ export function validar(lista, {hoy = new Date(), raiz = RAIZ} = {}){
   grupo(pend.creditos, "Créditos por confirmar");
   grupo(pend.entrega, "Entrega por confirmar");
   grupo(pend.incluye, "\"Qué incluye\" por confirmar");
-  grupo(pend.convenio, "Sin convenio de asesor externo");
+  grupo(pend.convenio, "No son anunciantes (la ficha dice: Información pública de anuncios)");
   return {errores, avisos};
 }
 

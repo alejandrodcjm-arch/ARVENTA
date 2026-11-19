@@ -89,7 +89,7 @@ GitHub Actions (automático):
 
 ## 3. Solicitudes de visita (lo que genera dinero)
 
-Esto es lo más importante: **una solicitud perdida es una comisión perdida.**
+Esto es lo más importante: **cada solicitud es lo que ARVENTA cobra.** Una solicitud perdida es dinero perdido.
 
 | | Requisito |
 |---|---|
@@ -97,10 +97,48 @@ Esto es lo más importante: **una solicitud perdida es una comisión perdida.**
 | Esencial | Validación en el servidor: nombre, teléfono de 10 dígitos, desarrollo existente y consentimiento marcado. No confiar solo en el navegador. |
 | Esencial | Protección contra spam: campo oculto (honeypot) y límite de 5 solicitudes por hora por IP. |
 | Esencial | Aviso inmediato a ARVENTA por WhatsApp o correo con cada solicitud nueva. |
-| Esencial | Cada solicitud tiene estado: nueva, contactada, visita agendada, visita hecha, apartado, vendida, perdida. Con eso se cobra la comisión y se arma el reporte. |
-| Esencial | Fecha y hora de registro del cliente con la desarrolladora. Es la prueba de que ARVENTA lo llevó y protege la comisión. |
+| Esencial | Verificación de cada solicitud: un mensaje automático de WhatsApp que la persona confirma. Solo las verificadas se cobran. |
+| Esencial | Cada solicitud tiene estado: nueva, verificada, enviada a la desarrolladora, visita hecha, inválida (con motivo). Con eso se factura y se arma el reporte. |
+| Esencial | Fecha y hora en que se envió a la desarrolladora: es la prueba para cobrar la cita. |
+| Esencial | Panel sencillo para cada anunciante: sus citas del mes, el estado de cada una y un botón para reportar una cita inválida. |
 | Esencial | Respaldo: Supabase guarda copias diarias; además, exportación semanal a CSV. |
 | Después | Responder en menos de 1 hora en horario laboral, medido. |
+
+
+### Ficha de cita para el asesor
+
+Cada cita genera un **código** (ej. `ARV-7K3Q`) que llega por WhatsApp al cliente y al asesor de la desarrolladora.
+
+| | Requisito |
+|---|---|
+| Esencial | El asesor abre `arventa.mx/cita/<código>` y ve: nombre y WhatsApp del cliente, día y hora, desarrollo y modelo de interés, presupuesto, crédito con el que pagaría, mensualidad que calculó, zona de trabajo y minutos al desarrollo, y otros desarrollos que guardó o comparó. |
+| Esencial | Solo se comparte lo que el cliente aceptó en la casilla de consentimiento; el texto de la casilla lo dice. |
+| Esencial | El enlace es privado (código largo, no adivinable), solo lo ve la desarrolladora dueña del desarrollo y caduca a los 90 días. |
+| Esencial | La asistencia **no depende del asesor**. Se cobra por cita confirmada por el cliente (respondió el WhatsApp). Si un plan cobra por asistencia, la prueba es el registro del propio cliente: al llegar toca "Ya llegué" y el sitio verifica con su ubicación que está a menos de 300 m del desarrollo. Lo que diga el asesor no cambia el cobro. |
+| Esencial | El asesor puede reportar una cita inválida (teléfono falso, duplicada, cliente previo con prueba de los últimos 60 días); ARVENTA revisa y decide. |
+| Esencial | El cliente enseña el código en la visita para recibir el beneficio ARVENTA, si la desarrolladora ofrece uno. |
+
+### Cotizador (corrida financiera)
+
+| | Requisito |
+|---|---|
+| Esencial | Cada desarrollo puede tener sus **esquemas de pago** reales, dados por la desarrolladora: apartado, enganche mínimo, mensualidades durante obra (máximo de meses), saldo contra escritura, descuentos por contado o por plan, y créditos aceptados para el saldo. |
+| Esencial | El cliente arma su corrida: cuánto tiene de enganche, en cuántos meses quiere pagar y con qué crédito liquida. Ve la tabla de pagos y descarga un PDF a su nombre. |
+| Esencial | El PDF dice: "Cotización informativa, sujeta a disponibilidad y a cambio de precio. Vigencia: X días", con fecha, código de cita y fuente de los esquemas. Si los esquemas no están confirmados por la desarrolladora, no se ofrece corrida, solo la calculadora general. |
+| Después | El mismo cotizador, con el logo de la desarrolladora, gratis para sus asesores en la oficina de ventas. Si el cliente trae código ARVENTA, la cotización queda ligada a su cita. |
+
+
+## 3.1 Cómo entra la información de los desarrollos
+
+Así como Skyscanner recibe los vuelos de sus socios por conexión directa, ARVENTA crece por etapas:
+
+| Etapa | Cómo | Cuándo |
+|---|---|---|
+| 1. ARVENTA lo hace | La desarrolladora manda lista de precios, planos y fotos por WhatsApp; ARVENTA arma la ficha (con ayuda de IA para leer la lista de precios) y se la enseña antes de publicar. | Desde el inicio |
+| 2. Panel del anunciante | La desarrolladora entra con su cuenta, sube fotos, cambia precios y marca unidades vendidas. Cada cambio queda registrado. | Con 10 o más anunciantes |
+| 3. Conexión automática | Importar desde los CRM que ya usan las inmobiliarias (EasyBroker, Tokko) o un archivo XML/JSON, para que publiquen en ARVENTA con un clic. | Cuando ARVENTA tenga tráfico que les interese |
+
+Fotos y planos solo con permiso por escrito del anunciante.
 
 ---
 
@@ -177,8 +215,8 @@ Detalle en la sección "Requisitos obligatorios" de `CLAUDE.md`. Para lanzar:
 | Esencial | Aviso de privacidad completo (con razón social y domicilio reales) y casilla de consentimiento. |
 | Esencial | Términos de uso: el sitio informa, no es oferta vinculante, y los precios los define la desarrolladora. |
 | Esencial | Plazo de guardado de solicitudes: se borran a los 12 meses si no hubo compra. Cualquier persona puede pedir que se borren sus datos. |
-| Esencial | Licencia de asesor inmobiliario de Durango tramitada **antes de cobrar comisiones**, y contrato firmado con cada desarrolladora. |
-| Esencial | Registro en el SAT como actividad vulnerable (antilavado) antes de la primera venta. |
+| Esencial | Confirmar con un abogado que, como portal que no intermedia, ARVENTA no necesita licencia de asesor ni registro antilavado. |
+| Esencial | Términos de anunciante firmados: precio por cita, qué es una cita válida, reclamos y facturación. |
 
 ---
 
