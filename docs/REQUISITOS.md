@@ -22,6 +22,7 @@ Cada punto es **Esencial** (sin esto no se lanza) o **Después** (en los primero
 | 10. Accesibilidad | ✅ Etiquetas en campos, textos alternativos, foco visible, `prefers-reduced-motion`. ⏳ Probar en Safari y Samsung Internet. |
 | 3. Citas por WhatsApp | ✅ Verificación al cliente, envío a la desarrolladora con fecha y hora, estados nueva → verificada → enviada → visita hecha / inválida con motivo, "Ya llegué" a 300 m, panel solo para ARVENTA (el panel de anunciantes queda para después, a pedido). 🔧 API de WhatsApp de Meta y sus 3 plantillas; WhatsApp de cada desarrolladora en Supabase. |
 | Cotizador | ✅ Corrida con esquemas confirmados y PDF a nombre del cliente ligado a la cita. Precio y tasa no se escriben: solo se eligen entre los que dio cada proyecto (y el servidor rechaza cualquier otro). ⏳ Esquemas de pago de cada desarrolladora. |
+| Usadas y rentas | ✅ Campo `operacion` (nueva, reventa, renta) con ficha propia: usadas con escrituras, libertad de gravamen y predial; rentas con depósito, garantía, contrato y lo que necesitas para entrar, sin crédito ni corrida. Rentas aparte de la compra (categoría "En renta"), anunciante verificado en persona y aviso antes de dar dinero. ⏳ Confirmar con Profeco o un notario si la NOM-247 aplica a un particular; definir la cuota para dueños que publican. |
 | 11. Pruebas | ✅ Las 7 de la lista y las de citas, WhatsApp, panel y cotizador (33 pruebas). |
 
 ---

@@ -7,6 +7,8 @@ import {mandarVerificacion} from "./_lib/citas.js";
 
 export const LIMITE_POR_HORA = 5;
 const CUANDO = ["Este fin de semana", "Entre semana por la tarde", "Entre semana por la mañana", "Primero quiero más información"];
+// En renta no hay forma de pago del inmueble: se pregunta la garantía (el mismo dato, sin pedir nada de más)
+const GARANTIA = ["Depósito", "Aval (obligado solidario)", "Póliza jurídica", "Aún no sé"];
 const PAGO = ["Infonavit", "Fovissste", "Crédito bancario", "Cofinavit (Infonavit + banco)", "Contado", "Aún no sé"];
 const CAJA = {s:23.85, w:-104.85, n:24.20, e:-104.45};
 const monto = (v, max) => { const n = Math.round(Number(v)); return isFinite(n) && n > 0 && n < max ? n : null; };
@@ -26,7 +28,7 @@ export function revisar(d){
     folio:/^V-[A-Z2-9]{6}$/.test(d.folio || "") ? d.folio : nuevoFolio("V"),
     desarrollo:des.id, nombre:texto(d.nombre, 80), telefono:tel,
     cuando:CUANDO.includes(d.cuando) ? d.cuando : "Primero quiero más información",
-    pago:PAGO.includes(d.pago) ? d.pago : "Aún no sé",
+    pago:(des.operacion === "renta" ? GARANTIA : PAGO).includes(d.pago) ? d.pago : "Aún no sé",
     presupuesto:monto(d.presupuesto, 1e8), mensualidad:monto(d.mensualidad, 1e6), otros:otros.length ? otros : null,
     // la zona de trabajo llega ya redondeada a ~1 km; aquí se vuelve a redondear por si acaso
     trabajo_texto:texto(t.texto, 80) || null,
@@ -65,7 +67,7 @@ export async function POST(request){
   // Ya está guardada: lo demás no puede hacer que se pierda
   const v = await mandarVerificacion({...f, estado:"nueva"});
   const ok = await avisar(`Nueva solicitud ${f.folio}: ${r.des.nombre}${f.duplicada_de ? ` (repetida de ${f.duplicada_de})` : ""}`,
-    `${f.nombre}, WhatsApp ${f.telefono}. ${f.cuando}. Paga con ${f.pago}.` +
+    `${f.nombre}, WhatsApp ${f.telefono}. ${f.cuando}. ${r.des.operacion === "renta" ? "Garantía:" : "Paga con"} ${f.pago}.` +
     (v.ok ? " Ya le llegó su WhatsApp de verificación." : ` Mándale su verificación: ${v.manual}`));
   if(ok) await sb(`solicitudes?folio=eq.${f.folio}`, {method:"PATCH", body:{aviso_enviado:true}, headers:{Prefer:"return=minimal"}}).catch(() => {});
   return respuesta(200, {ok:true, folio:f.folio, verificacion:v.ok ? "enviada" : "pendiente"});

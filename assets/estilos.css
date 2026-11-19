@@ -387,3 +387,8 @@ button.compartir{background:none;border:0;padding:0;font:inherit;cursor:pointer;
 /* Valores fijos de la calculadora (no se pueden editar) */
 .calc .fijo{display:flex;flex-direction:column;justify-content:center;min-height:44px;padding:6px 0;font-size:17px;font-weight:700;color:var(--tinta)}
 .calc .fijo small{font-size:12px;font-weight:400;color:var(--tinta-suave)}
+
+/* Usadas y rentas */
+.aviso-seguro{display:flex;gap:10px;align-items:flex-start;background:var(--sol-claro);color:var(--tinta);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.45;margin:14px 0 4px}
+.aviso-seguro svg{flex:none;width:20px;height:20px;margin-top:1px}
+.renta-caja{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:4px;font-size:14px}

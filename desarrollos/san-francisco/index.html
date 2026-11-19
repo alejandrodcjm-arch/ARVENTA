@@ -10,7 +10,7 @@
 <meta property="og:type" content="website"><meta property="og:site_name" content="ARVENTA"><meta property="og:locale" content="es_MX">
 <meta property="og:title" content="San Francisco Residencial · terrenos desde $930,000 en Durango"><meta property="og:description" content="Desde $930,000 · Lotes de 200 a 425 m². Mira qué tiene cerca y cuánto tardas a tu trabajo."><meta property="og:url" content="https://arventa.mx/desarrollos/san-francisco/">
 <meta property="og:image" content="https://arventa.mx/desarrollos/san-francisco/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="San Francisco Residencial · terrenos desde $930,000 en Durango"><meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateListing","name":"San Francisco Residencial","url":"https://arventa.mx/desarrollos/san-francisco/","description":"Desde $930,000 · Lotes de 200 a 425 m². Mira qué tiene cerca y cuánto tardas a tu trabajo.","datePosted":"2026-11-17","offers":{"@type":"Offer","price":930000,"priceCurrency":"MXN","availability":"https://schema.org/InStock","seller":{"@type":"RealEstateAgent","name":"ARVENTA"}},"about":{"@type":"Place","name":"San Francisco Residencial","address":{"@type":"PostalAddress","streetAddress":"Por confirmar","addressLocality":"Durango","addressRegion":"Dgo.","addressCountry":"MX"}},"image":"https://arventa.mx/desarrollos/san-francisco/og.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateListing","name":"San Francisco Residencial","url":"https://arventa.mx/desarrollos/san-francisco/","description":"Desde $930,000 · Lotes de 200 a 425 m². Mira qué tiene cerca y cuánto tardas a tu trabajo.","datePosted":"2026-11-17","offers":{"@type":"Offer","price":930000,"priceCurrency":"MXN","availability":"https://schema.org/InStock"},"about":{"@type":"Place","name":"San Francisco Residencial","address":{"@type":"PostalAddress","streetAddress":"Por confirmar","addressLocality":"Durango","addressRegion":"Dgo.","addressCountry":"MX"}},"image":"https://arventa.mx/desarrollos/san-francisco/og.png"}</script>
 <!-- seo:fin -->
 <meta name="theme-color" content="#FBFBF8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://tile.openstreetmap.org">
 <!-- Las letras no bloquean la primera pintada: mientras llegan se usa la del sistema -->
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/estilos.css?v=f50f4541fd">
+<link rel="stylesheet" href="/assets/estilos.css?v=4eb8feec4f">
 <link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
 </head>
 <body data-ficha="san-francisco">
@@ -93,6 +93,7 @@
   <h2>Condiciones</h2>
   <dl>
     <dt>Tamaño</dt><dd>Lotes de 200 a 425 m²</dd>
+
     <dt>Créditos que acepta</dt><dd>Por confirmar</dd>
     <dt>Entrega</dt><dd>Por confirmar</dd>
     <dt>Qué incluye</dt><dd>Por confirmar</dd>
@@ -100,6 +101,7 @@
   </dl>
   <h2>Lo mejor de aquí</h2><ul><li>Tres privadas</li><li>Gran superficie de áreas verdes</li></ul>
   <h2>Lo que tienes cerca</h2><p>Todavía no tenemos la ubicación exacta de este desarrollo.</p>
+  
   <p>Información pública de anuncios. ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.</p>
   <p>Fuentes: <a href="https://www.vivanuncios.com.mx/s-venta-terrenos/durango/fraccionamientos+residenciales/v1c31l1009q0p1" rel="nofollow noopener" target="_blank">Vivanuncios</a>. Precio verificado el 17 de noviembre de 2026.</p>
   <p><a class="btn" href="https://wa.me/526184463867?text=Hola%20ARVENTA%2C%20quiero%20visitar%20San%20Francisco%20Residencial.">Agendar visita por WhatsApp</a></p>
@@ -178,11 +180,12 @@
 <dialog class="hoja hoja-grande" id="dlg-filtros" aria-labelledby="t-filtros">
   <form method="dialog" id="form-filtros">
     <h2 id="t-filtros">Filtros</h2>
+    <fieldset id="fs-renta" hidden><legend>Renta máxima al mes</legend><div class="chips-pres" id="f-renta"></div></fieldset>
     <fieldset><legend>Recámaras mínimas</legend><div class="seg" id="f-rec"></div></fieldset>
-    <fieldset><legend>Crédito que vas a usar</legend><div class="checks" id="f-credito"></div><p class="nota">Solo mostramos los que confirmaron que lo aceptan.</p></fieldset>
+    <fieldset id="fs-credito"><legend>Crédito que vas a usar</legend><div class="checks" id="f-credito"></div><p class="nota">Solo mostramos los que confirmaron que lo aceptan.</p></fieldset>
     <fieldset><legend>Que tenga</legend><div class="checks" id="f-amen"></div></fieldset>
     <fieldset><legend>Que tenga cerca, caminando</legend><div class="checks" id="f-cerca"></div></fieldset>
-    <fieldset><legend>Entrega</legend><div class="checks" id="f-entrega"></div></fieldset>
+    <fieldset id="fs-entrega"><legend>Entrega</legend><div class="checks" id="f-entrega"></div></fieldset>
     <fieldset><legend>Tiempo a tu trabajo</legend><div class="checks" id="f-trabajo15"></div></fieldset>
     <div class="fila pie-hoja">
       <button type="button" class="enlace" id="limpiar-filtros">Quitar todo</button>
@@ -202,11 +205,11 @@
     <input id="v-tel" required inputmode="tel" autocomplete="tel" placeholder="618 123 4567" minlength="10">
     <label for="v-cuando">¿Cuándo te queda?</label>
     <select id="v-cuando"><option>Este fin de semana</option><option>Entre semana por la tarde</option><option>Entre semana por la mañana</option><option>Primero quiero más información</option></select>
-    <label for="v-credito">¿Cómo pagarías?</label>
+    <label for="v-credito" id="l-credito">¿Cómo pagarías?</label>
     <select id="v-credito"><option>Infonavit</option><option>Fovissste</option><option>Crédito bancario</option><option>Cofinavit (Infonavit + banco)</option><option>Contado</option><option>Aún no sé</option></select>
     <!-- Campo trampa: invisible para las personas; si un robot lo llena, la solicitud se descarta -->
     <input id="v-sitio" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <label class="consent"><input type="checkbox" id="v-consent" required> Acepto el <button type="button" class="enlace" id="ver-privacidad-visita">aviso de privacidad</button> y que ARVENTA comparta por WhatsApp con quien comercializa este desarrollo: mi nombre, mi WhatsApp, cuándo puedo, cómo pagaría, mi presupuesto, la zona donde trabajo y los desarrollos que guardé o comparé, solo para atender mi visita.</label>
+    <label class="consent"><input type="checkbox" id="v-consent" required> Acepto el <button type="button" class="enlace" id="ver-privacidad-visita">aviso de privacidad</button> y que ARVENTA comparta por WhatsApp con <span id="v-quien">quien comercializa este desarrollo</span>: mi nombre, mi WhatsApp, cuándo puedo, <span id="v-que-pago">cómo pagaría</span>, mi presupuesto, la zona donde trabajo y los desarrollos que guardé o comparé, solo para atender mi visita.</label>
     <div class="fila pie-hoja">
       <button class="btn claro" value="cancelar" formnovalidate>Cancelar</button>
       <button class="btn" id="v-enviar" value="enviar">Enviar por WhatsApp</button>
@@ -259,8 +262,8 @@
 <div class="aviso-marcar" id="aviso-marcar" hidden>Toca el mapa donde trabajas</div>
 <div class="toast" id="toast" role="status" hidden></div>
 
-<script src="/assets/config.js?v=f4301134d5"></script>
+<script src="/assets/config.js?v=9b7b9d4b81"></script>
 <script src="/assets/datos.js?v=21395bf165"></script>
-<script src="/assets/app.js?v=ff2297992f"></script>
+<script src="/assets/app.js?v=37e46b472c"></script>
 </body>
 </html>

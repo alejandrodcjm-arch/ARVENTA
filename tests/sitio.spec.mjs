@@ -2,7 +2,10 @@
 import {test, expect} from "@playwright/test";
 import {readFileSync} from "node:fs";
 
+import {ANUNCIOS_PRUEBA} from "./fixture.mjs";
 const DESARROLLOS = JSON.parse(readFileSync(new URL("../data/desarrollos.json", import.meta.url)));
+// Lo que se ve en "Todo": desarrollos reales + la casa usada de prueba (las rentas van aparte)
+const COMPRA = [...DESARROLLOS, ...ANUNCIOS_PRUEBA.filter(d => d.operacion !== "renta")];
 const MOCK = "http://127.0.0.1:54399";
 // Errores reales de la página (no cuentan los recursos externos que no cargaron)
 function vigilarErrores(page){
@@ -15,8 +18,8 @@ function vigilarErrores(page){
 test("la portada carga y muestra los desarrollos, sin errores", async ({page}) => {
   const errores = vigilarErrores(page);
   await page.goto("/");
-  await expect(page.locator(".tarjeta")).toHaveCount(DESARROLLOS.length);
-  await expect(page.locator("#titulo-res")).toContainText(`${DESARROLLOS.length} desarrollos`);
+  await expect(page.locator(".tarjeta")).toHaveCount(COMPRA.length);
+  await expect(page.locator("#titulo-res")).toContainText(`${COMPRA.length} opciones`);
   expect(errores).toEqual([]);
 });
 
@@ -29,10 +32,10 @@ test("buscar, filtrar y ordenar cambian los resultados", async ({page}) => {
   await page.locator("#q2").fill("");
   await page.keyboard.press("Escape");
   await page.locator('.cat[data-cat="casa"]').click();
-  await expect(page.locator(".tarjeta")).toHaveCount(DESARROLLOS.filter(d => d.tipo === "casa").length);
+  await expect(page.locator(".tarjeta")).toHaveCount(COMPRA.filter(d => d.tipo === "casa").length);
   await page.locator('.cat[data-cat="todo"]').click();
   await page.locator("#orden").selectOption("barato");
-  const masBarato = [...DESARROLLOS].sort((a, b) => a.desde - b.desde)[0];
+  const masBarato = [...COMPRA].sort((a, b) => a.desde - b.desde)[0];
   await expect(page.locator(".tarjeta h3").first()).toHaveText(masBarato.nombre);
 });
 
@@ -79,7 +82,7 @@ test("sin servicios externos (mapa, rutas, letras) el sitio sigue funcionando", 
   const errores = vigilarErrores(page);
   await page.route(/^https?:\/\/(?!localhost|127\.0\.0\.1)/, r => r.abort());
   await page.goto("/");
-  await expect(page.locator(".tarjeta")).toHaveCount(DESARROLLOS.length);
+  await expect(page.locator(".tarjeta")).toHaveCount(COMPRA.length);
   await page.locator("#alternar").click();               // el mapa no carga: aviso y regresa a la lista
   await expect(page.locator("#toast")).toContainText(/mapa/);
   await page.goto("/desarrollos/torre-oriente/");
@@ -104,7 +107,7 @@ test("con internet, el mapa se carga solo al abrirlo y muestra los pines", async
   await page.goto("/");
   expect(await page.evaluate(() => typeof window.L)).toBe("undefined");   // Leaflet no se carga al inicio
   await page.locator("#alternar").click();
-  await expect(page.locator("#mapa .pin")).toHaveCount(DESARROLLOS.filter(d => d.lat != null).length, {timeout:15000});
+  await expect(page.locator("#mapa .pin")).toHaveCount(COMPRA.filter(d => d.lat != null).length, {timeout:15000});
 });
 
 // Crea una solicitud real por /api/visita y regresa su folio y token (los toma de la base de pruebas)
@@ -183,4 +186,45 @@ test("en la calculadora no se puede escribir el precio ni la tasa", async ({page
   await expect(page.locator("#c-res")).not.toHaveText(antes);
   await page.goto("/cotizador.html?d=valladolid");
   expect(await page.locator("#q-precio").evaluate(el => el.tagName)).toBe("SELECT");
+});
+
+test("casa usada: su propia ficha, sin preventa ni corrida, con aviso de gravamen", async ({page}) => {
+  await page.goto("/");
+  await page.locator('.cat[data-cat="usadas"]').click();
+  await expect(page.locator(".tarjeta")).toHaveCount(1);
+  await expect(page.locator(".tarjeta .insignia")).toHaveText("Casa usada · dueño directo");
+  await page.locator(".tarjeta .titulo-enlace").click();
+  const f = page.locator("#ficha");
+  for(const t of ["Libertad de gravamen", "Escrituras", "Dueño directo", "Antes de dar cualquier anticipo", "Cómo podrías pagarlo", "precio de venta"]) await expect(f).toContainText(t);
+  await expect(f.locator("dt", {hasText:"Entrega"})).toHaveCount(0);
+  await expect(f.locator(".btn-corrida")).toHaveCount(0);
+  await expect(page.locator("#c-precio")).toContainText("$1,350,000");
+});
+
+test("renta: va aparte de la compra, con depósito, y el formulario pide garantía en lugar de crédito", async ({page, request}) => {
+  await request.get(`${MOCK}/__reset`);
+  await page.route("https://wa.me/**", r => r.fulfill({body:"ok"}));
+  await page.goto("/");
+  await expect(page.locator('.tarjeta[data-id="prueba-depa-renta"]')).toHaveCount(0);
+  await page.locator('.cat[data-cat="renta"]').click();
+  await expect(page.locator(".tarjeta")).toHaveCount(1);
+  await expect(page.locator("#titulo-res")).toContainText("1 inmueble en renta");
+  await expect(page.locator(".tarjeta .precio")).toContainText("$8,500 al mes");
+  await page.locator(".tarjeta .titulo-enlace").click();
+  const f = page.locator("#ficha");
+  for(const t of ["Depósito", "Garantía que pide", "Mascotas", "$17,000", "Antes de dar un depósito", "Inmobiliaria de Prueba"]) await expect(f).toContainText(t);
+  await expect(f).not.toContainText("Cómo podrías pagarlo");
+  await expect(f).not.toContainText("Créditos que acepta");
+  await expect(page.locator("#c-res")).toHaveCount(0);
+  await page.locator("#agendar-2").click();
+  await expect(page.locator("#l-credito")).toHaveText("¿Qué garantía puedes dar?");
+  await expect(page.locator("#v-quien")).toHaveText("quien anuncia este inmueble");
+  await page.locator("#v-nombre").fill("Renta Prueba");
+  await page.locator("#v-tel").fill("6182223344");
+  await page.locator("#v-credito").selectOption("Aval (obligado solidario)");
+  await page.locator("#v-consent").check();
+  await page.locator("#v-enviar").click();
+  await expect.poll(async () => (await (await request.get(`${MOCK}/__datos`)).json()).solicitudes.length).toBe(1);
+  const {solicitudes} = await (await request.get(`${MOCK}/__datos`)).json();
+  expect(solicitudes[0]).toMatchObject({desarrollo:"prueba-depa-renta", pago:"Aval (obligado solidario)", mensualidad:null});
 });

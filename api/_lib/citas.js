@@ -13,12 +13,13 @@ export function textoVerificacion(s, des){
 }
 // La ficha de la cita para el asesor: solo lo que el cliente aceptó compartir en la casilla
 export function detalleCita(s){
+  const renta = desarrollos().find(d => d.id === s.desarrollo)?.operacion === "renta";
   const nombres = (s.otros || []).map(id => desarrollos().find(d => d.id === id)?.nombre).filter(Boolean);
   return [
     `${s.nombre}, WhatsApp ${s.telefono} (wa.me/52${s.telefono})`,
     `Cuándo: ${s.cita_fecha ? new Date(s.cita_fecha).toLocaleString("es-MX", {timeZone:"America/Monterrey", weekday:"long", day:"numeric", month:"long", hour:"numeric", minute:"2-digit"}) : s.cuando}`,
-    `Pagaría con: ${s.pago}`,
-    s.presupuesto ? `Presupuesto: hasta ${dinero(s.presupuesto)}` : "",
+    `${renta ? "Garantía que daría" : "Pagaría con"}: ${s.pago}`,
+    s.presupuesto ? `${renta ? "Renta máxima" : "Presupuesto"}: hasta ${dinero(s.presupuesto)}${renta ? " al mes" : ""}` : "",
     s.mensualidad ? `Mensualidad que calculó: ${dinero(s.mensualidad)}` : "",
     s.trabajo_texto || s.minutos ? `Trabaja en: ${s.trabajo_texto || "zona marcada en el mapa"}${s.minutos ? ` (${s.minutos} min en auto)` : ""}` : "",
     nombres.length ? `También vio: ${nombres.join(", ")}` : "",

@@ -3,7 +3,7 @@ import {test, before, after, beforeEach} from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
 import {crearMock} from "./mock-supabase.mjs";
-import {escribirFixture, datosDePrueba, ESQUEMA_PRUEBA} from "./fixture.mjs";
+import {escribirFixture, datosDePrueba, ESQUEMA_PRUEBA, ANUNCIOS_PRUEBA} from "./fixture.mjs";
 import {validar} from "../scripts/validar.mjs";
 import {calcularCorrida} from "../assets/corrida.mjs";
 
@@ -143,4 +143,24 @@ test("reporte: citas confirmadas, llegadas y cotizaciones por desarrollo", async
   await post(api.cotizacion, {desarrollo:"valladolid", esquema:ESQUEMA_PRUEBA.nombre, precioLista:750000, enganchePct:5, meses:12, credito:"Banco", folio:s.folio});
   const r = await (await api.reporte.GET(new Request("http://x/api/reporte?dias=30&d=valladolid", {headers:{"x-clave":"clave-reporte"}}))).json();
   assert.deepEqual([r.totales.confirmadas, r.totales.llegadas, r.totales.cotizaciones], [1, 1, 1]);
+});
+
+test("usadas y rentas: el validador pide quién lo anuncia y no deja mezclar crédito con renta", () => {
+  const [usada, renta] = structuredClone(ANUNCIOS_PRUEBA);
+  delete usada.anunciante;
+  const e = validar([usada, {...renta, creditos:["Infonavit"], desde:1500000, entrega:"Preventa"}]).errores.join("\n");
+  assert.match(e, /anunciante/); assert.match(e, /no lleva créditos/); assert.match(e, /parece precio de venta/); assert.match(e, /solo aplica a vivienda nueva/);
+});
+
+test("renta: se pide la garantía en lugar de la forma de pago, y así le llega a quien la anuncia", async () => {
+  mock.tablas.desarrolladoras.push({id:2, nombre:"Inmobiliaria de Prueba", whatsapp:"6185550000", desarrollos:["prueba-depa-renta"], activa:true});
+  const r = await (await post(api.visita, {id:"prueba-depa-renta", nombre:"Mario Ruiz", whatsapp:"6184440000", cuando:"Este fin de semana", pago:"Póliza jurídica", presupuesto:9000, consentimiento:true})).json();
+  const s = mock.tablas.solicitudes.find(x => x.folio === r.folio);
+  assert.equal(s.pago, "Póliza jurídica");
+  const otra = await (await post(api.visita, {id:"prueba-depa-renta", nombre:"Luis", whatsapp:"6184440001", pago:"Infonavit", consentimiento:true})).json();
+  assert.equal(mock.tablas.solicitudes.find(x => x.folio === otra.folio).pago, "Aún no sé", "en renta no hay crédito");
+  whats.length = 0;
+  await cita(s.folio, s.token, {accion:"confirmar"});
+  const ficha = whats.find(m => m.template.name === "arventa_cita").template.components[0].parameters[2].text;
+  assert.match(ficha, /Garantía que daría: Póliza jurídica/); assert.match(ficha, /Renta máxima: hasta \$9,000 al mes/);
 });

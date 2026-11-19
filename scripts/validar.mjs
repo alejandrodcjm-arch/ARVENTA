@@ -8,6 +8,9 @@ const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const TIPOS = ["casa", "departamento", "terreno"];
 export const CREDITOS = ["Infonavit", "Fovissste", "Banco", "Cofinavit", "Contado"];
 export const ENTREGAS = ["Preventa", "Entrega inmediata"];
+// nueva: desarrollos (por omisión) · reventa: casa usada de un particular o inmobiliaria · renta
+export const OPERACIONES = ["nueva", "reventa", "renta"];
+export const GARANTIAS = ["Depósito", "Aval", "Póliza jurídica"];
 export const DIAS_VIGENCIA = 60; // pasado esto, la ficha dice "precio por confirmar"
 const CAJA = {s:23.85, w:-104.85, n:24.20, e:-104.45};
 
@@ -37,8 +40,48 @@ export function validar(lista, {hoy = new Date(), raiz = RAIZ} = {}){
     if(!esNumero(d.desde) || d.desde <= 0) error(`"desde" debe ser un número mayor que cero (está como ${JSON.stringify(d.desde)}).`);
     if(d.hasta != null && (!esNumero(d.hasta) || d.hasta < d.desde)) error(`"hasta" debe ser un número mayor o igual que "desde".`);
     if(!texto(d.zona)) error("falta la zona.");
+    const op = d.operacion ?? "nueva", nueva = op === "nueva";
+    if(!OPERACIONES.includes(op)) error(`operacion ${JSON.stringify(d.operacion)} inválida; usa ${OPERACIONES.join(", ")}.`);
+    // Usadas y rentas: la ficha dice quién lo anuncia, y ARVENTA confirmó en persona que puede anunciarlo
+    if(!nueva){
+      const a = d.anunciante;
+      if(!a || !["particular", "inmobiliaria"].includes(a.tipo)) error('falta "anunciante": {"tipo":"particular" o "inmobiliaria", "nombre" (si es inmobiliaria), "verificado":"AAAA-MM-DD"}.');
+      else{
+        if(a.tipo === "inmobiliaria" && !texto(a.nombre)) error("anunciante.nombre: el nombre de la inmobiliaria.");
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(a.verificado || "")) error("anunciante.verificado: fecha en que ARVENTA confirmó en persona que es el dueño (escrituras e identificación) o que la inmobiliaria lo tiene autorizado. No se guardan copias.");
+        if(a.tipo === "particular" && d.aprox === false) avisos.push(`${quien}: publica la ubicación exacta de la casa de un particular; confirma que el dueño lo autorizó.`);
+      }
+      if(d.hasta != null) error('"hasta" no aplica: un inmueble usado o en renta tiene un solo precio.');
+      for(const k of ["esquemas", "precios"]) if(d[k] !== undefined) error(`"${k}" solo aplica a vivienda nueva.`);
+    }
+    if(op === "renta"){
+      if(Array.isArray(d.creditos) && d.creditos.length) error("una renta no lleva créditos; deja creditos: [].");
+      if(d.financiamiento !== undefined) error('"financiamiento" no aplica a una renta.');
+      if(esNumero(d.desde) && d.desde > 200000) error(`en renta, "desde" es la renta mensual; ${d.desde} parece precio de venta.`);
+      const r = d.renta ?? {};
+      if(typeof r !== "object" || Array.isArray(r)) error('"renta" debe ser un objeto { … }.');
+      else{
+        if(r.deposito != null && !(esNumero(r.deposito) && r.deposito >= 0 && r.deposito <= 6)) error("renta.deposito: meses de renta, de 0 a 6.");
+        if(r.garantia != null && (!Array.isArray(r.garantia) || r.garantia.some(g => !GARANTIAS.includes(g)))) error(`renta.garantia: lista con ${GARANTIAS.join(", ")}.`);
+        if(r.plazoMeses != null && !(Number.isInteger(r.plazoMeses) && r.plazoMeses >= 1 && r.plazoMeses <= 60)) error("renta.plazoMeses: meses enteros, de 1 a 60.");
+        if(r.mantenimiento != null && !texto(r.mantenimiento) && !(esNumero(r.mantenimiento) && r.mantenimiento >= 0)) error('renta.mantenimiento: "Incluido", un monto al mes o null.');
+        for(const k of ["amueblado", "mascotas"]) if(r[k] != null && typeof r[k] !== "boolean") error(`renta.${k}: true, false o null.`);
+        for(const k of ["servicios", "requisitos", "disponible"]) if(r[k] != null && !texto(r[k])) error(`renta.${k}: texto o null.`);
+      }
+      if(/^\d{4}-\d{2}-\d{2}$/.test(d.verificado || "") && diasDesde(d.verificado, hoy) > 30) avisos.push(`${quien}: renta verificada hace más de 30 días; confirma que sigue disponible o quítala.`);
+    }
+    if(op === "reventa"){
+      if(esNumero(d.desde) && d.desde < 100000) error(`"desde" (${d.desde}) parece renta mensual; en reventa es el precio de venta.`);
+      const v = d.reventa ?? {};
+      if(v.construida != null && !(Number.isInteger(v.construida) && v.construida > 1900 && v.construida <= hoy.getFullYear() + 1)) error("reventa.construida: año de construcción.");
+      for(const k of ["escrituras", "alCorriente"]) if(v[k] != null && typeof v[k] !== "boolean") error(`reventa.${k}: true, false o null.`);
+      if(v.gravamen != null && !/^\d{4}-\d{2}-\d{2}$/.test(v.gravamen)) error("reventa.gravamen: fecha del certificado de libertad de gravamen, AAAA-MM-DD.");
+      else if(v.gravamen && diasDesde(v.gravamen, hoy) > 30) avisos.push(`${quien}: el certificado de libertad de gravamen tiene más de 30 días; la ficha pide uno nuevo.`);
+    }
     // fuentes y verificación
-    if(!Array.isArray(d.fuentes) || !d.fuentes.length) error("necesita al menos una fuente [nombre, url].");
+    // Usadas y rentas pueden no tener anuncio en otro sitio: la fuente es quien lo anuncia (anunciante.verificado)
+    if(!nueva && (d.fuentes == null || (Array.isArray(d.fuentes) && !d.fuentes.length))){}
+    else if(!Array.isArray(d.fuentes) || !d.fuentes.length) error("necesita al menos una fuente [nombre, url].");
     else d.fuentes.forEach((f, j) => { if(!Array.isArray(f) || !texto(f[0]) || !/^https?:\/\/\S+$/.test(f[1] || "")) error(`la fuente ${j + 1} debe ser ["Nombre", "https://…"].`); });
     if(!/^\d{4}-\d{2}-\d{2}$/.test(d.verificado || "") || isNaN(new Date(d.verificado))) error(`falta "verificado" con la fecha en que se confirmó el precio, como "2026-11-18".`);
     else{
@@ -89,8 +132,9 @@ export function validar(lista, {hoy = new Date(), raiz = RAIZ} = {}){
     if(typeof d.aprox !== "boolean") error("aprox debe ser true o false.");
     // NOM-247: solo datos confirmados
     if(!Array.isArray(d.creditos)) error('creditos debe ser una lista, [] si no está confirmado.');
-    else{ d.creditos.filter(c => !CREDITOS.includes(c)).forEach(c => error(`crédito ${JSON.stringify(c)} inválido; usa ${CREDITOS.join(", ")}.`)); if(!d.creditos.length) pend.creditos.push(d.id); }
-    if(!("entrega" in d)) error('falta "entrega" ("Preventa", "Entrega inmediata" o null).');
+    else{ d.creditos.filter(c => !CREDITOS.includes(c)).forEach(c => error(`crédito ${JSON.stringify(c)} inválido; usa ${CREDITOS.join(", ")}.`)); if(!d.creditos.length && op !== "renta") pend.creditos.push(d.id); }
+    if(!nueva){ if(d.entrega != null) error('"entrega" (preventa o inmediata) solo aplica a vivienda nueva; quítalo.'); }
+    else if(!("entrega" in d)) error('falta "entrega" ("Preventa", "Entrega inmediata" o null).');
     else if(d.entrega === null) pend.entrega.push(d.id);
     else if(!ENTREGAS.includes(d.entrega)) error(`entrega ${JSON.stringify(d.entrega)} inválida.`);
     if(d.incluye == null) pend.incluye.push(d.id); else if(!texto(d.incluye)) error("incluye debe ser texto o null.");

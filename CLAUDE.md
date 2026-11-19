@@ -50,7 +50,7 @@ La información y publicidad debe ser veraz, comprobable, clara y sin nada que l
 
 ### 4. Datos personales (Ley Federal de Protección de Datos Personales)
 - [ ] Aviso de privacidad visible antes de enviar el formulario de visita: quién recibe los datos, para qué, y cómo pedir que se borren.
-- [ ] Pedir solo nombre, WhatsApp, horario y forma de pago. Nada más.
+- [ ] Pedir solo nombre, WhatsApp, horario y forma de pago (en renta, la garantía que daría en lugar de la forma de pago). Nada más.
 - [ ] Casilla de consentimiento para compartir los datos con la desarrolladora del desarrollo elegido.
 
 ### 5. Servicios gratuitos que usa el sitio
@@ -67,7 +67,7 @@ Sigue la de `docs/REQUISITOS.md`. Lo principal:
 
 | Ruta | Qué tiene |
 |---|---|
-| `data/desarrollos.json` | Fuente de verdad de los desarrollos (con `verificado`, `creditos`, `entrega`, `incluye`, `convenio`, `fotos`) |
+| `data/desarrollos.json` | Fuente de verdad de los desarrollos (con `verificado`, `creditos`, `entrega`, `incluye`, `convenio`, `fotos`) y, con `operacion`, de casas usadas (`reventa`) y rentas (`renta`), cada una con `anunciante` verificado en persona |
 | `index.html`, `assets/app.js`, `assets/estilos.css` | La app: buscador, tarjetas, filtros, mapa (Leaflet se carga solo al abrirlo), ficha, ¿qué me alcanza?, comparador y formulario de visita |
 | `assets/config.js` | Configuración pública: WhatsApp, mapa, Umami, Sentry y datos legales. Nunca llaves secretas |
 | `desarrollos/<id>/`, `assets/datos.js`, `data/lugares.json`, `sitemap.xml`, `robots.txt` | **Generados** por `scripts/construir.mjs`; no se editan a mano |

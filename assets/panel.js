@@ -23,7 +23,7 @@
   function tarjeta(s){
     const otros = (s.otros || []).map(id => (window.DESARROLLOS || []).find(d => d.id === id)?.nombre || id);
     const datosCliente = [
-      `<a href="https://wa.me/52${esc(s.telefono)}" target="_blank" rel="noopener">${esc(s.telefono)}</a>`, esc(s.cuando), `Paga con ${esc(s.pago)}`,
+      `<a href="https://wa.me/52${esc(s.telefono)}" target="_blank" rel="noopener">${esc(s.telefono)}</a>`, esc(s.cuando), `${(window.DESARROLLOS || []).find(d => d.id === s.desarrollo)?.operacion === "renta" ? "Garantía:" : "Paga con"} ${esc(s.pago)}`,
       s.presupuesto ? `Presupuesto ${dinero(s.presupuesto)}` : "", s.mensualidad ? `Mensualidad que vio ${dinero(s.mensualidad)}` : "",
       s.trabajo_texto || s.minutos ? `Trabaja en ${esc(s.trabajo_texto || "zona del mapa")}${s.minutos ? ` (${s.minutos} min)` : ""}` : "",
       otros.length ? `También vio ${esc(otros.join(", "))}` : ""].filter(Boolean).join(" · ");

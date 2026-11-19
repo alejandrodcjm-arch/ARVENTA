@@ -23,7 +23,7 @@ window.ARVENTA = {
   DOMICILIO: "",
   CORREO: "",
   LICENCIA: "",       // Solo si ARVENTA llega a acompañar ventas (como portal, posiblemente no aplica: confirmarlo con un abogado)
-  VERSION_AVISO: "18 de noviembre de 2026"
+  VERSION_AVISO: "19 de noviembre de 2026"
 };
 
 (function(){

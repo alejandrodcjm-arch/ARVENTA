@@ -13,6 +13,7 @@ export function rangoPrecio(d){ return {min:d.desde, max:d.hasta || d.desde}; }
 /* El precio no se escribe: solo se elige entre los que dio el proyecto (por modelo si los hay; si no, desde/hasta) */
 export function preciosDe(d){
   if(d.precios?.length) return d.precios.map(p => ({modelo:p.modelo, precio:p.precio}));
+  if(d.operacion === "reventa") return [{modelo:"Precio de venta", precio:d.desde}];
   return [{modelo:"Precio desde", precio:d.desde}, ...(d.hasta && d.hasta !== d.desde ? [{modelo:"Precio hasta", precio:d.hasta}] : [])];
 }
 /* La tasa tampoco: o las opciones que dio el proyecto (bancos con convenio, por ejemplo) o una tasa de referencia fija */

@@ -16,6 +16,22 @@ const DESARROLLOS = (window.DESARROLLOS || []).map(d => ({
 }));
 const TIPO = {casa:"Casas", departamento:"Departamentos", terreno:"Terrenos"};
 const TIPO_UNO = {casa:"Casa", departamento:"Departamento", terreno:"Terreno"};
+/* Operación: vivienda nueva (por omisión), usada (la vende un particular o una inmobiliaria) o en renta.
+   Cada una enseña lo que le importa a quien busca: a quien renta no le sirven crédito, preventa ni corrida. */
+const opDe = d => d.operacion || "nueva";
+const esRenta = d => opDe(d) === "renta";
+const esUsada = d => opDe(d) === "reventa";
+function tipoTexto(d){
+  if (esRenta(d)) return `${TIPO_UNO[d.tipo]} en renta`;
+  if (esUsada(d)) return {casa:"Casa usada", departamento:"Departamento usado", terreno:"Terreno en venta"}[d.tipo];
+  return TIPO[d.tipo];
+}
+// Precio en pocas letras: "$1.25 M" (pines y barra) y en texto: "desde $1,250,000", "$1,350,000", "$8,500 al mes"
+function precioCorto(d){ return esRenta(d) ? "$" + (d.desde / 1000).toLocaleString("es-MX", {maximumFractionDigits:1}) + " mil/mes" : corto(d.desde); }
+function precioTexto(d){ return esRenta(d) ? `${dinero(d.desde)} al mes` : esUsada(d) ? dinero(d.desde) : `desde ${dinero(d.desde)}`; }
+function quienAnuncia(d){ const a = d.anunciante; return !a ? "" : a.tipo === "particular" ? "Dueño directo" : a.nombre; }
+const PAGOS = ["Infonavit", "Fovissste", "Crédito bancario", "Cofinavit (Infonavit + banco)", "Contado", "Aún no sé"];
+const GARANTIAS = ["Depósito", "Aval (obligado solidario)", "Póliza jurídica", "Aún no sé"];
 
 const AMEN = {
   alberca:   {nombre:"Alberca", re:/alberca/i},
@@ -111,7 +127,7 @@ function minAuto(m){ return Math.max(2, Math.round(m * 1.35 / 1000 / 28 * 60)); 
 function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function normal(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
 function m2Num(d){ const m = String(d.m2).match(/(\d+)/); return m ? +m[1] : null; }
-function porM2(d){ const m = m2Num(d); return m && d.tipo !== "terreno" ? d.desde / m : null; }
+function porM2(d){ const m = m2Num(d); return m && d.tipo !== "terreno" && !esRenta(d) ? d.desde / m : null; }
 function zonaCorta(d){ return d.zona.split(/[;,(]/)[0].trim(); }
 // fetch con tiempo límite: un servicio que no contesta no debe dejar la página esperando
 async function traer(url, opciones = {}, ms = 12000){
@@ -123,7 +139,7 @@ function pago(monto, tasaAnual, anios){ const t = tasaAnual / 100 / 12, n = anio
 function creditoMax(mensual, tasaAnual, anios){ const t = tasaAnual / 100 / 12, n = anios * 12; return mensual * (1 - Math.pow(1 + t, -n)) / t; }
 const PROM_M2 = {};
 for (const t of ["casa", "departamento"]) {
-  const v = DESARROLLOS.filter(d => d.tipo === t).map(porM2).filter(Boolean);
+  const v = DESARROLLOS.filter(d => d.tipo === t && opDe(d) === "nueva").map(porM2).filter(Boolean);   // promedio de vivienda nueva
   PROM_M2[t] = v.reduce((a, b) => a + b, 0) / v.length;
 }
 
@@ -233,7 +249,7 @@ function laminas(d){
 /* ===== Estado ===== */
 const estado = {
   cat: "todo", q: "", max: null, presEtiqueta: null,
-  recMin: 0, trabajo15: false, creditos: new Set(), amen: new Set(), cercaReq: new Set(), entrega: new Set(),
+  recMin: 0, rentaMax: null, trabajo15: false, creditos: new Set(), amen: new Set(), cercaReq: new Set(), entrega: new Set(),
   ref: null,          // {tipo, lat, lng, nombre}
   orden: "cerca", vista: "lista"
 };
@@ -247,6 +263,8 @@ const CATEGORIAS = [
   {id:"casa", nombre:"Casas", f:d => d.tipo === "casa", ico:'<path d="M3 12 9 7l6 5v8H3zM15 12l3-2.5 3 2.5v8h-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'},
   {id:"departamento", nombre:"Departamentos", f:d => d.tipo === "departamento", ico:'<rect x="6" y="3" width="12" height="18" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" stroke="currentColor" stroke-width="1.6"/>'},
   {id:"terreno", nombre:"Terrenos", f:d => d.tipo === "terreno", ico:'<path d="M3 18 8 8l4 6 3-4 6 8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'},
+  {id:"usadas", nombre:"Casas usadas", f:esUsada, hay:() => DESARROLLOS.some(esUsada), ico:'<path d="M4 11 12 4l8 7v9H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="14.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 12.8v1.9l1.2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'},
+  {id:"renta", nombre:"En renta", f:esRenta, hay:() => DESARROLLOS.some(esRenta), ico:'<circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m11 12 8.5-8.5M16 7l2.2 2.2M13.6 9.4l2 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'},
   {id:"economico", nombre:"Menos de $1.5 M", f:d => d.desde <= 1500000, ico:'<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2c-1.1 0-2-.4-2.5-1.2M12 6.5V8M12 16v1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'},
   {id:"alberca", nombre:"Con alberca", f:d => amenidades(d).includes("alberca"), ico:'<path d="M3 17c1.5 0 1.5 1 3 1s1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1M7 14V5a2 2 0 0 1 4 0M13 14V5a2 2 0 0 1 4 0M7 9h6M7 12h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'},
   {id:"privada", nombre:"Con vigilancia", f:d => amenidades(d).includes("vigilancia"), ico:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/>'},
@@ -267,17 +285,20 @@ function recMin(d){ const m = String(d.recamaras).match(/\d+/); return m ? +m[0]
 function recMaxNum(d){ const m = String(d.recamaras).match(/\d+/g); return m ? Math.max(...m.map(Number)) : 0; }
 function pasa(d){
   const cat = CATEGORIAS.find(c => c.id === estado.cat);
+  // Rentas solo en "En renta" (y en Guardados): sus precios son al mes y no se mezclan con los de compra
+  if (estado.cat !== "guardados" && (estado.cat === "renta") !== esRenta(d)) return false;
   if (cat && !cat.f(d)) return false;
   if (estado.q) {
     const t = normal([d.nombre, d.zona, TIPO[d.tipo], d.desarrolladora].join(" "));
     if (!normal(estado.q).split(/\s+/).every(p => t.includes(p))) return false;
   }
-  if (estado.max && d.desde > estado.max) return false;
+  if (!esRenta(d) && estado.max && d.desde > estado.max) return false;
+  if (esRenta(d) && estado.rentaMax && d.desde > estado.rentaMax) return false;
   if (estado.recMin && d.tipo !== "terreno" && recMaxNum(d) < estado.recMin) return false;
-  for (const c of estado.creditos) if (!d.creditos.includes(c)) return false;
+  if (!esRenta(d)) for (const c of estado.creditos) if (!d.creditos.includes(c)) return false;
   const am = amenidades(d);
   for (const a of estado.amen) if (!am.includes(a)) return false;
-  if (estado.entrega.size && !estado.entrega.has(d.entrega || "Por confirmar")) return false;
+  if (!esRenta(d) && estado.entrega.size && !estado.entrega.has(d.entrega || "Por confirmar")) return false;
   if (estado.trabajo15 && estado.ref?.tipo === "trabajo" && !(MINUTOS[d.id] < 15)) return false;
   if (estado.cercaReq.size) {
     const c = cercanos(d);
@@ -314,7 +335,7 @@ function loBueno(d){
   if (am.includes("alberca")) partes.push("Alberca");
   else if (am.includes("vigilancia")) partes.push("Vigilancia");
   const pm = porM2(d);
-  if (partes.length < 2 && pm && pm < PROM_M2[d.tipo] * .9) partes.push(`m² ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo del promedio`);
+  if (partes.length < 2 && opDe(d) === "nueva" && pm && pm < PROM_M2[d.tipo] * .9) partes.push(`m² ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo del promedio`);
   return partes.slice(0, 2).join(" · ");
 }
 
@@ -323,7 +344,8 @@ function tarjeta(d){
   const l = laminas(d);
   const cerc = etiquetaCercania(d);
   const pm = porM2(d), am = amenidades(d);
-  const ins = pm && pm < PROM_M2[d.tipo] * .85 ? "Buen precio por m²" : d.desde <= 1000000 ? "Menos de $1 M" : am.includes("alberca") ? "Con alberca" : "";
+  const ins = esRenta(d) ? "En renta" : esUsada(d) ? tipoTexto(d) + (d.anunciante?.tipo === "particular" ? " · dueño directo" : "")
+    : pm && pm < PROM_M2[d.tipo] * .85 ? "Buen precio por m²" : d.desde <= 1000000 ? "Menos de $1 M" : am.includes("alberca") ? "Con alberca" : "";
   const bueno = loBueno(d);
   return `<div class="tarjeta" data-id="${d.id}">
     <div class="galeria">
@@ -336,12 +358,13 @@ function tarjeta(d){
     </div>
     <div class="info">
       <div class="l1"><h3><a class="titulo-enlace" href="/desarrollos/${d.id}/">${esc(d.nombre)}</a></h3>${cerc ? `<span class="cercania">${cerc}</span>` : ""}</div>
-      <p class="gris">${esc(TIPO[d.tipo])} · ${esc(zonaCorta(d))}</p>
+      <p class="gris">${esc(tipoTexto(d))} · ${esc(zonaCorta(d))}</p>
       <p class="datos-t">${[d.tipo !== "terreno" && /^\d/.test(d.recamaras) ? `${esc(d.recamaras)} rec.` : "", esc(d.m2.replace(/\s*\(.*\)$/, "")), pm ? `${dinero(pm)}/m²` : ""].filter(Boolean).join(" · ")}</p>
       ${cercaTarjeta(d)}
       ${bueno ? `<p class="bueno">${esc(bueno)}</p>` : ""}
-      <p class="precio">${vencido(d) ? "<b>Precio por confirmar</b>" : `desde <b>${corto(d.desde)}</b><span class="mensual-t"> · aprox. ${dinero(pago(d.desde * .8, TASA_BANCO, PLAZO_BANCO))} al mes</span>`}</p>
-      <div class="pie-tarjeta">${PERFIL ? (([cls, txt]) => `<span class="alc ${cls}">${txt}</span>`)(etiquetaAlcance(d)) : ""}${botonComparar(d)}</div>
+      <p class="precio">${vencido(d) ? `<b>${esRenta(d) ? "Renta" : "Precio"} por confirmar</b>` : esRenta(d) ? `<b>${dinero(d.desde)}</b> al mes${d.renta?.deposito != null ? `<span class="mensual-t"> · depósito de ${d.renta.deposito} ${d.renta.deposito === 1 ? "mes" : "meses"}</span>` : ""}`
+        : `${esUsada(d) ? "" : "desde "}<b>${corto(d.desde)}</b><span class="mensual-t"> · aprox. ${dinero(pago(d.desde * .8, TASA_BANCO, PLAZO_BANCO))} al mes</span>`}</p>
+      <div class="pie-tarjeta">${PERFIL && !esRenta(d) ? (([cls, txt]) => `<span class="alc ${cls}">${txt}</span>`)(etiquetaAlcance(d)) : ""}${botonComparar(d)}</div>
     </div>
   </div>`;
 }
@@ -357,6 +380,7 @@ try { COMPARAR = (JSON.parse(localStorage.getItem("arventa-comparar")) || []).fi
 function alternarComparar(id){
   const i = COMPARAR.indexOf(id);
   if (i >= 0) COMPARAR.splice(i, 1);
+  else if (COMPARAR.length && esRenta(DESARROLLOS.find(d => d.id === COMPARAR[0])) !== esRenta(DESARROLLOS.find(d => d.id === id))) { toast("Compara rentas con rentas y compras con compras: sus precios no se miden igual."); return; }
   else if (COMPARAR.length >= MAX_COMPARAR) { toast(`Puedes comparar hasta ${MAX_COMPARAR}. Quita uno para agregar otro.`); return; }
   else COMPARAR.push(id);
   sincronizarComparar();
@@ -390,12 +414,18 @@ function verComparar(){
   };
   let h = `<div class="cmp-tabla" style="--n:${ds.length}">` + ds.map(d => `<div class="cmp-cab"><h3>${esc(d.nombre)}</h3><small>${esc(TIPO[d.tipo])}</small>
     <div class="acc"><a class="btn" href="/desarrollos/${esc(d.id)}/">Ver</a><button type="button" class="btn claro" data-comparar="${esc(d.id)}" aria-label="Quitar ${esc(d.nombre)}">Quitar</button></div></div>`).join("");
-  h += renglon("Precio desde", ds.map(d => ({txt:`${dinero(d.desde)}${d.hasta ? `<small>hasta ${dinero(d.hasta)}</small>` : ""}`, num:d.desde})));
+  const rentas = ds.every(esRenta);
+  h += renglon(rentas ? "Renta al mes" : "Precio", ds.map(d => ({txt:`${esUsada(d) || esRenta(d) ? "" : "desde "}${dinero(d.desde)}${d.hasta ? `<small>hasta ${dinero(d.hasta)}</small>` : ""}`, num:d.desde})));
   h += renglon("Precio por m²", ds.map(d => { const p = porM2(d); return p ? {txt:`${dinero(p)}<small>${m2Num(d)} m²</small>`, num:p} : {txt:d.tipo === "terreno" ? "Terreno" : "Sin dato", num:null}; }));
   h += renglon("Recámaras", ds.map(d => ({txt:d.tipo === "terreno" ? "—" : esc(d.recamaras), num:null})), false);
-  h += renglon("Créditos confirmados", ds.map(d => ({txt:d.creditos.length ? esc(d.creditos.join(", ")) : "Por confirmar", num:null})), false);
-  h += renglon("Entrega", ds.map(d => ({txt:d.entrega ? esc(d.entrega) : "Por confirmar", num:null})), false);
-  if (PERFIL) h += renglon("Con tu presupuesto", ds.map(d => ({txt:etiquetaAlcance(d)[1], num:null})), false);
+  if (rentas) {
+    h += renglon("Para entrar (mes + depósito)", ds.map(d => d.renta?.deposito != null ? {txt:dinero(d.desde * (d.renta.deposito + 1)), num:d.desde * (d.renta.deposito + 1)} : {txt:"Por confirmar", num:null}));
+    h += renglon("Garantía", ds.map(d => ({txt:d.renta?.garantia?.length ? esc(d.renta.garantia.join(", ")) : "Por confirmar", num:null})), false);
+  } else {
+    h += renglon("Créditos confirmados", ds.map(d => ({txt:d.creditos.length ? esc(d.creditos.join(", ")) : "Por confirmar", num:null})), false);
+    h += renglon("Entrega", ds.map(d => ({txt:esUsada(d) ? "Casa usada" : d.entrega ? esc(d.entrega) : "Por confirmar", num:null})), false);
+  }
+  if (PERFIL && !rentas) h += renglon("Con tu presupuesto", ds.map(d => ({txt:etiquetaAlcance(d)[1], num:null})), false);
   if (trabajo) h += renglon(`Minutos a ${esc(estado.ref.nombre)}`, ds.map(d => MINUTOS[d.id] != null ? {txt:`${MINUTOS[d.id]} min en auto`, num:MINUTOS[d.id]} : {txt:d.lat == null ? "Sin ubicación" : "Calculando…", num:null}));
   else h += `<div class="cmp-et">Minutos a tu trabajo</div><div class="cmp-v" style="grid-column:1/-1"><button type="button" class="enlace" id="cmp-trabajo">Dinos dónde trabajas</button> para compararlos.</div>`;
   for (const k of ["escuela", "super", "oxxo", "farmacia", "salud", "parque"]) {
@@ -441,7 +471,7 @@ function activarTarjetas(raiz){
 
 /* ===== Pintar resultados ===== */
 function pintarCategorias(){
-  $("#cats").innerHTML = CATEGORIAS.filter(c => c.id !== "guardados" || FAV.size).map(c =>
+  $("#cats").innerHTML = CATEGORIAS.filter(c => (c.id !== "guardados" || FAV.size) && (!c.hay || c.hay())).map(c =>
     `<button class="cat" type="button" data-cat="${c.id}" aria-pressed="${estado.cat === c.id}"><svg viewBox="0 0 24 24" aria-hidden="true">${c.ico}</svg>${c.nombre}</button>`).join("");
   $$(".cat").forEach(b => b.onclick = () => { estado.cat = b.dataset.cat; pintarCategorias(); pintar(); });
 }
@@ -449,7 +479,9 @@ function pintar(){
   const l = ordenar(DESARROLLOS.filter(pasa));
   const cat = CATEGORIAS.find(c => c.id === estado.cat);
   const quien = estado.cat === "todo" ? "Vivienda nueva" : cat.nombre;
-  $("#titulo-res").textContent = `${l.length} ${l.length === 1 ? "desarrollo" : "desarrollos"}${estado.cat === "todo" ? "" : " · " + cat.nombre} en Durango`;
+  const enRenta = estado.cat === "renta", uno = l.length === 1;
+  const palabra = enRenta ? (uno ? "inmueble en renta" : "inmuebles en renta") : l.every(d => opDe(d) === "nueva") ? (uno ? "desarrollo" : "desarrollos") : (uno ? "opción" : "opciones");
+  $("#titulo-res").textContent = `${l.length} ${palabra}${estado.cat === "todo" || enRenta ? "" : " · " + cat.nombre} en Durango`;
   // contexto: desde dónde se ordena
   let ctx = "";
   if (estado.orden === "cerca") {
@@ -457,7 +489,8 @@ function pintar(){
     else if (estado.ref.tipo === "trabajo") ctx = `Ordenado por minutos en auto a <b>${esc(estado.ref.nombre)}</b>.`;
     else ctx = `Ordenado por distancia a <b>${esc(estado.ref.nombre)}</b>.`;
   } else if (estado.orden === "m2") ctx = "Ordenado por precio por metro cuadrado, del más bajo al más alto.";
-  if (estado.max) ctx += ` Hasta <b>${dinero(estado.max)}</b>.`;
+  if (estado.max && !enRenta) ctx += ` Hasta <b>${dinero(estado.max)}</b>.`;
+  if (enRenta) ctx += estado.rentaMax ? ` Renta de hasta <b>${dinero(estado.rentaMax)}</b> al mes.` : " Precios al mes; elige tu renta máxima en Filtros.";
   if (estado.cercaReq.size && !LUGARES.length) ctx += " Los filtros de cercanía no están disponibles por ahora.";
   $("#contexto").innerHTML = ctx;
   $("#ctx-ubicacion")?.addEventListener("click", usarUbicacion);
@@ -467,7 +500,7 @@ function pintar(){
   $("#limpiar-todo")?.addEventListener("click", limpiarTodo);
   activarTarjetas($("#rejilla"));
   if (estado.vista === "mapa") pintarPines(l);
-  const n = estado.creditos.size + estado.amen.size + estado.cercaReq.size + estado.entrega.size + (estado.recMin ? 1 : 0) + (estado.trabajo15 && estado.ref?.tipo === "trabajo" ? 1 : 0);
+  const n = (estado.rentaMax && enRenta ? 1 : 0) + estado.creditos.size + estado.amen.size + estado.cercaReq.size + estado.entrega.size + (estado.recMin ? 1 : 0) + (estado.trabajo15 && estado.ref?.tipo === "trabajo" ? 1 : 0);
   pintarBarraComparar();
   $("#n-filtros").hidden = !n; $("#n-filtros").textContent = n;
   // resumen del buscador
@@ -641,9 +674,9 @@ function calcularAlcance(){
   PERFIL = p; try { localStorage.setItem("arventa-perfil", JSON.stringify(p)); } catch (e) {}
   const c = capacidad(p), tope = Math.round(Math.max(c.banco.max, c.inf.max) / 10000) * 10000;
   estado.max = tope; estado.presEtiqueta = "ingreso";
-  const n = DESARROLLOS.filter(d => { const a = alcance(d); return a.banco || a.inf; }).length;
+  const compra = DESARROLLOS.filter(d => !esRenta(d)), n = compra.filter(d => { const a = alcance(d); return a.banco || a.inf; }).length;
   $("#res-alcance").innerHTML = `<span class="topes"><span><small>Con banco</small><b>hasta ${dinero(c.banco.max)}</b></span><span><small>Con Infonavit</small><b>hasta ${dinero(c.inf.max)}</b></span></span>
-    <b>${n}</b> de ${DESARROLLOS.length} desarrollos entran en tu presupuesto; te mostramos los de hasta <b>${dinero(tope)}</b>.${htmlExplicacion()}`;
+    <b>${n}</b> de ${compra.length} ${compra.every(d => opDe(d) === "nueva") ? "desarrollos" : "opciones de compra"} entran en tu presupuesto; te mostramos los de hasta <b>${dinero(tope)}</b>.${htmlExplicacion()}`;
   pintarPresupuesto(); pintar();
 }
 
@@ -651,6 +684,10 @@ function calcularAlcance(){
 function pintarFiltros(){
   $("#f-rec").innerHTML = [0, 1, 2, 3, 4].map(n => `<button type="button" class="chip" data-rec="${n}" aria-pressed="${estado.recMin === n}">${n ? n + "+" : "Cualquiera"}</button>`).join("");
   $$("#f-rec .chip").forEach(b => b.onclick = () => { estado.recMin = +b.dataset.rec; pintarFiltros(); contarFiltros(); });
+  const enRenta = estado.cat === "renta";
+  $("#fs-renta").hidden = !enRenta; $("#fs-credito").hidden = enRenta; $("#fs-entrega").hidden = enRenta;
+  $("#f-renta").innerHTML = [0, 5000, 8000, 12000, 18000].map(n => `<button type="button" class="chip" data-renta="${n}" aria-pressed="${(estado.rentaMax || 0) === n}">${n ? "Hasta " + dinero(n) : "Cualquiera"}</button>`).join("");
+  $$("#f-renta .chip").forEach(b => b.onclick = () => { estado.rentaMax = +b.dataset.renta || null; pintarFiltros(); });
   const checks = (sel, items, set) => {
     $(sel).innerHTML = items.map(([k, n]) => `<label><input type="checkbox" value="${esc(k)}" ${set.has(k) ? "checked" : ""}> ${esc(n)}</label>`).join("");
     $(sel).querySelectorAll("input").forEach(i => i.onchange = () => { i.checked ? set.add(i.value) : set.delete(i.value); contarFiltros(); });
@@ -724,7 +761,7 @@ function pintarPines(l){
   for (const d of l) {
     if (d.lat == null) continue;
     const min = estado.ref?.tipo === "trabajo" && MINUTOS[d.id] != null ? `<small>${MINUTOS[d.id]} min</small>` : "";
-    const m = L.marker([d.lat, d.lng], {icon:L.divIcon({className:"", html:`<span class="pin" data-id="${d.id}">${corto(d.desde)}${min}</span>`, iconSize:[0, 0]}), title:d.nombre, riseOnHover:true});
+    const m = L.marker([d.lat, d.lng], {icon:L.divIcon({className:"", html:`<span class="pin" data-id="${d.id}">${precioCorto(d)}${min}</span>`, iconSize:[0, 0]}), title:d.nombre, riseOnHover:true});
     m.on("click", e => { L.DomEvent.stopPropagation(e); mostrarFlotante(d); });
     capaPines.addLayer(m); pts.push([d.lat, d.lng]);
   }
@@ -776,7 +813,7 @@ function abrirFicha(d){
     if (n.farmacia) f.push(`${n.farmacia} ${n.farmacia === 1 ? "farmacia" : "farmacias"}`);
     if (f.length) mejores.push([icono("ubicacion"), `<b>A menos de 1 km tienes ${f.join(", ")}.</b>`]);
   }
-  if (pm && pm < PROM_M2[d.tipo] * .97) mejores.push([icono("precio"), `<b>Su precio por m² (${dinero(pm)}) está ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo</b> del promedio de los ${d.tipo === "casa" ? "fraccionamientos" : "edificios"} nuevos de Durango en ARVENTA.`]);
+  if (opDe(d) === "nueva" && pm && pm < PROM_M2[d.tipo] * .97) mejores.push([icono("precio"), `<b>Su precio por m² (${dinero(pm)}) está ${Math.round((1 - pm / PROM_M2[d.tipo]) * 100)}% abajo</b> del promedio de los ${d.tipo === "casa" ? "fraccionamientos" : "edificios"} nuevos de Durango en ARVENTA.`]);
   const usadas = new Set();
   for (const a of am) { const v = (d.ventajas || []).find(v => AMEN[a].re.test(v)) || AMEN[a].nombre; if (usadas.has(v)) continue; usadas.add(v); mejores.push([icono(a), esc(v)]); }
   for (const v of d.ventajas || []) if (!am.some(a => AMEN[a].re.test(v)) && !/crédito|infonavit|fovissste/i.test(v)) mejores.push([icono("check"), esc(v)]);
@@ -797,54 +834,40 @@ function abrirFicha(d){
 
   $("#ficha").innerHTML = `
     <div class="ficha-texto-top">
-      <button class="volver" type="button" id="volver"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>Todos los desarrollos</button>
+      <button class="volver" type="button" id="volver"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>${opDe(d) === "nueva" ? "Todos los desarrollos" : "Volver a la lista"}</button>
       <button class="compartir" type="button" id="compartir" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 4v11M7 9l5-5 5 5M5 14v5h14v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>Compartir</button>
     </div>
     <div class="galeria-movil"><div class="carril">${carrusel.map(x => `<div class="lamina">${x}</div>`).join("")}</div>${aviso}</div>
     <div class="ficha-texto">
       <h1 id="ficha-titulo">${esc(d.nombre)}</h1>
-      <p class="sub-titulo">${esc(TIPO[d.tipo])} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
+      <p class="sub-titulo">${esc(tipoTexto(d))} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
     </div>
     <div class="mosaico">${mosaico.map((x, i) => `<div>${x}${x.startsWith("<svg") || i === 0 ? aviso || (x.startsWith("<svg") ? '<span class="ilustrativa">Imagen ilustrativa</span>' : "") : ""}</div>`).join("")}</div>
     <div class="cuerpo-ficha">
       <div>
         <section class="seccion">
-          <ul class="resumen">${d.tipo !== "terreno" ? `<li><b>${esc(d.recamaras)}</b> recámaras</li>` : ""}<li><b>${esc(d.m2)}</b></li>${pm ? `<li><b>${dinero(pm)}</b> por m²</li>` : ""}${d.desarrolladora ? `<li>Por ${esc(d.desarrolladora)}</li>` : ""}</ul>
+          <ul class="resumen">${d.tipo !== "terreno" ? `<li><b>${esc(d.recamaras)}</b> recámaras</li>` : ""}<li><b>${esc(d.m2)}</b></li>${pm ? `<li><b>${dinero(pm)}</b> por m²</li>` : ""}${d.anunciante ? `<li>${esc(quienAnuncia(d))}</li>` : d.desarrolladora ? `<li>Por ${esc(d.desarrolladora)}</li>` : ""}</ul>
         </section>
         ${mejores.length ? `<section class="seccion"><h2>Lo mejor de aquí</h2><ul class="lo-mejor">${mejores.map(([i, t]) => `<li><span class="i" aria-hidden="true">${i}</span><span>${t}</span></li>`).join("")}</ul></section>` : ""}
         <section class="seccion"><h2>Lo que tienes cerca</h2>${seccionCerca}</section>
         <section class="seccion"><h2>Tu camino al trabajo</h2>${camino}</section>
-        <section class="seccion"><h2>Cómo podrías pagarlo</h2><div id="f-alc">${htmlAlcanceFicha(d)}</div></section>
+        ${esRenta(d) ? "" : `<section class="seccion"><h2>Cómo podrías pagarlo</h2><div id="f-alc">${htmlAlcanceFicha(d)}</div></section>`}
         <section class="seccion"><h2>Condiciones</h2>
-          <dl class="condiciones">
-            <div><dt>Precio</dt><dd>${vencido(d) ? "Por confirmar. Último publicado: d" : "D"}esde ${dinero(d.desde)}${d.hasta ? ` hasta ${dinero(d.hasta)}` : ""}. Verificado el ${fechaLarga(d.verificado)}.</dd><dd class="pend">Puede variar al cerrar la operación</dd></div>
-            <div><dt>Créditos que acepta</dt>${d.creditos.length ? `<dd>${esc(d.creditos.join(", "))}</dd>` : pend}</div>
-            <div><dt>Entrega</dt>${d.entrega ? `<dd>${esc(d.entrega)}${d.fechaEntrega ? ". " + esc(d.fechaEntrega) : ""}</dd>` : pend}</div>
-            <div><dt>Qué incluye</dt>${d.incluye ? `<dd>${esc(d.incluye)}</dd>` : pend}</div>
-            <div><dt>Esquemas de pago</dt>${d.esquemas?.length ? `<dd>${esc(d.esquemas.map(e => e.nombre).join(" · "))}</dd><dd class="pend">Confirmados por la desarrolladora</dd>` : pend}</div>
-            ${d.modelos ? `<div><dt>Modelos</dt><dd>${esc(d.modelos)}</dd></div>` : ""}
-            <div><dt>Ubicación</dt><dd>${d.lat == null ? "Por confirmar" : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd></div>
-          </dl>
-          <p class="nota">${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.</p>
+          ${htmlCondiciones(d)}
         </section>
         <section class="seccion fuentes"><h2>De dónde salen estos datos</h2>
-          <p class="nota" style="margin:0">Visto en ${d.fuentes.map((f, i) => { const rep = d.fuentes.filter(x => x[0] === f[0]).length > 1; return `<a href="${esc(f[1])}" target="_blank" rel="noopener">${esc(f[0])}${rep ? " (" + d.fuentes.slice(0, i + 1).filter(x => x[0] === f[0]).length + ")" : ""}</a>`; }).join(", ")}. Precio verificado el ${fechaLarga(d.verificado)}.</p>
+          <p class="nota" style="margin:0">${!d.fuentes?.length ? `Datos que nos dio quien lo anuncia; ARVENTA los revisó el ${fechaLarga(d.anunciante?.verificado || d.verificado)}.` : "Visto en " + d.fuentes.map((f, i) => { const rep = d.fuentes.filter(x => x[0] === f[0]).length > 1; return `<a href="${esc(f[1])}" target="_blank" rel="noopener">${esc(f[0])}${rep ? " (" + d.fuentes.slice(0, i + 1).filter(x => x[0] === f[0]).length + ")" : ""}</a>`; }).join(", ") + "."} Precio verificado el ${fechaLarga(d.verificado)}.</p>
         </section>
       </div>
       <aside class="caja" aria-label="Precio y visita">
-        <p class="precio">${vencido(d) ? `Precio por confirmar <small>último publicado: ${dinero(d.desde)}</small>` : `${dinero(d.desde)} <small>precio desde</small>`}</p>
-        <p class="rango">${d.hasta ? `Hasta ${dinero(d.hasta)} según modelo. ` : ""}Puede variar al cerrar.</p>
-        <div class="calc">
-          ${htmlCalculadora(d)}
-          <div class="mensual" aria-live="polite">Mensualidad estimada con banco<b id="c-res"></b><span id="c-eng-txt"></span></div>
-        </div>
+        ${htmlCaja(d)}
         <button class="btn" type="button" id="agendar">Agendar visita</button>
         ${d.esquemas?.length ? `<a class="btn claro btn-corrida" href="/cotizador.html?d=${esc(d.id)}">Arma tu corrida financiera</a>` : ""}
         ${botonComparar(d, "cmp-ficha")}
-        <p class="leyenda">Agendar no te cuesta nada. Estimación sin seguros ni comisiones; las tasas en México van de 9% a 13%.</p>
+        <p class="leyenda">${esRenta(d) ? "Agendar no te cuesta nada. ARVENTA no cobra ni recibe depósitos ni rentas." : "Agendar no te cuesta nada. Estimación sin seguros ni comisiones; las tasas en México van de 9% a 13%."}</p>
       </aside>
     </div>
-    <div class="barra-reserva"><span><b>desde ${corto(d.desde)}</b><small>${esc(TIPO[d.tipo])} · ${esc(zonaCorta(d))}</small></span><button class="btn" type="button" id="agendar-2">Agendar visita</button></div>`;
+    <div class="barra-reserva"><span><b>${esRenta(d) ? dinero(d.desde) + " al mes" : (esUsada(d) ? "" : "desde ") + corto(d.desde)}</b><small>${esc(tipoTexto(d))} · ${esc(zonaCorta(d))}</small></span><button class="btn" type="button" id="agendar-2">Agendar visita</button></div>`;
   $("#volver").onclick = irAInicio;
   $("#agendar").onclick = $("#agendar-2").onclick = () => agendar(d);
   $("#compartir").onclick = () => abrirCompartir(d);
@@ -854,7 +877,7 @@ function abrirFicha(d){
   ["c-precio", "c-eng", "c-tasa", "c-plazo"].forEach(id => { const el = $("#" + id); if (el?.tagName === "SELECT") el.onchange = calcular; });
   calcular();
   window.scrollTo({top:0});
-  document.title = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${corto(d.desde)} · ARVENTA`;
+  document.title = `${d.nombre}: ${tipoTexto(d).toLowerCase()}, ${esRenta(d) ? dinero(d.desde) + " al mes" : (esUsada(d) ? "" : "desde ") + corto(d.desde)} · ARVENTA`;
   if (d.lat != null) setTimeout(() => mapaDeFicha(d, c), 0);
 }
 async function mapaDeFicha(d, c){
@@ -866,7 +889,7 @@ async function mapaDeFicha(d, c){
   capaMapa(mapaFicha);
   L.circle([d.lat, d.lng], {radius:310, color:"#2F6B5E", weight:1.5, dashArray:"4 6", fillColor:"#2F6B5E", fillOpacity:.07, interactive:false}).addTo(mapaFicha);
   L.circle([d.lat, d.lng], {radius:615, color:"#2F6B5E", weight:1, dashArray:"2 8", fill:false, interactive:false}).addTo(mapaFicha);
-  L.marker([d.lat, d.lng], {icon:L.divIcon({className:"", html:`<span class="pin activo">${corto(d.desde)}</span>`, iconSize:[0, 0]}), keyboard:false}).addTo(mapaFicha);
+  L.marker([d.lat, d.lng], {icon:L.divIcon({className:"", html:`<span class="pin activo">${precioCorto(d)}</span>`, iconSize:[0, 0]}), keyboard:false}).addTo(mapaFicha);
   const pts = [[d.lat, d.lng]];
   if (c) for (const k of ["escuela", "oxxo", "super", "farmacia", "salud", "parque"]) {
     const l = c.mas[k]; if (!l || l.m > 2500) continue;
@@ -883,6 +906,65 @@ $("#dlg-presupuesto").addEventListener("close", () => {
   if (!fichaActual || !document.body.classList.contains("en-ficha")) return;
   $("#f-alc").innerHTML = htmlAlcanceFicha(fichaActual); enlazarAlcanceFicha();
 });
+/* Condiciones de la ficha según la operación (NOM-247: veraz y comprobable; lo que no se sabe dice "Por confirmar") */
+function htmlCondiciones(d){
+  const pend = `<dd class="pend">Por confirmar</dd>`, siNo = (v, si, no) => v == null ? pend : `<dd>${v ? si : no}</dd>`;
+  const ubic = `<div><dt>Ubicación</dt><dd>${d.lat == null ? "Por confirmar" : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd></div>`;
+  const incluye = `<div><dt>Qué incluye</dt>${d.incluye ? `<dd>${esc(d.incluye)}</dd>` : pend}</div>`;
+  let filas, aviso = "";
+  if (esRenta(d)) {
+    const r = d.renta || {};
+    filas = `<div><dt>Renta</dt><dd>${vencido(d) ? "Por confirmar. Última publicada: " : ""}${dinero(d.desde)} al mes. Verificada el ${fechaLarga(d.verificado)}.</dd></div>
+      <div><dt>Depósito</dt>${r.deposito != null ? `<dd>${r.deposito} ${r.deposito === 1 ? "mes" : "meses"} de renta (${dinero(d.desde * r.deposito)})</dd>` : pend}</div>
+      <div><dt>Garantía que pide</dt>${r.garantia?.length ? `<dd>${esc(r.garantia.join(", "))}</dd>` : pend}</div>
+      <div><dt>Contrato mínimo</dt>${r.plazoMeses ? `<dd>${r.plazoMeses} meses</dd>` : pend}</div>
+      <div><dt>Mantenimiento</dt>${r.mantenimiento == null ? pend : `<dd>${typeof r.mantenimiento === "number" ? dinero(r.mantenimiento) + " al mes, aparte de la renta" : esc(r.mantenimiento)}</dd>`}</div>
+      <div><dt>Servicios incluidos</dt>${r.servicios ? `<dd>${esc(r.servicios)}</dd>` : pend}</div>
+      <div><dt>Amueblado</dt>${siNo(r.amueblado, "Sí", "No")}</div>
+      <div><dt>Mascotas</dt>${siNo(r.mascotas, "Se aceptan", "No se aceptan")}</div>
+      <div><dt>Requisitos</dt>${r.requisitos ? `<dd>${esc(r.requisitos)}</dd>` : pend}</div>
+      <div><dt>Disponible</dt>${r.disponible ? `<dd>${esc(r.disponible)}</dd>` : pend}</div>
+      ${ubic}`;
+    aviso = "Antes de dar un depósito: visita el inmueble, confirma que quien lo renta es el dueño o su inmobiliaria y firma un contrato. Nunca deposites sin haberlo visto.";
+  } else if (esUsada(d)) {
+    const v = d.reventa || {};
+    filas = `<div><dt>Precio</dt><dd>${vencido(d) ? "Por confirmar. Último publicado: " : ""}${dinero(d.desde)}. Verificado el ${fechaLarga(d.verificado)}.</dd><dd class="pend">Puede variar al cerrar la operación</dd></div>
+      <div><dt>Créditos que acepta</dt>${d.creditos.length ? `<dd>${esc(d.creditos.join(", "))}</dd>` : pend}</div>
+      <div><dt>Construida en</dt>${v.construida ? `<dd>${v.construida}</dd>` : pend}</div>
+      <div><dt>Escrituras</dt>${v.escrituras ? `<dd>A nombre de quien vende; ARVENTA las vio el ${fechaLarga(d.anunciante.verificado)}</dd>` : pend}</div>
+      <div><dt>Libertad de gravamen</dt>${v.gravamen ? `<dd>Certificado del ${fechaLarga(v.gravamen)}</dd><dd class="pend">Pide uno nuevo antes de pagar: dura unos 30 días</dd>` : `<dd class="pend">Pídelo antes de dar cualquier dinero</dd>`}</div>
+      <div><dt>Predial y agua</dt>${siNo(v.alCorriente, "Al corriente", "Con adeudo: pregunta cuánto y quién lo paga")}</div>
+      ${incluye}${ubic}`;
+    aviso = "Antes de dar cualquier anticipo: pide el certificado de libertad de gravamen reciente y que un notario revise las escrituras. La compraventa se firma ante notario.";
+  } else filas = `<div><dt>Precio</dt><dd>${vencido(d) ? "Por confirmar. Último publicado: d" : "D"}esde ${dinero(d.desde)}${d.hasta ? ` hasta ${dinero(d.hasta)}` : ""}. Verificado el ${fechaLarga(d.verificado)}.</dd><dd class="pend">Puede variar al cerrar la operación</dd></div>
+            <div><dt>Créditos que acepta</dt>${d.creditos.length ? `<dd>${esc(d.creditos.join(", "))}</dd>` : pend}</div>
+            <div><dt>Entrega</dt>${d.entrega ? `<dd>${esc(d.entrega)}${d.fechaEntrega ? ". " + esc(d.fechaEntrega) : ""}</dd>` : pend}</div>
+            <div><dt>Qué incluye</dt>${d.incluye ? `<dd>${esc(d.incluye)}</dd>` : pend}</div>
+            <div><dt>Esquemas de pago</dt>${d.esquemas?.length ? `<dd>${esc(d.esquemas.map(e => e.nombre).join(" · "))}</dd><dd class="pend">Confirmados por la desarrolladora</dd>` : pend}</div>
+            ${d.modelos ? `<div><dt>Modelos</dt><dd>${esc(d.modelos)}</dd></div>` : ""}
+            <div><dt>Ubicación</dt><dd>${d.lat == null ? "Por confirmar" : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd></div>`;
+  const a = d.anunciante;
+  const quien = opDe(d) === "nueva" ? `${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.`
+    : `Lo anuncia: <b>${esc(quienAnuncia(d))}</b>${a.tipo === "particular" ? ` (ARVENTA confirmó en persona el ${fechaLarga(a.verificado)} que es el dueño; no guardamos copias de sus documentos)` : ""}. ARVENTA no ${esRenta(d) ? "renta" : "vende"} ni recibe dinero: al agendar, le pasamos tu solicitud a quien lo anuncia para que te atienda. Para ti no tiene costo.`;
+  return `<dl class="condiciones">${filas}</dl>${aviso ? `<p class="aviso-seguro">${icono("info")}<span>${aviso}</span></p>` : ""}<p class="nota">${quien}</p>`;
+}
+/* Caja de precio: en compra, la calculadora; en renta, cuánto necesitas para entrar */
+function htmlCaja(d){
+  if (esRenta(d)) {
+    const r = d.renta || {}, entrar = r.deposito != null ? d.desde * (r.deposito + 1) : null;
+    const filas = [r.deposito != null ? `Depósito: ${r.deposito} ${r.deposito === 1 ? "mes" : "meses"}` : "Depósito: por confirmar",
+      r.garantia?.length ? `Garantía: ${r.garantia.join(" o ")}` : "", r.plazoMeses ? `Contrato mínimo: ${r.plazoMeses} meses` : ""].filter(Boolean);
+    return `<p class="precio">${vencido(d) ? `Renta por confirmar <small>última publicada: ${dinero(d.desde)} al mes</small>` : `${dinero(d.desde)} <small>al mes</small>`}</p>
+        <p class="rango">${entrar ? `Para entrar: primer mes + depósito = <b>${dinero(entrar)}</b>.` : "Pregunta cuánto piden para entrar."}</p>
+        <ul class="renta-caja">${filas.map(f => `<li>${esc(f)}</li>`).join("")}</ul>`;
+  }
+  return `<p class="precio">${vencido(d) ? `Precio por confirmar <small>último publicado: ${dinero(d.desde)}</small>` : `${dinero(d.desde)} <small>${esUsada(d) ? "precio de venta" : "precio desde"}</small>`}</p>
+        <p class="rango">${d.hasta ? `Hasta ${dinero(d.hasta)} según modelo. ` : ""}Puede variar al cerrar.</p>
+        <div class="calc">
+          ${htmlCalculadora(d)}
+          <div class="mensual" aria-live="polite">Mensualidad estimada con banco<b id="c-res"></b><span id="c-eng-txt"></span></div>
+        </div>`;
+}
 function cerrarFicha(){
   fichaActual = null;
   document.body.classList.remove("en-ficha");
@@ -908,6 +990,7 @@ function htmlCalculadora(d){
 }
 const valorCalc = id => { const el = $("#" + id); return el ? +(el.value ?? el.dataset.valor) || +el.dataset.valor || 0 : 0; };
 function calcular(){
+  if (!$("#c-res")) return;   // las rentas no llevan calculadora
   const P = valorCalc("c-precio"), e = valorCalc("c-eng"), n = valorCalc("c-plazo");
   $("#c-res").textContent = dinero(pago(P * (1 - e), valorCalc("c-tasa"), n)) + " al mes";
   $("#c-eng-txt").textContent = `Enganche de ${dinero(P * e)} y crédito de ${dinero(P * (1 - e))} a ${n} años`;
@@ -967,7 +1050,12 @@ async function vaciarCola(){
 }
 let visitaDe = null;
 function agendar(d){
-  visitaDe = d; $("#visita-a").textContent = `${d.nombre}, desde ${dinero(d.desde)}`;
+  visitaDe = d; $("#visita-a").textContent = `${d.nombre}, ${precioTexto(d)}`;
+  const renta = esRenta(d);
+  $("#l-credito").textContent = renta ? "¿Qué garantía puedes dar?" : "¿Cómo pagarías?";
+  $("#v-credito").innerHTML = (renta ? GARANTIAS : PAGOS).map(o => `<option>${o}</option>`).join("");
+  $("#v-quien").textContent = opDe(d) === "nueva" ? "quien comercializa este desarrollo" : "quien anuncia este inmueble";
+  $("#v-que-pago").textContent = renta ? "qué garantía daría" : "cómo pagaría";
   $("#v-consent").checked = false; // el consentimiento se da cada vez, para cada desarrollo
   medir("clic-agendar", {id:d.id});
   $("#dlg-visita").showModal();
@@ -980,7 +1068,7 @@ function mensualidadVista(){
 }
 function enlaceDe(d){ return `${location.origin}/desarrollos/${d.id}/`; }
 function abrirCompartir(d){
-  const url = enlaceDe(d), texto = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${dinero(d.desde)} en Durango.`;
+  const url = enlaceDe(d), texto = `${d.nombre}: ${tipoTexto(d).toLowerCase()}, ${precioTexto(d)}, en Durango.`;
   $("#comp-nombre").textContent = d.nombre;
   $("#comp-url").value = url;
   $("#comp-whatsapp").href = enlaceWhatsApp(d);
@@ -995,7 +1083,7 @@ function abrirCompartir(d){
   $("#dlg-compartir").showModal();
 }
 function enlaceWhatsApp(d){
-  const texto = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${dinero(d.desde)} en Durango.\n${enlaceDe(d)}`;
+  const texto = `${d.nombre}: ${tipoTexto(d).toLowerCase()}, ${precioTexto(d)}, en Durango.\n${enlaceDe(d)}`;
   return "https://wa.me/?text=" + encodeURIComponent(texto);
 }
 $("#form-visita").addEventListener("submit", async e => {
@@ -1005,7 +1093,7 @@ $("#form-visita").addEventListener("submit", async e => {
   const d = visitaDe, folio = nuevoFolio("V");
   const registro = {tipo:"visita", folio, id:d.id, nombre:$("#v-nombre").value.trim(), whatsapp:$("#v-tel").value.trim(),
     cuando:$("#v-cuando").value, pago:$("#v-credito").value, consentimiento:true,
-    presupuesto:estado.max || null, mensualidad:mensualidadVista(), otros:[...new Set([...FAV, ...COMPARAR])].filter(id => id !== d.id).slice(0, 5), versionAviso:window.ARVENTA?.VERSION_AVISO || "",
+    presupuesto:(esRenta(d) ? estado.rentaMax : estado.max) || null, mensualidad:mensualidadVista(), otros:[...new Set([...FAV, ...COMPARAR])].filter(id => id !== d.id).slice(0, 5), versionAviso:window.ARVENTA?.VERSION_AVISO || "",
     sitio:$("#v-sitio").value, // campo trampa: una persona lo deja vacío
     minutos:estado.ref?.tipo === "trabajo" ? MINUTOS[d.id] ?? null : null};
   // Zona de trabajo redondeada a ~1 km aquí mismo: el punto exacto nunca sale del teléfono
@@ -1017,7 +1105,7 @@ $("#form-visita").addEventListener("submit", async e => {
   if (res.error) { toast(res.error, 6000); return; }      // dato inválido: se corrige en el formulario
   if (res.ok) toast("Recibimos tu solicitud. Te mandaremos por WhatsApp un enlace para confirmar tu cita.", 6000);
   const url = enlaceDe(d);
-  const msg = `Hola ARVENTA, quiero visitar ${d.nombre} (desde ${dinero(d.desde)}).\nNombre: ${registro.nombre}\nWhatsApp: ${registro.whatsapp}\nCuándo: ${registro.cuando}\nPago: ${registro.pago}\nFolio: ${res.folio || folio}\n${url}`;
+  const msg = `Hola ARVENTA, quiero visitar ${d.nombre} (${precioTexto(d)}).\nNombre: ${registro.nombre}\nWhatsApp: ${registro.whatsapp}\nCuándo: ${registro.cuando}\n${esRenta(d) ? "Garantía" : "Pago"}: ${registro.pago}\nFolio: ${res.folio || folio}\n${url}`;
   $("#dlg-visita").close();
   if (WHATSAPP) location.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
   else { $("#txt-copiar").value = msg; $("#dlg-copiar").showModal(); }
@@ -1073,7 +1161,7 @@ $("#usar-lugar").onclick = () => {
 $("#quitar-cerca").onclick = () => { ponerRef(null); $("#dlg-cerca").close(); };
 $("#orden").onchange = e => { estado.orden = e.target.value; pintar(); };
 $("#abrir-filtros").onclick = () => { pintarFiltros(); $("#dlg-filtros").showModal(); };
-$("#limpiar-filtros").onclick = () => { estado.recMin = 0; estado.trabajo15 = false; ["creditos", "amen", "cercaReq", "entrega"].forEach(k => estado[k].clear()); pintarFiltros(); };
+$("#limpiar-filtros").onclick = () => { estado.recMin = 0; estado.rentaMax = null; estado.trabajo15 = false; ["creditos", "amen", "cercaReq", "entrega"].forEach(k => estado[k].clear()); pintarFiltros(); };
 $("#dlg-filtros").addEventListener("close", () => { pintar(); const f = [...estado.creditos, ...estado.amen, ...estado.cercaReq, ...estado.entrega]; if (estado.recMin) f.push("rec" + estado.recMin); if (estado.trabajo15) f.push("trabajo15"); if (f.length) medir("filtro", {filtros:f.join(",")}); });
 $("#alternar").onclick = () => cambiarVista(estado.vista === "mapa" ? "lista" : "mapa");
 $("#cerrar-comparar").onclick = () => $("#dlg-comparar").close();

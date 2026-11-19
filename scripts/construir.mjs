@@ -24,6 +24,10 @@ const escribir = (f, t) => { mkdirSync(path.dirname(path.join(RAIZ, f)), {recurs
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const dinero = n => "$" + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const TIPO = {casa:"casas", departamento:"departamentos", terreno:"terrenos"};
+const UNO = {casa:"Casa", departamento:"Departamento", terreno:"Terreno"};
+const opDe = d => d.operacion || "nueva";
+// "Casas", "Casa usada", "Departamento en renta"
+const tipoTexto = d => opDe(d) === "renta" ? `${UNO[d.tipo]} en renta` : opDe(d) === "reventa" ? {casa:"Casa usada", departamento:"Departamento usado", terreno:"Terreno en venta"}[d.tipo] : {casa:"Casas", departamento:"Departamentos", terreno:"Terrenos"}[d.tipo];
 const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 const fechaLarga = f => { const [a, m, d] = f.split("-").map(Number); return `${d} de ${MESES[m - 1]} de ${a}`; };
 const CATS = {escuela:"Escuela", oxxo:"OXXO", super:"Supermercado", farmacia:"Farmacia", salud:"Hospital o clínica", parque:"Parque", uni:"Universidad"};
@@ -92,39 +96,67 @@ const cerca = (d) => {
 function fichaEstatica(d){
   // Sin depender de la fecha de hoy (la construcción debe dar siempre lo mismo); el navegador
   // cambia a "Precio por confirmar" cuando pasan más de 60 días desde "verificado".
-  const precio = `<p class="precio">Desde <b>${dinero(d.desde)}</b>${d.hasta ? ` hasta ${dinero(d.hasta)} según modelo` : ""}. Puede variar al cerrar la operación. Verificado el ${fechaLarga(d.verificado)}.</p>`;
-  const pend = "Por confirmar";
+  const op = opDe(d), pend = "Por confirmar", siNo = (v, si, no) => v == null ? pend : v ? si : no;
+  const precio = op === "renta" ? `<p class="precio"><b>${dinero(d.desde)}</b> al mes. Verificada el ${fechaLarga(d.verificado)}.</p>`
+    : op === "reventa" ? `<p class="precio">Precio: <b>${dinero(d.desde)}</b>. Puede variar al cerrar la operación. Verificado el ${fechaLarga(d.verificado)}.</p>`
+    : `<p class="precio">Desde <b>${dinero(d.desde)}</b>${d.hasta ? ` hasta ${dinero(d.hasta)} según modelo` : ""}. Puede variar al cerrar la operación. Verificado el ${fechaLarga(d.verificado)}.</p>`;
+  const r = d.renta || {}, v = d.reventa || {}, a = d.anunciante;
+  const condiciones = op === "renta" ? `
+    <dt>Depósito</dt><dd>${r.deposito != null ? `${r.deposito} ${r.deposito === 1 ? "mes" : "meses"} de renta` : pend}</dd>
+    <dt>Garantía que pide</dt><dd>${r.garantia?.length ? esc(r.garantia.join(", ")) : pend}</dd>
+    <dt>Contrato mínimo</dt><dd>${r.plazoMeses ? r.plazoMeses + " meses" : pend}</dd>
+    <dt>Mantenimiento</dt><dd>${r.mantenimiento == null ? pend : typeof r.mantenimiento === "number" ? dinero(r.mantenimiento) + " al mes, aparte" : esc(r.mantenimiento)}</dd>
+    <dt>Servicios incluidos</dt><dd>${r.servicios ? esc(r.servicios) : pend}</dd>
+    <dt>Amueblado</dt><dd>${siNo(r.amueblado, "Sí", "No")}</dd><dt>Mascotas</dt><dd>${siNo(r.mascotas, "Se aceptan", "No se aceptan")}</dd>
+    <dt>Requisitos</dt><dd>${r.requisitos ? esc(r.requisitos) : pend}</dd><dt>Disponible</dt><dd>${r.disponible ? esc(r.disponible) : pend}</dd>`
+    : op === "reventa" ? `
+    <dt>Créditos que acepta</dt><dd>${d.creditos.length ? esc(d.creditos.join(", ")) : pend}</dd>
+    <dt>Construida en</dt><dd>${v.construida || pend}</dd>
+    <dt>Escrituras</dt><dd>${v.escrituras ? "A nombre de quien vende; ARVENTA las vio el " + fechaLarga(a.verificado) : pend}</dd>
+    <dt>Libertad de gravamen</dt><dd>${v.gravamen ? `Certificado del ${fechaLarga(v.gravamen)}; pide uno nuevo antes de pagar` : "Pídelo antes de dar cualquier dinero"}</dd>
+    <dt>Predial y agua</dt><dd>${siNo(v.alCorriente, "Al corriente", "Con adeudo")}</dd>
+    <dt>Qué incluye</dt><dd>${d.incluye ? esc(d.incluye) : pend}</dd>`
+    : `
+    <dt>Créditos que acepta</dt><dd>${d.creditos.length ? esc(d.creditos.join(", ")) : pend}</dd>
+    <dt>Entrega</dt><dd>${d.entrega ? esc(d.entrega) + (d.fechaEntrega ? ". " + esc(d.fechaEntrega) : "") : pend}</dd>
+    <dt>Qué incluye</dt><dd>${d.incluye ? esc(d.incluye) : pend}</dd>`;
+  const quien = op === "nueva" ? `${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.`
+    : `Lo anuncia: ${a.tipo === "particular" ? `dueño directo (ARVENTA confirmó en persona el ${fechaLarga(a.verificado)} que es el dueño)` : esc(a.nombre)}. ARVENTA no ${op === "renta" ? "renta" : "vende"} ni recibe dinero: al agendar, le pasamos tu solicitud a quien lo anuncia. Para ti no tiene costo.`;
   return `<div class="ficha-estatica">
   <p><a href="/">← Todos los desarrollos</a></p>
   <h1 id="ficha-titulo">${esc(d.nombre)}</h1>
-  <p>${esc({casa:"Casas", departamento:"Departamentos", terreno:"Terrenos"}[d.tipo])} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
+  <p>${esc(tipoTexto(d))} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
   ${precio}
   <h2>Condiciones</h2>
   <dl>
     ${d.tipo !== "terreno" ? `<dt>Recámaras</dt><dd>${esc(d.recamaras)}</dd>` : ""}<dt>Tamaño</dt><dd>${esc(d.m2)}</dd>
-    <dt>Créditos que acepta</dt><dd>${d.creditos.length ? esc(d.creditos.join(", ")) : pend}</dd>
-    <dt>Entrega</dt><dd>${d.entrega ? esc(d.entrega) + (d.fechaEntrega ? ". " + esc(d.fechaEntrega) : "") : pend}</dd>
-    <dt>Qué incluye</dt><dd>${d.incluye ? esc(d.incluye) : pend}</dd>
+${condiciones}
     <dt>Ubicación</dt><dd>${d.lat == null ? pend : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd>
   </dl>
-  ${d.ventajas.length ? `<h2>Lo mejor de aquí</h2><ul>${d.ventajas.map(v => `<li>${esc(v)}</li>`).join("")}</ul>` : ""}
+  ${d.ventajas?.length ? `<h2>Lo mejor de aquí</h2><ul>${d.ventajas.map(v => `<li>${esc(v)}</li>`).join("")}</ul>` : ""}
   <h2>Lo que tienes cerca</h2>${cerca(d)}
-  <p>${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.</p>
-  <p>Fuentes: ${d.fuentes.map(f => `<a href="${esc(f[1])}" rel="nofollow noopener" target="_blank">${esc(f[0])}</a>`).join(", ")}. Precio verificado el ${fechaLarga(d.verificado)}.</p>
+  ${op === "nueva" ? "" : `<p>${op === "renta" ? "Antes de dar un depósito: visita el inmueble, confirma que quien lo renta es el dueño o su inmobiliaria y firma un contrato." : "Antes de dar cualquier anticipo: pide el certificado de libertad de gravamen reciente y que un notario revise las escrituras."}</p>`}
+  <p>${quien}</p>
+  <p>${d.fuentes?.length ? `Fuentes: ${d.fuentes.map(f => `<a href="${esc(f[1])}" rel="nofollow noopener" target="_blank">${esc(f[0])}</a>`).join(", ")}.` : "Datos que nos dio quien lo anuncia."} Precio verificado el ${fechaLarga(d.verificado)}.</p>
   <p><a class="btn" href="https://wa.me/526184463867?text=${encodeURIComponent(`Hola ARVENTA, quiero visitar ${d.nombre}.`)}">Agendar visita por WhatsApp</a></p>
 </div>`;
 }
 function seoFicha(d, conImagen){
   const url = `${SITIO}/desarrollos/${d.id}/`;
-  const titulo = `${d.nombre} · ${TIPO[d.tipo]} desde ${dinero(d.desde)} en Durango`;
-  const partes = [d.hasta ? `De ${dinero(d.desde)} a ${dinero(d.hasta)}` : `Desde ${dinero(d.desde)}`];
+  const op = opDe(d);
+  const titulo = op === "renta" ? `${d.nombre} · ${tipoTexto(d).toLowerCase()} por ${dinero(d.desde)} al mes en Durango`
+    : op === "reventa" ? `${d.nombre} · ${tipoTexto(d).toLowerCase()} en ${dinero(d.desde)} en Durango` : `${d.nombre} · ${TIPO[d.tipo]} desde ${dinero(d.desde)} en Durango`;
+  const partes = [op === "renta" ? `${dinero(d.desde)} al mes` : op === "reventa" ? dinero(d.desde) : d.hasta ? `De ${dinero(d.desde)} a ${dinero(d.hasta)}` : `Desde ${dinero(d.desde)}`];
   if(/^\d/.test(d.recamaras)) partes.push(`${d.recamaras} recámaras`);
   if(d.m2 && !/confirmar/i.test(d.m2)) partes.push(d.m2);
   if(d.zona !== "Por confirmar") partes.push(d.zona);
   const desc = partes.join(" · ") + ". Mira qué tiene cerca y cuánto tardas a tu trabajo.";
   const tipoLugar = {casa:"SingleFamilyResidence", departamento:"Apartment", terreno:"Landform"}[d.tipo];
   const ld = {"@context":"https://schema.org", "@type":"RealEstateListing", name:d.nombre, url, description:desc, datePosted:d.verificado,
-    offers:{"@type":"Offer", price:d.desde, priceCurrency:"MXN", ...(d.hasta ? {priceSpecification:{"@type":"PriceSpecification", minPrice:d.desde, maxPrice:d.hasta, priceCurrency:"MXN"}} : {}), availability:"https://schema.org/InStock", seller:{"@type":"RealEstateAgent", name:"ARVENTA"}},
+    offers:{"@type":"Offer", price:d.desde, priceCurrency:"MXN", availability:"https://schema.org/InStock",
+      ...(op === "renta" ? {businessFunction:"http://purl.org/goodrelations/v1#LeaseOut", priceSpecification:{"@type":"UnitPriceSpecification", price:d.desde, priceCurrency:"MXN", unitCode:"MON", unitText:"mes"}}
+        : d.hasta ? {priceSpecification:{"@type":"PriceSpecification", minPrice:d.desde, maxPrice:d.hasta, priceCurrency:"MXN"}} : {}),
+      ...(d.anunciante?.tipo === "inmobiliaria" ? {seller:{"@type":"RealEstateAgent", name:d.anunciante.nombre}} : d.desarrolladora && op === "nueva" ? {seller:{"@type":"Organization", name:d.desarrolladora}} : {})},
     about:{"@type":tipoLugar === "Landform" ? "Place" : tipoLugar, name:d.nombre,
       address:{"@type":"PostalAddress", streetAddress:d.zona, addressLocality:"Durango", addressRegion:"Dgo.", addressCountry:"MX"},
       ...(d.lat != null && !d.aprox ? {geo:{"@type":"GeoCoordinates", latitude:d.lat, longitude:d.lng}} : {})},
@@ -145,7 +177,7 @@ function buscarNavegador(){
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(p => existsSync(p));
 }
 function tarjeta(d){
-  const datos = [{casa:"Casas", departamento:"Departamentos", terreno:"Terrenos"}[d.tipo]];
+  const datos = [tipoTexto(d)];
   if(/^\d/.test(d.recamaras)) datos.push(`${d.recamaras} recámaras`);
   if(d.m2 && !/confirmar/i.test(d.m2)) datos.push(d.m2.replace(/\s*\(.*\)$/, ""));
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=block" rel="stylesheet">
@@ -156,7 +188,7 @@ body{background:#FBFBF8;color:#1D2B3A;font-family:"Atkinson Hyperlegible",sans-s
 .precio{font-size:92px;line-height:1;color:#B5654F}.precio small{font-size:40px;color:#55636F;font-family:"Atkinson Hyperlegible",sans-serif;font-weight:400}
 .hasta{font-size:30px;color:#55636F;margin-top:12px}.pie{position:absolute;bottom:38px;font-size:28px;background:#FFF3D6;border-radius:999px;padding:10px 26px}</style></head><body>
 <div class="g marca">ARVENTA</div><p class="datos">${esc(datos.join(" · "))}</p><h1 class="g">${esc(d.nombre)}</h1>
-<div class="g precio"><small>desde </small>${dinero(d.desde)}</div>${d.hasta ? `<div class="hasta">hasta ${dinero(d.hasta)} según modelo</div>` : ""}
+<div class="g precio">${opDe(d) === "renta" ? `${dinero(d.desde)}<small> al mes</small>` : opDe(d) === "reventa" ? dinero(d.desde) : `<small>desde </small>${dinero(d.desde)}`}</div>${d.hasta ? `<div class="hasta">hasta ${dinero(d.hasta)} según modelo</div>` : ""}
 <div class="pie">Durango · Qué tiene cerca y cuánto tardas a tu trabajo</div></body></html>`;
 }
 const navegador = SIN_IMAGENES ? null : buscarNavegador();
