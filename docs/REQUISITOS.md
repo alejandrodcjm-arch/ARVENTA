@@ -86,6 +86,31 @@ Esto es lo más importante: **cada solicitud es lo que ARVENTA cobra.** Una soli
 | Esencial | Respaldo: Supabase guarda copias diarias; además, exportación semanal a CSV. |
 | Después | Responder en menos de 1 hora en horario laboral, medido. |
 
+
+### Ficha de cita para el asesor
+
+Cada cita genera un **código** (ej. `ARV-7K3Q`) que llega por WhatsApp al cliente y al asesor de la desarrolladora.
+
+| | Requisito |
+|---|---|
+| Esencial | El asesor abre `arventa.mx/cita/<código>` y ve: nombre y WhatsApp del cliente, día y hora, desarrollo y modelo de interés, presupuesto, crédito con el que pagaría, mensualidad que calculó, zona de trabajo y minutos al desarrollo, y otros desarrollos que guardó o comparó. |
+| Esencial | Solo se comparte lo que el cliente aceptó en la casilla de consentimiento; el texto de la casilla lo dice. |
+| Esencial | El enlace es privado (código largo, no adivinable), solo lo ve la desarrolladora dueña del desarrollo y caduca a los 90 días. |
+| Esencial | En la misma página el asesor marca: "asistió", "no asistió" o "cita inválida" (con motivo). |
+| Esencial | El cliente enseña el código en la visita para recibir el beneficio ARVENTA, si la desarrolladora ofrece uno. |
+
+## 3.1 Cómo entra la información de los desarrollos
+
+Así como Skyscanner recibe los vuelos de sus socios por conexión directa, ARVENTA crece por etapas:
+
+| Etapa | Cómo | Cuándo |
+|---|---|---|
+| 1. ARVENTA lo hace | La desarrolladora manda lista de precios, planos y fotos por WhatsApp; ARVENTA arma la ficha (con ayuda de IA para leer la lista de precios) y se la enseña antes de publicar. | Desde el inicio |
+| 2. Panel del anunciante | La desarrolladora entra con su cuenta, sube fotos, cambia precios y marca unidades vendidas. Cada cambio queda registrado. | Con 10 o más anunciantes |
+| 3. Conexión automática | Importar desde los CRM que ya usan las inmobiliarias (EasyBroker, Tokko) o un archivo XML/JSON, para que publiquen en ARVENTA con un clic. | Cuando ARVENTA tenga tráfico que les interese |
+
+Fotos y planos solo con permiso por escrito del anunciante.
+
 ---
 
 ## 4. Rendimiento (celular con 4G)
