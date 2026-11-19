@@ -144,6 +144,20 @@ Así como Skyscanner recibe los vuelos de sus socios por conexión directa, ARVE
 
 Fotos y planos solo con permiso por escrito del anunciante.
 
+## 3.2 Asistente de IA (el motor del sitio)
+
+La persona escribe como le hablaría a un amigo ("trabajo en Ciudad Industrial, gano 22 mil, quiero 3 recámaras") y el asistente trabaja la pantalla por ella, como un copiloto:
+
+- [x] Herramientas de datos en el servidor: `buscar_desarrollos`, `ver_desarrollo`, `calcular_presupuesto` (mismos supuestos que "¿Qué me alcanza?") y `poner_referencia` (ubica el trabajo con Nominatim, solo dentro de Durango).
+- [x] Herramientas de pantalla que se aplican en el navegador: mostrar una selección con la razón de cada una en la tarjeta, guardar presupuesto, abrir ficha, comparar y abrir el formulario de visita (la persona lo llena y da su consentimiento; el asistente no agenda solo).
+- [x] Cada cambio se enseña como recibo ("Te puse 5 opciones en pantalla") con **Deshacer**.
+- [x] Solo habla de lo que está en `data/desarrollos.json`: no inventa desarrollos, precios, plusvalía ni aprobación de crédito; los precios son "desde" y pueden variar (NOM-247). Trata igual a todos los anunciantes.
+- [x] Privacidad: no guarda la conversación; pide no escribir datos personales; aviso de privacidad actualizado.
+- [x] Límite de 25 mensajes cada 10 minutos por conexión, 14 mensajes por plática y 700 caracteres por mensaje. Sin llave o si la IA falla, responde el modo demostración (búsqueda por reglas).
+- [x] Medición anónima del uso (`asistente` en `/api/evento`).
+- [ ] Poner `ANTHROPIC_API_KEY` en Vercel y fijar un tope de gasto mensual en la consola de Anthropic.
+- [ ] Revisar cada semana 20 pláticas de prueba para afinar las instrucciones.
+
 ---
 
 ## 4. Rendimiento (celular con 4G)

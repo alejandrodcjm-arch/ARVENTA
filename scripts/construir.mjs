@@ -64,7 +64,7 @@ escribir("assets/datos.js", `/* GENERADO por scripts/construir.mjs a partir de d
   `window.DESARROLLOS = ${JSON.stringify(lista.map(d => ({...d, opcionesPrecio:preciosDe(d), opcionesFin:financiamientoDe(d)})))};\nwindow.LUGARES = ${JSON.stringify(LUGARES)};\n`);
 
 /* ---------- 3. Versiones de CSS y JS ---------- */
-const ASSETS = ["estilos.css", "paginas.css", "config.js", "datos.js", "app.js", "anuncia.js", "reporte.js", "cita.js", "panel.js", "cotizador.mjs"].filter(f => existsSync(path.join(RAIZ, "assets", f)));
+const ASSETS = ["estilos.css", "paginas.css", "config.js", "datos.js", "app.js", "anuncia.js", "reporte.js", "cita.js", "panel.js", "cotizador.mjs", "asistente.js"].filter(f => existsSync(path.join(RAIZ, "assets", f)));
 const version = Object.fromEntries(ASSETS.map(f => [f, createHash("sha1").update(readFileSync(path.join(RAIZ, "assets", f), "utf8").replace(/\r\n/g, "\n")).digest("hex").slice(0, 10)]));
 const versionar = html => html.replace(/\/assets\/([a-z-]+\.(?:css|m?js))(\?v=[0-9a-f]+)?/g, (t, f) => version[f] ? `/assets/${f}?v=${version[f]}` : t);
 for(const pagina of ["index.html", "anuncia.html", "aviso-privacidad.html", "terminos.html", "reporte.html", "cotizador.html", "panel.html", "cita/index.html", "404.html"])

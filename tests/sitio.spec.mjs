@@ -255,3 +255,22 @@ test("la ficha trae lo de un portal: características, modelos, similares y repo
   await expect(f.getByRole("link", {name:"Ver video"})).toHaveAttribute("href", /youtube/);
   await expect(f).toContainText("Asadores");
 });
+
+test("el asistente entiende lo que buscas, mueve la pantalla y se puede deshacer", async ({page}) => {
+  const errores = vigilarErrores(page);
+  await page.goto("/");
+  await page.locator("#ia-q").fill("Quiero un departamento cerca de una escuela");
+  await page.locator("#ia-form button[type=submit]").click();
+  await expect(page.locator("#ia-panel")).toBeVisible();
+  await expect(page.locator(".ia-msg.ia-ella").last()).toContainText("en pantalla");
+  await expect(page.locator(".ia-hechos")).toContainText("en pantalla");
+  const n = await page.locator(".tarjeta").count();
+  expect(n).toBeGreaterThan(0);
+  expect(n).toBeLessThan(COMPRA.length);
+  await expect(page.locator(".tarjeta .razon-ia").first()).toBeVisible();
+  for(const h of await page.locator(".tarjeta h3").allTextContents())
+    expect(DESARROLLOS.find(d => d.nombre === h)?.tipo).toBe("departamento");
+  await page.locator(".ia-deshacer").click();
+  await expect(page.locator(".tarjeta")).toHaveCount(COMPRA.length);
+  expect(errores).toEqual([]);
+});

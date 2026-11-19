@@ -3,8 +3,8 @@
   "trailingSlash": true,
   "functions": {
     "api/*.js": {
-      "includeFiles": "data/desarrollos.json",
-      "maxDuration": 10
+      "includeFiles": "data/*.json",
+      "maxDuration": 30
     }
   },
   "headers": [

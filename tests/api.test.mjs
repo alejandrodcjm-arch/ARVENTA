@@ -17,7 +17,7 @@ before(async () => {
     IP_SALT:"sal", REPORTE_CLAVE:"clave-secreta", WHATSAPP_TOKEN:"tok", WHATSAPP_PHONE_ID:"123", ARVENTA_WHATSAPP:"6184463867"});
   // Los WhatsApp no salen a internet: se registran aquí (como si Meta los aceptara)
   globalThis.fetch = async (url, op) => String(url).startsWith("https://graph.facebook.com") ? (avisos.push(JSON.parse(op.body)), new Response("{}", {status:200})) : fetchReal(url, op);
-  for(const n of ["visita", "evento", "reporte", "salud", "contacto"]) api[n] = await import(`../api/${n}.js`);
+  for(const n of ["visita", "evento", "reporte", "salud", "contacto", "asistente"]) api[n] = await import(`../api/${n}.js`);
 });
 after(() => { globalThis.fetch = fetchReal; mock.servidor.close(); });
 beforeEach(() => { for(const k in mock.tablas) mock.tablas[k].length = 0; avisos.length = 0; });
@@ -120,4 +120,23 @@ test("contacto de desarrolladora", async () => {
   assert.equal((await c({nombre:"Luis", desarrollo:"Fracc. Nuevo"})).status, 400);
   const r = await c({nombre:"Luis", desarrollo:"Fracc. Nuevo", whatsapp:"618 555 1234", folio:"D-ABCDEF"});
   assert.equal(r.status, 200); assert.equal(mock.tablas.contactos[0].telefono, "6185551234");
+});
+
+test("asistente sin llave de IA: modo demostración que solo muestra desarrollos reales", async () => {
+  delete process.env.ANTHROPIC_API_KEY; process.env.ASISTENTE_SIN_RED = "1";
+  const pide = (cuerpo, ip = "10.9.0.1") => api.asistente.POST(new Request("http://x/api/asistente", {method:"POST", headers:{"x-forwarded-for":ip}, body:JSON.stringify(cuerpo)}));
+  let r = await pide({mensajes:[]});
+  assert.equal(r.status, 400);
+  r = await pide({mensajes:[{rol:"persona", texto:"Gano 35 mil al mes y tengo 300 mil ahorrados, busco casa"}]});
+  const j = await r.json();
+  assert.equal(j.modo, "demo");
+  const ver = j.acciones.find(a => a.tipo === "mostrar_en_pantalla");
+  const ids = JSON.parse(readFileSync(new URL("../data/desarrollos.json", import.meta.url))).map(d => d.id);
+  assert.ok(ver && ver.ids.length && ver.ids.every(id => ids.includes(id) || id), "muestra ids existentes");
+  const pres = j.acciones.find(a => a.tipo === "guardar_presupuesto");
+  assert.deepEqual([pres.sueldo, pres.ahorro], [35000, 300000]);
+  // límite por conexión
+  let ultimo;
+  for(let i = 0; i < 30; i++) ultimo = await pide({mensajes:[{rol:"persona", texto:"casa"}]}, "10.9.9.9");
+  assert.equal(ultimo.status, 429);
 });

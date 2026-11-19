@@ -72,7 +72,8 @@ Sigue la de `docs/REQUISITOS.md`. Lo principal:
 | `index.html`, `assets/app.js`, `assets/estilos.css` | La app: buscador, tarjetas, filtros, mapa (Leaflet se carga solo al abrirlo), ficha, ¿qué me alcanza?, comparador y formulario de visita |
 | `assets/config.js` | Configuración pública: WhatsApp, mapa, Umami, Sentry y datos legales. Nunca llaves secretas |
 | `desarrollos/<id>/`, `assets/datos.js`, `data/lugares.json`, `sitemap.xml`, `robots.txt` | **Generados** por `scripts/construir.mjs`; no se editan a mano |
-| `api/` | Funciones de Vercel (`visita`, `cita`, `panel`, `cotizacion`, `evento`, `contacto`, `reporte`, `salud`) con Supabase por REST, sin librerías |
+| `api/` | Funciones de Vercel (`visita`, `cita`, `panel`, `cotizacion`, `evento`, `contacto`, `reporte`, `salud`, `asistente`) con Supabase por REST, sin librerías |
+| `api/asistente.js`, `api/_lib/asistente.js`, `assets/asistente.js` | Asistente de IA para la gente: entiende lo que buscas, usa herramientas sobre los datos reales (buscar, calcular presupuesto, ubicar el trabajo) y mueve la pantalla (filtra, ordena, abre ficha, compara, agenda) con botón de Deshacer. Claude por API con `ANTHROPIC_API_KEY`; sin llave, modo demostración. Nunca inventa desarrollos ni precios |
 | `cotizador.html`, `assets/corrida.mjs`, `assets/pdf.mjs` | Corrida financiera con los esquemas confirmados por cada desarrolladora y PDF sin librerías. Nunca inventes un esquema. El precio y la tasa no se editan: solo las opciones de `precios` y `financiamiento` de cada desarrollo |
 | `cita/`, `panel.html` | El cliente confirma su cita y registra su llegada (a menos de 300 m); tu panel sigue cada solicitud y marca inválidas con motivo |
 | `supabase/esquema.sql` | Tablas, RLS y borrado a los 12 meses |

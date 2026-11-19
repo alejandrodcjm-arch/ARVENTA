@@ -10,7 +10,7 @@ export const TIPOS = {
   "ver-ficha":{id:ID}, "clic-agendar":{id:ID}, "solicitud":{id:ID}, "compartir-whatsapp":{id:ID}, "compartir":{id:ID, via:v => (["whatsapp", "copiar", "telefono"].includes(v) ? v : null)},
   "busqueda":{texto:v => texto(v, 60).toLowerCase()}, "filtro":{filtros:v => texto(v, 200)},
   "presupuesto":{hasta:NUM}, "zona-trabajo":{lat:ZONA, lng:ZONA}, "comparar":{cuantos:NUM},
-  "calcular-alcance":{}, "contacto-desarrolladora":{}, "cotizacion":{id:ID},
+  "calcular-alcance":{}, "asistente":{acciones:NUM, modo:v => (["ia", "demo"].includes(v) ? v : null)}, "contacto-desarrolladora":{}, "cotizacion":{id:ID},
   "error":{mensaje:v => texto(v, 200), archivo:v => texto(v, 80), linea:NUM}
 };
 
