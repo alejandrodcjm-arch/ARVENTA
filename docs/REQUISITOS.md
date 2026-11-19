@@ -96,8 +96,19 @@ Cada cita genera un **código** (ej. `ARV-7K3Q`) que llega por WhatsApp al clien
 | Esencial | El asesor abre `arventa.mx/cita/<código>` y ve: nombre y WhatsApp del cliente, día y hora, desarrollo y modelo de interés, presupuesto, crédito con el que pagaría, mensualidad que calculó, zona de trabajo y minutos al desarrollo, y otros desarrollos que guardó o comparó. |
 | Esencial | Solo se comparte lo que el cliente aceptó en la casilla de consentimiento; el texto de la casilla lo dice. |
 | Esencial | El enlace es privado (código largo, no adivinable), solo lo ve la desarrolladora dueña del desarrollo y caduca a los 90 días. |
-| Esencial | En la misma página el asesor marca: "asistió", "no asistió" o "cita inválida" (con motivo). |
+| Esencial | La asistencia **no depende del asesor**. Se cobra por cita confirmada por el cliente (respondió el WhatsApp). Si un plan cobra por asistencia, la prueba es el registro del propio cliente: al llegar toca "Ya llegué" y el sitio verifica con su ubicación que está a menos de 300 m del desarrollo. Lo que diga el asesor no cambia el cobro. |
+| Esencial | El asesor puede reportar una cita inválida (teléfono falso, duplicada, cliente previo con prueba de los últimos 60 días); ARVENTA revisa y decide. |
 | Esencial | El cliente enseña el código en la visita para recibir el beneficio ARVENTA, si la desarrolladora ofrece uno. |
+
+### Cotizador (corrida financiera)
+
+| | Requisito |
+|---|---|
+| Esencial | Cada desarrollo puede tener sus **esquemas de pago** reales, dados por la desarrolladora: apartado, enganche mínimo, mensualidades durante obra (máximo de meses), saldo contra escritura, descuentos por contado o por plan, y créditos aceptados para el saldo. |
+| Esencial | El cliente arma su corrida: cuánto tiene de enganche, en cuántos meses quiere pagar y con qué crédito liquida. Ve la tabla de pagos y descarga un PDF a su nombre. |
+| Esencial | El PDF dice: "Cotización informativa, sujeta a disponibilidad y a cambio de precio. Vigencia: X días", con fecha, código de cita y fuente de los esquemas. Si los esquemas no están confirmados por la desarrolladora, no se ofrece corrida, solo la calculadora general. |
+| Después | El mismo cotizador, con el logo de la desarrolladora, gratis para sus asesores en la oficina de ventas. Si el cliente trae código ARVENTA, la cotización queda ligada a su cita. |
+
 
 ## 3.1 Cómo entra la información de los desarrollos
 
