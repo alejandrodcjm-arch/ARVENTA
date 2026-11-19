@@ -37,7 +37,21 @@
   ],
   "verificado": "2026-11-17",
   "convenio": false,
-  "fotos": []
+  "fotos": [],
+  "precios": [
+   {
+    "modelo": "San Nicolás",
+    "precio": 1250000
+   },
+   {
+    "modelo": "San Jerónimo",
+    "precio": 1560000
+   },
+   {
+    "modelo": "San Francisco",
+    "precio": 1700000
+   }
+  ]
  },
  {
   "id": "valencia",

@@ -176,7 +176,8 @@ body.marcando #mapa{cursor:crosshair}
 .caja .rango{margin:2px 0 14px;color:var(--tinta-suave);font-size:14px}
 .calc{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--tinta-suave);border-radius:12px;overflow:hidden}
 .calc label{display:flex;flex-direction:column;padding:8px 12px;font-size:11px;font-weight:700;border-bottom:1px solid var(--niebla)}
-.calc label:nth-child(odd){border-right:1px solid var(--niebla)}
+.calc label.izq{border-right:1px solid var(--niebla)}
+.calc label.ancho{grid-column:1/-1}
 .calc input,.calc select{border:0;padding:2px 0 0;font-size:15px;background:none;outline:none;width:100%}
 .mensual{grid-column:1/-1;padding:12px;font-size:14px;color:var(--tinta-suave)}
 .mensual b{display:block;font-family:var(--display);font-size:24px;color:var(--tinta)}
@@ -382,3 +383,7 @@ button.compartir{background:none;border:0;padding:0;font:inherit;cursor:pointer;
 #mapa{isolation:isolate;z-index:0}
 
 .caja .btn-corrida{display:block;width:100%;margin-top:10px;padding:12px;text-align:center;text-decoration:none;border-radius:12px}
+
+/* Valores fijos de la calculadora (no se pueden editar) */
+.calc .fijo{display:flex;flex-direction:column;justify-content:center;min-height:44px;padding:6px 0;font-size:17px;font-weight:700;color:var(--tinta)}
+.calc .fijo small{font-size:12px;font-weight:400;color:var(--tinta-suave)}

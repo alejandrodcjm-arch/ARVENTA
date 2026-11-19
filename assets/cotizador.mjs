@@ -1,7 +1,7 @@
 /* Cotizador: corrida financiera con los esquemas que cada desarrolladora confirmó (data/desarrollos.json → esquemas).
    /cotizador.html?d=<id>&folio=V-XXXXXX          (comprador)
    /cotizador.html?d=<id>&modo=oficina            (asesor en la oficina de ventas; la cotización queda ligada a la cita) */
-import {calcularCorrida, revisarEntrada, rangoPrecio, vigencia, CREDITOS_LIQUIDACION} from "./corrida.mjs";
+import {calcularCorrida, revisarEntrada, preciosDe, financiamientoDe, vigencia, CREDITOS_LIQUIDACION} from "./corrida.mjs";
 import {crearPDF, hex} from "./pdf.mjs";
 
 const $ = s => document.querySelector(s);
@@ -10,7 +10,9 @@ const OFICINA = q.get("modo") === "oficina";
 const dinero = n => "$" + Math.round(n).toLocaleString("es-MX");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fecha = f => f.toLocaleDateString("es-MX", {day:"numeric", month:"long", year:"numeric"});
-const TASA_BANCO = 11.3, PLAZO = 20;
+// La tasa no se escribe: la primera que dio el proyecto o la de referencia
+const PLAZO = 20;
+let TASA_BANCO = 11.3;
 const mensualidadBanco = m => { const t = TASA_BANCO / 100 / 12, n = PLAZO * 12; return m * t / (1 - Math.pow(1 + t, -n)); };
 
 const conEsquemas = (window.DESARROLLOS || []).filter(d => d.esquemas?.length);
@@ -31,9 +33,8 @@ function preparar(){
   const d = conEsquemas.find(x => x.id === $("#q-desarrollo").value);
   $("#q-esquema").innerHTML = d.esquemas.map(e => `<option>${esc(e.nombre)}</option>`).join("");
   $("#q-esquema").disabled = d.esquemas.length === 1;
-  const {min, max} = rangoPrecio(d);
-  Object.assign($("#q-precio"), {min, max, value:min});
-  $("#q-precio-rango").textContent = min === max ? `Precio desde ${dinero(min)}.` : `Entre ${dinero(min)} y ${dinero(max)} según modelo.${d.modelos ? " " + d.modelos : ""}`;
+  $("#q-precio").innerHTML = preciosDe(d).map(p => `<option value="${p.precio}">${esc(p.modelo)}: ${dinero(p.precio)}</option>`).join("");
+  $("#q-precio-rango").textContent = "Precios publicados por el desarrollo; no se pueden modificar.";
   $("#logo-desarrolladora").innerHTML = OFICINA && d.logo ? `<img src="/${esc(d.logo)}" alt="${esc(d.desarrolladora || "")}" height="36">` : "";
   prepararEsquema();
 }
@@ -54,6 +55,7 @@ function entrada(){
 let ultima = null;
 function calcular(){
   const {d, e} = actual(), x = entrada();
+  TASA_BANCO = financiamientoDe(d).tasas[0].tasa;
   $("#q-enganche-val").textContent = `${x.enganchePct}%`;
   const problemas = revisarEntrada(d, e, x);
   $("#cot-error").hidden = !problemas.length; $("#cot-error").textContent = problemas.join(" ");

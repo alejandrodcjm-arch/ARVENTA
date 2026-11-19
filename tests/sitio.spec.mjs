@@ -171,3 +171,16 @@ test("tu panel muestra la solicitud y la puedes marcar inválida", async ({page,
   await tarjeta.getByRole("button", {name:"Marcar inválida"}).click();
   await expect(page.locator(`.sol[data-folio="${s.folio}"] .estado`)).toHaveText("Inválida");
 });
+
+test("en la calculadora no se puede escribir el precio ni la tasa", async ({page}) => {
+  await page.goto("/desarrollos/cienega-2/");
+  expect(await page.locator("#c-precio").evaluate(el => el.tagName)).toBe("SELECT");        // modelos confirmados
+  await expect(page.locator("#c-precio option")).toHaveCount(3);
+  await expect(page.locator("#c-tasa")).toHaveText(/11\.3%/);                               // tasa fija de referencia
+  expect(await page.locator(".calc input").count()).toBe(0);
+  const antes = await page.locator("#c-res").textContent();
+  await page.locator("#c-precio").selectOption("1700000");
+  await expect(page.locator("#c-res")).not.toHaveText(antes);
+  await page.goto("/cotizador.html?d=valladolid");
+  expect(await page.locator("#q-precio").evaluate(el => el.tagName)).toBe("SELECT");
+});

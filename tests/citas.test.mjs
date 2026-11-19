@@ -80,16 +80,17 @@ test("Ya llegué: solo a menos de 300 m, con ubicación exacta, y sin guardar co
 
 test("cotización: solo con esquema confirmado, dentro de sus reglas, y ligada a la cita", async () => {
   const s = await solicitud();
-  const base = {desarrollo:"valladolid", esquema:ESQUEMA_PRUEBA.nombre, precioLista:760000, enganchePct:5, meses:12, credito:"Banco"};
+  const base = {desarrollo:"valladolid", esquema:ESQUEMA_PRUEBA.nombre, precioLista:750000, enganchePct:5, meses:12, credito:"Banco"};
   assert.equal((await post(api.cotizacion, {...base, desarrollo:"cienega-2"})).status, 400, "sin esquemas");
   assert.equal((await post(api.cotizacion, {...base, enganchePct:2})).status, 400, "enganche menor al mínimo");
   assert.equal((await post(api.cotizacion, {...base, precioLista:900000})).status, 400, "precio fuera de rango");
+  assert.equal((await post(api.cotizacion, {...base, precioLista:760000})).status, 400, "precio inventado (no es de sus opciones)");
   assert.equal((await post(api.cotizacion, {...base, credito:"Fovissste"})).status, 400, "crédito no aceptado");
   const otra = await solicitud("cienega-2", "6180001122");
   assert.equal((await post(api.cotizacion, {...base, folio:otra.folio})).status, 400, "cita de otro desarrollo");
   const r = await (await post(api.cotizacion, {...base, folio:s.folio, origen:"oficina"})).json();
   assert.match(r.codigo, /^C-[A-Z2-9]{6}$/);
-  assert.deepEqual(mock.tablas.cotizaciones.map(c => [c.folio, c.origen, c.precio]), [[s.folio, "oficina", 760000]]);
+  assert.deepEqual(mock.tablas.cotizaciones.map(c => [c.folio, c.origen, c.precio]), [[s.folio, "oficina", 750000]]);
 });
 
 test("verificada → sale por WhatsApp a la desarrolladora con la ficha de la cita, y queda enviada", async () => {
@@ -139,7 +140,7 @@ test("reporte: citas confirmadas, llegadas y cotizaciones por desarrollo", async
   const s = await solicitud();
   await cita(s.folio, s.token, {accion:"confirmar"});
   await cita(s.folio, s.token, {accion:"llegue", lat:24.0026, lng:-104.6118, precision:10});
-  await post(api.cotizacion, {desarrollo:"valladolid", esquema:ESQUEMA_PRUEBA.nombre, precioLista:760000, enganchePct:5, meses:12, credito:"Banco", folio:s.folio});
+  await post(api.cotizacion, {desarrollo:"valladolid", esquema:ESQUEMA_PRUEBA.nombre, precioLista:750000, enganchePct:5, meses:12, credito:"Banco", folio:s.folio});
   const r = await (await api.reporte.GET(new Request("http://x/api/reporte?dias=30&d=valladolid", {headers:{"x-clave":"clave-reporte"}}))).json();
   assert.deepEqual([r.totales.confirmadas, r.totales.llegadas, r.totales.cotizaciones], [1, 1, 1]);
 });

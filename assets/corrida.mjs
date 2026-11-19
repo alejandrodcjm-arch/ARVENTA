@@ -10,11 +10,23 @@ const r = n => Math.round(n);
 
 export function rangoPrecio(d){ return {min:d.desde, max:d.hasta || d.desde}; }
 
+/* El precio no se escribe: solo se elige entre los que dio el proyecto (por modelo si los hay; si no, desde/hasta) */
+export function preciosDe(d){
+  if(d.precios?.length) return d.precios.map(p => ({modelo:p.modelo, precio:p.precio}));
+  return [{modelo:"Precio desde", precio:d.desde}, ...(d.hasta && d.hasta !== d.desde ? [{modelo:"Precio hasta", precio:d.hasta}] : [])];
+}
+/* La tasa tampoco: o las opciones que dio el proyecto (bancos con convenio, por ejemplo) o una tasa de referencia fija */
+export const TASA_REFERENCIA = {nombre:"Tasa de referencia (promedio de los bancos, Banxico)", tasa:11.3};
+export function financiamientoDe(d){
+  const f = d.financiamiento || {};
+  return {tasas:f.tasas?.length ? f.tasas : [TASA_REFERENCIA], propias:!!f.tasas?.length,
+    enganches:f.enganches?.length ? f.enganches : [10, 15, 20, 30], plazos:f.plazos?.length ? f.plazos : [10, 15, 20]};
+}
+
 export function revisarEntrada(d, e, x){
   const errores = [];
   if(!e) return ["Ese esquema de pago no existe."];
-  const {min, max} = rangoPrecio(d);
-  if(!(x.precioLista >= min && x.precioLista <= max)) errores.push(`El precio debe estar entre $${min.toLocaleString("es-MX")} y $${max.toLocaleString("es-MX")}.`);
+  if(!preciosDe(d).some(p => p.precio === x.precioLista)) errores.push("Elige uno de los precios del desarrollo.");
   if(!(x.enganchePct >= e.enganchePct && x.enganchePct <= 100 - e.diferidoPct)) errores.push(`El enganche va de ${e.enganchePct}% a ${100 - e.diferidoPct}%.`);
   if(e.diferidoPct > 0 && !(Number.isInteger(x.meses) && x.meses >= 1 && x.meses <= e.diferidoMesesMax)) errores.push(`Las mensualidades van de 1 a ${e.diferidoMesesMax}.`);
   const creditos = e.creditos?.length ? e.creditos : CREDITOS_LIQUIDACION;

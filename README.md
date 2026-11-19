@@ -37,6 +37,8 @@ Cada desarrollo lleva:
 | `incluye` | Texto (cocina, closets, boiler…) o `null`. |
 | `convenio` | `true` si es anunciante (firmó los términos de anunciante y confirmó sus datos). Con `false` la ficha dice "Información pública de anuncios". |
 | `esquemas` | Esquemas de pago **confirmados por escrito** por la desarrolladora (ver abajo). Sin esto, el desarrollo solo muestra la calculadora general. |
+| `precios` | Opcional: precio de cada modelo, `[{"modelo":"San Nicolás","precio":1250000}]`. El más bajo debe ser `desde` y el más alto `hasta`. Sin esto, solo se elige entre "desde" y "hasta". **El precio nunca se escribe a mano en el sitio: solo se elige entre estos.** |
+| `financiamiento` | Opcional: opciones que dio el proyecto, `{"tasas":[{"nombre":"Banco X (convenio)","tasa":10.5}],"enganches":[10,20],"plazos":[15,20],"confirmado":"2026-11-19","confirmadoPor":"Nombre, puesto"}`. Sin esto, la tasa queda fija en la de referencia (11.3%) y nadie la puede cambiar. |
 | `beneficioArventa` | Opcional: lo que el cliente recibe al registrar su llegada (solo si lo acordaste con la desarrolladora). |
 | `logo` | Opcional: logo de la desarrolladora para el cotizador de su oficina (`fotos/<id>/logo.webp`). |
 | `fotos`, `permisoFotos` | `["fotos/<id>/1.webp"]` o `{"archivo":"…","render":true}` para renders. Solo con permiso por escrito: anota en `permisoFotos` de quién y cuándo. WebP de ~1200 px y menos de 300 KB. |

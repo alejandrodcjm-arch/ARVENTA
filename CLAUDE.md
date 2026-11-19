@@ -72,7 +72,7 @@ Sigue la de `docs/REQUISITOS.md`. Lo principal:
 | `assets/config.js` | Configuración pública: WhatsApp, mapa, Umami, Sentry y datos legales. Nunca llaves secretas |
 | `desarrollos/<id>/`, `assets/datos.js`, `data/lugares.json`, `sitemap.xml`, `robots.txt` | **Generados** por `scripts/construir.mjs`; no se editan a mano |
 | `api/` | Funciones de Vercel (`visita`, `cita`, `panel`, `cotizacion`, `evento`, `contacto`, `reporte`, `salud`) con Supabase por REST, sin librerías |
-| `cotizador.html`, `assets/corrida.mjs`, `assets/pdf.mjs` | Corrida financiera con los esquemas confirmados por cada desarrolladora y PDF sin librerías. Nunca inventes un esquema |
+| `cotizador.html`, `assets/corrida.mjs`, `assets/pdf.mjs` | Corrida financiera con los esquemas confirmados por cada desarrolladora y PDF sin librerías. Nunca inventes un esquema. El precio y la tasa no se editan: solo las opciones de `precios` y `financiamiento` de cada desarrollo |
 | `cita/`, `panel.html` | El cliente confirma su cita y registra su llegada (a menos de 300 m); tu panel sigue cada solicitud y marca inválidas con motivo |
 | `supabase/esquema.sql` | Tablas, RLS y borrado a los 12 meses |
 | `scripts/` | `validar`, `construir`, `lugares` (Overpass, semanal), `servidor` (local), `respaldo` |

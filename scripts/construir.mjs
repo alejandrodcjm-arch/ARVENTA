@@ -13,6 +13,7 @@ import {fileURLToPath, pathToFileURL} from "node:url";
 import os from "node:os";
 import path from "node:path";
 import {validar} from "./validar.mjs";
+import {preciosDe, financiamientoDe} from "../assets/corrida.mjs";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITIO = (process.env.SITIO || "https://arventa.mx").replace(/\/$/, "");
@@ -56,7 +57,7 @@ const referencias = lugares.filter(l => l.nombre && ["escuela", "salud", "uni"].
 const LUGARES = {fecha:osm.fecha, porDesarrollo, referencias};
 escribir("data/lugares.json", JSON.stringify({fecha:osm.fecha, porDesarrollo}, null, 1) + "\n");
 escribir("assets/datos.js", `/* GENERADO por scripts/construir.mjs a partir de data/. No se edita a mano. */\n` +
-  `window.DESARROLLOS = ${JSON.stringify(lista)};\nwindow.LUGARES = ${JSON.stringify(LUGARES)};\n`);
+  `window.DESARROLLOS = ${JSON.stringify(lista.map(d => ({...d, opcionesPrecio:preciosDe(d), opcionesFin:financiamientoDe(d)})))};\nwindow.LUGARES = ${JSON.stringify(LUGARES)};\n`);
 
 /* ---------- 3. Versiones de CSS y JS ---------- */
 const ASSETS = ["estilos.css", "paginas.css", "config.js", "datos.js", "app.js", "anuncia.js", "reporte.js", "cita.js", "panel.js", "cotizador.mjs"].filter(f => existsSync(path.join(RAIZ, "assets", f)));

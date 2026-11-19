@@ -63,6 +63,22 @@ export function validar(lista, {hoy = new Date(), raiz = RAIZ} = {}){
         if(!/^\d{4}-\d{2}-\d{2}$/.test(e?.confirmado || "") || !texto(e?.confirmadoPor)) error(`${q}: falta "confirmado" (fecha) y "confirmadoPor" (quién lo mandó y por dónde). Sin confirmación no se publica: sería publicidad engañosa.`);
       });
     }
+    if(d.precios !== undefined){
+      if(!Array.isArray(d.precios) || !d.precios.length) error("precios debe ser una lista de {modelo, precio}.");
+      else{
+        d.precios.forEach((p, j) => { if(!texto(p?.modelo) || !esNumero(p?.precio)) error(`precio ${j + 1}: necesita "modelo" (texto) y "precio" (número).`); });
+        const vals = d.precios.map(p => p.precio).filter(esNumero);
+        if(vals.length && Math.min(...vals) !== d.desde) error(`"desde" (${d.desde}) debe ser el precio más bajo de "precios" (${Math.min(...vals)}).`);
+        if(vals.length && d.hasta != null && Math.max(...vals) !== d.hasta) error(`"hasta" (${d.hasta}) debe ser el precio más alto de "precios" (${Math.max(...vals)}).`);
+      }
+    }
+    if(d.financiamiento !== undefined){
+      const f = d.financiamiento || {};
+      if(f.tasas != null && (!Array.isArray(f.tasas) || f.tasas.some(t => !texto(t?.nombre) || !esNumero(t?.tasa) || t.tasa < 1 || t.tasa > 30))) error('financiamiento.tasas: lista de {nombre, tasa} con tasa de 1 a 30.');
+      if(f.enganches != null && (!Array.isArray(f.enganches) || f.enganches.some(x => !Number.isInteger(x) || x < 0 || x > 90))) error("financiamiento.enganches: porcentajes enteros de 0 a 90.");
+      if(f.plazos != null && (!Array.isArray(f.plazos) || f.plazos.some(x => !Number.isInteger(x) || x < 1 || x > 30))) error("financiamiento.plazos: años enteros de 1 a 30.");
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(f.confirmado || "") || !texto(f.confirmadoPor)) error('financiamiento: falta "confirmado" (fecha) y "confirmadoPor". Solo se publican opciones que dio el proyecto.');
+    }
     if(d.beneficioArventa != null && !texto(d.beneficioArventa)) error("beneficioArventa debe ser texto (lo que acordaste con la desarrolladora) o no ir.");
 
     // ubicación

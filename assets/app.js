@@ -835,10 +835,7 @@ function abrirFicha(d){
         <p class="precio">${vencido(d) ? `Precio por confirmar <small>último publicado: ${dinero(d.desde)}</small>` : `${dinero(d.desde)} <small>precio desde</small>`}</p>
         <p class="rango">${d.hasta ? `Hasta ${dinero(d.hasta)} según modelo. ` : ""}Puede variar al cerrar.</p>
         <div class="calc">
-          <label>Precio<input id="c-precio" type="number" min="0" step="1000" value="${d.desde}"></label>
-          <label>Enganche<select id="c-eng"><option value="0.1">10%</option><option value="0.15">15%</option><option value="0.2" selected>20%</option><option value="0.3">30%</option></select></label>
-          <label>Tasa anual %<input id="c-tasa" type="number" min="1" max="30" step="0.05" value="${TASA_BANCO}"></label>
-          <label>Plazo<select id="c-plazo"><option value="10">10 años</option><option value="15">15 años</option><option value="20" selected>20 años</option></select></label>
+          ${htmlCalculadora(d)}
           <div class="mensual" aria-live="polite">Mensualidad estimada con banco<b id="c-res"></b><span id="c-eng-txt"></span></div>
         </div>
         <button class="btn" type="button" id="agendar">Agendar visita</button>
@@ -854,7 +851,7 @@ function abrirFicha(d){
   enlazarAlcanceFicha();
   pintarBarraComparar();
   $("#f-trabajo")?.addEventListener("click", () => abrirCerca("trabajo"));
-  ["c-precio", "c-eng", "c-tasa", "c-plazo"].forEach(id => $("#" + id).oninput = calcular);
+  ["c-precio", "c-eng", "c-tasa", "c-plazo"].forEach(id => { const el = $("#" + id); if (el?.tagName === "SELECT") el.onchange = calcular; });
   calcular();
   window.scrollTo({top:0});
   document.title = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${corto(d.desde)} · ARVENTA`;
@@ -893,9 +890,26 @@ function cerrarFicha(){
   $("#ficha").hidden = true; $("#principal").hidden = false; $(".categorias").hidden = false;
   document.title = "ARVENTA · Vivienda nueva en Durango";
 }
+/* Calculadora: el precio y la tasa no se escriben, solo se eligen entre las opciones que dio cada proyecto
+   (o, si no dio tasas, queda fija la de referencia). Así nadie "ajusta" un precio o un interés que no existe. */
+function htmlCalculadora(d){
+  const p = d.opcionesPrecio || [{modelo:"Precio desde", precio:d.desde}];
+  const f = d.opcionesFin || {tasas:[{nombre:"Tasa de referencia", tasa:TASA_BANCO}], enganches:[10, 15, 20, 30], plazos:[10, 15, 20]};
+  const eng = f.enganches.includes(20) ? 20 : f.enganches[0], plazo = f.plazos.includes(20) ? 20 : f.plazos[f.plazos.length - 1];
+  const fijo = (id, valor, texto, nota) => `<span class="fijo" id="${id}" data-valor="${valor}">${texto}${nota ? `<small>${esc(nota)}</small>` : ""}</span>`;
+  return `<label class="ancho">${p.length > 1 ? "Modelo" : "Precio"}${p.length > 1
+      ? `<select id="c-precio">${p.map(x => `<option value="${x.precio}">${esc(x.modelo)}: ${dinero(x.precio)}</option>`).join("")}</select>`
+      : fijo("c-precio", p[0].precio, dinero(p[0].precio), p[0].modelo)}</label>
+    <label class="izq">Enganche<select id="c-eng">${f.enganches.map(x => `<option value="${x / 100}"${x === eng ? " selected" : ""}>${x}%</option>`).join("")}</select></label>
+    <label>Plazo<select id="c-plazo">${f.plazos.map(x => `<option value="${x}"${x === plazo ? " selected" : ""}>${x} años</option>`).join("")}</select></label>
+    <label class="ancho">Tasa anual${f.tasas.length > 1
+      ? `<select id="c-tasa">${f.tasas.map(t => `<option value="${t.tasa}">${esc(t.nombre)}: ${t.tasa}%</option>`).join("")}</select>`
+      : fijo("c-tasa", f.tasas[0].tasa, f.tasas[0].tasa + "%", f.propias ? f.tasas[0].nombre : "Promedio de los bancos; la tuya la fija tu banco")}</label>`;
+}
+const valorCalc = id => { const el = $("#" + id); return el ? +(el.value ?? el.dataset.valor) || +el.dataset.valor || 0 : 0; };
 function calcular(){
-  const P = +$("#c-precio").value || 0, e = +$("#c-eng").value, n = +$("#c-plazo").value;
-  $("#c-res").textContent = dinero(pago(P * (1 - e), +$("#c-tasa").value || 0, n)) + " al mes";
+  const P = valorCalc("c-precio"), e = valorCalc("c-eng"), n = valorCalc("c-plazo");
+  $("#c-res").textContent = dinero(pago(P * (1 - e), valorCalc("c-tasa"), n)) + " al mes";
   $("#c-eng-txt").textContent = `Enganche de ${dinero(P * e)} y crédito de ${dinero(P * (1 - e))} a ${n} años`;
 }
 
@@ -961,7 +975,7 @@ function agendar(d){
 // Enlace para compartir: la página d/<id>.html tiene la vista previa para WhatsApp (ver generar-paginas.js)
 // Mensualidad que la persona estaba viendo en la calculadora de la ficha (si la tocó)
 function mensualidadVista(){
-  const P = +$("#c-precio")?.value, e = +$("#c-eng")?.value, t = +$("#c-tasa")?.value, n = +$("#c-plazo")?.value;
+  const P = valorCalc("c-precio"), e = valorCalc("c-eng"), t = valorCalc("c-tasa"), n = valorCalc("c-plazo");
   return P && n ? Math.round(pago(P * (1 - e), t || TASA_BANCO, n)) : null;
 }
 function enlaceDe(d){ return `${location.origin}/desarrollos/${d.id}/`; }
