@@ -71,7 +71,7 @@ GitHub Actions (automático):
 
 ## 3. Solicitudes de visita (lo que genera dinero)
 
-Esto es lo más importante: **una solicitud perdida es una comisión perdida.**
+Esto es lo más importante: **cada solicitud es lo que ARVENTA cobra.** Una solicitud perdida es dinero perdido.
 
 | | Requisito |
 |---|---|
@@ -79,8 +79,10 @@ Esto es lo más importante: **una solicitud perdida es una comisión perdida.**
 | Esencial | Validación en el servidor: nombre, teléfono de 10 dígitos, desarrollo existente y consentimiento marcado. No confiar solo en el navegador. |
 | Esencial | Protección contra spam: campo oculto (honeypot) y límite de 5 solicitudes por hora por IP. |
 | Esencial | Aviso inmediato a ARVENTA por WhatsApp o correo con cada solicitud nueva. |
-| Esencial | Cada solicitud tiene estado: nueva, contactada, visita agendada, visita hecha, apartado, vendida, perdida. Con eso se cobra la comisión y se arma el reporte. |
-| Esencial | Fecha y hora de registro del cliente con la desarrolladora. Es la prueba de que ARVENTA lo llevó y protege la comisión. |
+| Esencial | Verificación de cada solicitud: un mensaje automático de WhatsApp que la persona confirma. Solo las verificadas se cobran. |
+| Esencial | Cada solicitud tiene estado: nueva, verificada, enviada a la desarrolladora, visita hecha, inválida (con motivo). Con eso se factura y se arma el reporte. |
+| Esencial | Fecha y hora en que se envió a la desarrolladora: es la prueba para cobrar la cita. |
+| Esencial | Panel sencillo para cada anunciante: sus citas del mes, el estado de cada una y un botón para reportar una cita inválida. |
 | Esencial | Respaldo: Supabase guarda copias diarias; además, exportación semanal a CSV. |
 | Después | Responder en menos de 1 hora en horario laboral, medido. |
 
@@ -159,8 +161,8 @@ Detalle en la sección "Requisitos obligatorios" de `CLAUDE.md`. Para lanzar:
 | Esencial | Aviso de privacidad completo (con razón social y domicilio reales) y casilla de consentimiento. |
 | Esencial | Términos de uso: el sitio informa, no es oferta vinculante, y los precios los define la desarrolladora. |
 | Esencial | Plazo de guardado de solicitudes: se borran a los 12 meses si no hubo compra. Cualquier persona puede pedir que se borren sus datos. |
-| Esencial | Licencia de asesor inmobiliario de Durango tramitada **antes de cobrar comisiones**, y contrato firmado con cada desarrolladora. |
-| Esencial | Registro en el SAT como actividad vulnerable (antilavado) antes de la primera venta. |
+| Esencial | Confirmar con un abogado que, como portal que no intermedia, ARVENTA no necesita licencia de asesor ni registro antilavado. |
+| Esencial | Términos de anunciante firmados: precio por cita, qué es una cita válida, reclamos y facturación. |
 
 ---
 
