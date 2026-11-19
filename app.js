@@ -627,7 +627,7 @@ function abrirFicha(d){
             ${d.modelos ? `<div><dt>Modelos</dt><dd>${esc(d.modelos)}</dd></div>` : ""}
             <div><dt>Ubicación</dt><dd>${d.lat == null ? "Por confirmar" : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd></div>
           </dl>
-          <p class="nota">${d.convenio ? "ARVENTA es asesor externo autorizado de esta desarrolladora." : "Información pública de anuncios. ARVENTA te acompaña a la visita y te ayuda con el trámite, sin costo para ti."}</p>
+          <p class="nota">${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.</p>
         </section>
         <section class="seccion fuentes"><h2>De dónde salen estos datos</h2>
           <p class="nota" style="margin:0">Visto en ${d.fuentes.map((f, i) => { const rep = d.fuentes.filter(x => x[0] === f[0]).length > 1; return `<a href="${esc(f[1])}" target="_blank" rel="noopener">${esc(f[0])}${rep ? " (" + d.fuentes.slice(0, i + 1).filter(x => x[0] === f[0]).length + ")" : ""}</a>`; }).join(", ")}. Precios verificados en ${esc(window.PRECIOS_VERIFICADOS)}.</p>
