@@ -55,3 +55,31 @@ html,body{height:auto}
 /* Aviso */
 .indice{columns:2;gap:24px;padding-left:18px}
 @media (max-width:560px){.indice{columns:1}}
+
+/* Cotizador */
+.cotizador{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:10px}
+@media (max-width:860px){.cotizador{grid-template-columns:1fr}}
+.cotizador input[type=range]{padding:0;accent-color:var(--agave)}
+.resultado{position:sticky;top:20px}
+.pasos-pago{list-style:none;margin:0;padding:0;counter-reset:p}
+.pasos-pago li{counter-increment:p;display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:14px 0;border-bottom:1px solid var(--niebla)}
+.pasos-pago li::before{content:counter(p);width:26px;height:26px;border-radius:50%;background:#EEF5F3;color:var(--agave);display:grid;place-items:center;font-weight:700;font-size:14px}
+.pasos-pago b{font-family:var(--display);font-size:20px;white-space:nowrap}
+.pasos-pago b small{font-family:var(--texto);font-weight:400;font-size:13px;color:var(--tinta-suave)}
+.total-cot{display:flex;justify-content:space-between;font-size:17px;margin:12px 0 0}
+.total-cot b{font-family:var(--display);font-size:22px}
+.tabla-pagos{margin-top:12px}
+.tabla-pagos summary{cursor:pointer;color:var(--agave);font-weight:700}
+.tabla-pagos .tabla{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.tabla-pagos th,.tabla-pagos td{padding:7px 6px;border-bottom:1px solid var(--niebla);text-align:left}
+.tabla-pagos .n{text-align:right;font-variant-numeric:tabular-nums}
+/* Cita */
+.codigo-cita{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--tinta);color:#fff;border-radius:var(--radio);padding:18px;margin:16px 0}
+.codigo-cita b{font-family:var(--display);font-size:38px;letter-spacing:.06em}
+.codigo-cita small{opacity:.8}
+.llegada{background:#E2F1EC;border-color:#CFE5DC}
+.beneficio{background:#fff;border-radius:10px;padding:10px 12px}
+.pag a.btn.claro,.pag a.btn.claro:hover{color:var(--tinta)}
+/* En estilos.css la caja de la ficha oculta sus botones en celular (ahí van en la barra de abajo); en estas páginas sí se ven */
+.pag .caja .btn{display:inline-block}
+.pag .caja .btn.claro,.pag .caja a.btn{display:block;text-align:center}

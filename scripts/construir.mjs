@@ -59,10 +59,10 @@ escribir("assets/datos.js", `/* GENERADO por scripts/construir.mjs a partir de d
   `window.DESARROLLOS = ${JSON.stringify(lista)};\nwindow.LUGARES = ${JSON.stringify(LUGARES)};\n`);
 
 /* ---------- 3. Versiones de CSS y JS ---------- */
-const ASSETS = ["estilos.css", "paginas.css", "config.js", "datos.js", "app.js", "anuncia.js", "reporte.js", "comun.js"].filter(f => existsSync(path.join(RAIZ, "assets", f)));
+const ASSETS = ["estilos.css", "paginas.css", "config.js", "datos.js", "app.js", "anuncia.js", "reporte.js", "cita.js", "asesores.js", "cotizador.mjs"].filter(f => existsSync(path.join(RAIZ, "assets", f)));
 const version = Object.fromEntries(ASSETS.map(f => [f, createHash("sha1").update(readFileSync(path.join(RAIZ, "assets", f), "utf8").replace(/\r\n/g, "\n")).digest("hex").slice(0, 10)]));
-const versionar = html => html.replace(/\/assets\/([a-z-]+\.(?:css|js))(\?v=[0-9a-f]+)?/g, (t, f) => version[f] ? `/assets/${f}?v=${version[f]}` : t);
-for(const pagina of ["index.html", "anuncia.html", "aviso-privacidad.html", "terminos.html", "reporte.html"])
+const versionar = html => html.replace(/\/assets\/([a-z-]+\.(?:css|m?js))(\?v=[0-9a-f]+)?/g, (t, f) => version[f] ? `/assets/${f}?v=${version[f]}` : t);
+for(const pagina of ["index.html", "anuncia.html", "aviso-privacidad.html", "terminos.html", "reporte.html", "cotizador.html", "asesores.html", "cita/index.html", "404.html"])
   if(existsSync(path.join(RAIZ, pagina))) escribir(pagina, versionar(leer(pagina)));
 
 /* ---------- 4. SEO de la portada ---------- */
@@ -195,10 +195,10 @@ if(existsSync(path.join(RAIZ, "desarrollos")))
 
 /* ---------- 6. sitemap.xml y robots.txt ---------- */
 const urls = [[`${SITIO}/`, null], ...lista.map(d => [`${SITIO}/desarrollos/${d.id}/`, d.verificado]),
-  [`${SITIO}/anuncia.html`, null], [`${SITIO}/aviso-privacidad.html`, null], [`${SITIO}/terminos.html`, null]];
+  [`${SITIO}/cotizador.html`, null], [`${SITIO}/anuncia.html`, null], [`${SITIO}/aviso-privacidad.html`, null], [`${SITIO}/terminos.html`, null]];
 escribir("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   urls.map(([u, f]) => `  <url><loc>${u}</loc>${f ? `<lastmod>${f}</lastmod>` : ""}</url>`).join("\n") + `\n</urlset>\n`);
-escribir("robots.txt", `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /reporte.html\n\nSitemap: ${SITIO}/sitemap.xml\n`);
+escribir("robots.txt", `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /reporte.html\nDisallow: /cita/\nDisallow: /asesores.html\n\nSitemap: ${SITIO}/sitemap.xml\n`);
 
 console.log(`Listo: ${lista.length} páginas en desarrollos/, ${imagenes} imágenes nuevas, sitemap.xml y robots.txt. Sitio: ${SITIO}`);
 if(!navegador && !SIN_IMAGENES) console.log("! No encontré Chrome ni Edge: las imágenes de vista previa no se actualizaron (define CHROME).");

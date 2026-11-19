@@ -3,17 +3,18 @@
 import http from "node:http";
 
 export function crearMock(llave){
-  const tablas = {solicitudes:[], eventos:[], contactos:[]};
+  const tablas = {solicitudes:[], eventos:[], contactos:[], cotizaciones:[], desarrolladoras:[], reclamos:[]};
   let id = 1;
   const filtrar = (filas, params) => {
     let r = filas;
     for(const [col, cond] of params){
-      if(["select", "order", "limit"].includes(col)) continue;
+      if(["select", "order", "limit", "offset"].includes(col)) continue;
       const [op, ...resto] = cond.split("."), val = resto.join(".");
       r = r.filter(f => {
         const v = f[col];
         switch(op){
           case "eq": return String(v) === val;
+          case "neq": return String(v) !== val;
           case "gte": return v >= val;
           case "gt": return v > val;
           case "lt": return v < val;
@@ -37,8 +38,8 @@ export function crearMock(llave){
       if(req.method === "POST"){
         const filas = [].concat(JSON.parse(cuerpo));
         for(const f of filas){
-          if(f.folio && tablas[tabla].some(x => x.folio === f.folio)){ res.writeHead(409, {"Content-Type":"application/json"}); return res.end(JSON.stringify({code:"23505", message:"duplicate key"})); }
-          tablas[tabla].push({id:id++, creado:new Date().toISOString(), ...(tabla === "solicitudes" ? {aviso_enviado:false, estado:"nueva"} : {}), ...f});
+          if((f.folio && tabla !== "cotizaciones" && tabla !== "reclamos" && tablas[tabla].some(x => x.folio === f.folio)) || (f.codigo && tablas[tabla].some(x => x.codigo === f.codigo))){ res.writeHead(409, {"Content-Type":"application/json"}); return res.end(JSON.stringify({code:"23505", message:"duplicate key"})); }
+          tablas[tabla].push({id:id++, creado:new Date().toISOString(), ...(tabla === "solicitudes" ? {aviso_enviado:false, estado:"nueva"} : tabla === "reclamos" ? {estado:"pendiente"} : {}), ...f});
         }
         res.writeHead(201); return res.end();
       }

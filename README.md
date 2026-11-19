@@ -36,7 +36,25 @@ Cada desarrollo lleva:
 | `entrega` | `"Preventa"`, `"Entrega inmediata"` o `null`. Opcional `fechaEntrega`. |
 | `incluye` | Texto (cocina, closets, boiler…) o `null`. |
 | `convenio` | `true` solo con convenio de asesor externo firmado. |
+| `esquemas` | Esquemas de pago **confirmados por escrito** por la desarrolladora (ver abajo). Sin esto, el desarrollo solo muestra la calculadora general. |
+| `beneficioArventa` | Opcional: lo que el cliente recibe al registrar su llegada (solo si lo acordaste con la desarrolladora). |
+| `logo` | Opcional: logo de la desarrolladora para el cotizador de su oficina (`fotos/<id>/logo.webp`). |
 | `fotos`, `permisoFotos` | `["fotos/<id>/1.webp"]` o `{"archivo":"…","render":true}` para renders. Solo con permiso por escrito: anota en `permisoFotos` de quién y cuándo. WebP de ~1200 px y menos de 300 KB. |
+
+### Esquemas de pago (corrida financiera)
+
+Solo con lo que la desarrolladora mande por escrito; inventar la corrida sería publicidad engañosa.
+
+```json
+"esquemas": [{
+  "nombre": "Preventa 5-10-85", "apartado": 50000,
+  "enganchePct": 5, "diferidoPct": 10, "diferidoMesesMax": 18, "liquidacionPct": 85,
+  "descuentoPct": 0, "creditos": ["Infonavit", "Banco", "Cofinavit", "Contado"],
+  "confirmado": "2026-11-20", "confirmadoPor": "Correo de ventas@desarrolladora.mx", "vigenciaDias": 15
+}]
+```
+
+Enganche + diferido + liquidación deben sumar 100. Con esto aparecen el botón "Arma tu corrida financiera" en la ficha y el cotizador (`/cotizador.html?d=<id>`), que descarga un PDF a nombre del cliente con la leyenda "cotización informativa, sujeta a disponibilidad y cambio de precio", fecha y vigencia. Para la oficina de ventas: `/cotizador.html?d=<id>&modo=oficina`.
 
 ## Estructura
 
@@ -99,6 +117,10 @@ Todo lo que es código ya está hecho; esto son cuentas y configuración que sol
 ## Operación diaria
 
 - **Solicitudes**: Supabase → Table Editor → `solicitudes` (o la vista `pendientes`). Cambia `estado` conforme avanza: nueva → contactada → visita agendada → visita hecha → apartado → vendida / perdida.
+- **Confirmación de la cita** (la que se cobra): cada aviso de solicitud trae un enlace "Mándale su confirmación" que abre WhatsApp con el mensaje y el enlace personal del cliente (también está en la vista `pendientes`, columna `enlace_confirmacion`). Cuando el cliente toca "Confirmo mi visita", queda `confirmada_en` con fecha y hora. No depende del asesor.
+- **Llegada**: si el desarrollo tiene `aprox:false` (ubicación exacta confirmada en visita), el cliente puede tocar "Ya llegué" y se registra `llegada_en` si está a menos de 300 m. Solo se guarda la distancia.
+- **Citas que se cobran**: vista `citas_cobrables` (confirmadas, sin repetir y sin reclamo aceptado).
+- **Desarrolladoras y reclamos**: da de alta cada desarrolladora en la tabla `desarrolladoras` (instrucción en `supabase/esquema.sql`) y comparte su clave con sus asesores. Ellos reportan citas inválidas en `/asesores.html` solo con motivo (teléfono falso, duplicada o cliente previo con prueba de 60 días). Tú decides en la tabla `reclamos` (`estado`: aceptado o rechazado).
 - **Registro con la desarrolladora**: al presentar al cliente, llena `registrado_con_desarrolladora` con la fecha y hora. Es tu prueba para cobrar la comisión.
 - **Reporte para una desarrolladora**: `https://arventa.mx/reporte.html`, con la clave `REPORTE_CLAVE`. Elige solo su desarrollo antes de enseñarlo.
 - **Si alguien pide borrar sus datos**: busca su folio o teléfono en `solicitudes` y borra la fila. Sin compra, se borran solas a los 12 meses.

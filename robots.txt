@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /reporte.html
+Disallow: /cita/
+Disallow: /asesores.html
 
 Sitemap: https://arventa.mx/sitemap.xml

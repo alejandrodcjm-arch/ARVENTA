@@ -12,7 +12,8 @@ export const env = k => process.env[k] || "";
 
 let cacheDesarrollos = null;
 export function desarrollos(){
-  if(!cacheDesarrollos) cacheDesarrollos = JSON.parse(readFileSync(new URL("../../data/desarrollos.json", import.meta.url), "utf8"));
+  // DESARROLLOS_JSON solo lo usan las pruebas (datos con esquemas de pago de ejemplo)
+  if(!cacheDesarrollos) cacheDesarrollos = JSON.parse(readFileSync(process.env.DESARROLLOS_JSON || new URL("../../data/desarrollos.json", import.meta.url), "utf8"));
   return cacheDesarrollos;
 }
 
@@ -87,3 +88,19 @@ export function nuevoFolio(prefijo){
   const letras = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   return prefijo + "-" + Array.from(crypto.getRandomValues(new Uint8Array(6)), x => letras[x % letras.length]).join("");
 }
+
+// Token para el enlace de confirmación de la cita (solo viaja al WhatsApp del cliente)
+export function nuevoToken(){
+  return Array.from(crypto.getRandomValues(new Uint8Array(18)), x => "abcdefghijkmnpqrstuvwxyz23456789"[x % 32]).join("");
+}
+export function mismoTexto(a, b){
+  const x = Buffer.from(String(a || "")), y = Buffer.from(String(b || ""));
+  return x.length > 0 && x.length === y.length && timingSafeEqual(x, y);
+}
+export function metros(a, b){
+  const R = 6371000, r = Math.PI / 180, dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r;
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+export const SITIO = () => env("SITIO") || "https://arventa.mx";
+export const huella = t => createHash("sha256").update(String(t)).digest("hex");

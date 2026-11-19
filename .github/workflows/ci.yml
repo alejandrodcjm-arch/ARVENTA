@@ -24,7 +24,7 @@ jobs:
           node scripts/construir.mjs --sin-imagenes
           git diff --exit-code -- . ':(exclude)*.png' || (echo "::error::Corre 'node scripts/construir.mjs' y sube los cambios." && exit 1)
       - name: Pruebas de /api
-        run: node --test tests/api.test.mjs
+        run: node --test tests/api.test.mjs tests/citas.test.mjs
       - name: Instalar navegador de pruebas
         run: npx playwright install --with-deps chromium
       - name: Pruebas del sitio

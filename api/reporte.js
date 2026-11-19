@@ -15,13 +15,15 @@ function lunes(f){ const d = new Date(Date.UTC(f.getUTCFullYear(), f.getUTCMonth
 const mediana = v => { if(!v.length) return null; const s = [...v].sort((a, b) => a - b), m = s.length >> 1; return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2); };
 const norm = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
 
-export function agregar(solicitudes, eventos, desde, hasta, id){
+export function agregar(solicitudes, eventos, desde, hasta, id, cotizaciones = []){
   const sel = solicitudes.filter(s => !id || s.desarrollo === id);
   const ev = eventos.filter(e => !id || e.desarrollo === id);
   const cuenta = (tipo, k) => ev.filter(e => e.tipo === tipo && e.desarrollo === k).length;
-  const ids = new Set([...sel.map(s => s.desarrollo), ...ev.filter(e => e.desarrollo).map(e => e.desarrollo)]);
+  const ids = new Set([...sel.map(s => s.desarrollo), ...ev.filter(e => e.desarrollo).map(e => e.desarrollo), ...cotizaciones.filter(c => !id || c.desarrollo === id).map(c => c.desarrollo)]);
   const lista = [...ids].filter(k => !id || k === id).map(k => ({id:k, vistas:cuenta("ver-ficha", k), clics:cuenta("clic-agendar", k),
-    compartidos:cuenta("compartir-whatsapp", k) + cuenta("compartir", k), solicitudes:sel.filter(s => s.desarrollo === k).length}))
+    compartidos:cuenta("compartir-whatsapp", k) + cuenta("compartir", k), solicitudes:sel.filter(s => s.desarrollo === k).length,
+    confirmadas:sel.filter(s => s.desarrollo === k && s.confirmada_en).length, llegadas:sel.filter(s => s.desarrollo === k && s.llegada_en).length,
+    cotizaciones:cotizaciones.filter(c => c.desarrollo === k).length}))
     .sort((a, b) => b.solicitudes - a.solicitudes || b.vistas - a.vistas);
   const semanas = [];
   for(let s = lunes(desde); s <= hasta; s = new Date(s.getTime() + 7 * 864e5)){
@@ -35,7 +37,7 @@ export function agregar(solicitudes, eventos, desde, hasta, id){
   const suma = k => lista.reduce((a, d) => a + d[k], 0);
   const r = {
     ok:true, desde:fecha(desde), hasta:fecha(hasta), desarrollo:id || null, medicion:{ok:true, motivo:""}, minGrupo:MIN_GRUPO,
-    totales:{vistas:suma("vistas"), clics:suma("clics"), solicitudes:sel.length, compartidos:suma("compartidos")},
+    totales:{vistas:suma("vistas"), clics:suma("clics"), solicitudes:sel.length, compartidos:suma("compartidos"), confirmadas:suma("confirmadas"), llegadas:suma("llegadas"), cotizaciones:suma("cotizaciones")},
     desarrollos:lista, semanas, pago:contar(sel.map(s => s.pago)), cuando:contar(sel.map(s => s.cuando)),
     estados:contar(sel.map(s => s.estado)),
     zonas, zonasOtras:todasZonas.filter(z => z.n < MIN_GRUPO).reduce((a, z) => a + z.n, 0),
@@ -59,11 +61,12 @@ export async function GET(request){
   const hasta = new Date(), desde = new Date(hasta.getTime() - dias * 864e5), iso = encodeURIComponent(desde.toISOString());
   try{
     const filtroId = id ? `&desarrollo=eq.${id}` : "";
-    const [solicitudes, eventos] = await Promise.all([
-      sbTodo(`solicitudes?select=creado,desarrollo,cuando,pago,estado,trabajo_texto,trabajo_lat,trabajo_lng,minutos&creado=gte.${iso}${filtroId}`),
-      sbTodo(`eventos?select=tipo,desarrollo,datos&creado=gte.${iso}&tipo=in.(ver-ficha,clic-agendar,compartir-whatsapp,compartir${id ? "" : ",presupuesto,busqueda"})${filtroId}`)
+    const [solicitudes, eventos, cotizaciones] = await Promise.all([
+      sbTodo(`solicitudes?select=creado,desarrollo,cuando,pago,estado,trabajo_texto,trabajo_lat,trabajo_lng,minutos,confirmada_en,llegada_en&creado=gte.${iso}${filtroId}`),
+      sbTodo(`eventos?select=tipo,desarrollo,datos&creado=gte.${iso}&tipo=in.(ver-ficha,clic-agendar,compartir-whatsapp,compartir${id ? "" : ",presupuesto,busqueda"})${filtroId}`),
+      sbTodo(`cotizaciones?select=desarrollo,origen&creado=gte.${iso}${filtroId}`)
     ]);
-    return respuesta(200, agregar(solicitudes, eventos, desde, hasta, id));
+    return respuesta(200, agregar(solicitudes, eventos, desde, hasta, id, cotizaciones));
   }catch(e){
     console.error("[reporte]", e.message);
     return error(502, "No se pudo leer la base de datos.");

@@ -106,3 +106,55 @@ test("con internet, el mapa se carga solo al abrirlo y muestra los pines", async
   await page.locator("#alternar").click();
   await expect(page.locator("#mapa .pin")).toHaveCount(DESARROLLOS.filter(d => d.lat != null).length, {timeout:15000});
 });
+
+// Crea una solicitud real por /api/visita y regresa su folio y token (los toma de la base de pruebas)
+async function nuevaCita(request, id = "valladolid"){
+  await request.get(`${MOCK}/__reset`);
+  const r = await (await request.post("/api/visita", {data:{id, nombre:"Lucía Prueba", whatsapp:"6183334455", cuando:"Este fin de semana", pago:"Infonavit", consentimiento:true}})).json();
+  const {solicitudes} = await (await request.get(`${MOCK}/__datos`)).json();
+  return solicitudes.find(s => s.folio === r.folio);
+}
+
+test("el cliente confirma su cita desde su enlace y registra su llegada", async ({page, context, request}) => {
+  const s = await nuevaCita(request);
+  await context.grantPermissions(["geolocation"]);
+  await context.setGeolocation({latitude:24.0035, longitude:-104.6117, accuracy:15});   // ~115 m de Valladolid
+  await page.goto(`/cita/?c=${s.folio}&t=${s.token}`);
+  await expect(page.locator(".codigo-cita b")).toHaveText(s.folio);
+  await page.locator("#confirmar").click();
+  await expect(page.locator("#cita")).toContainText("confirmada");
+  await page.locator("#llegue").click();
+  await expect(page.locator("#cita")).toContainText("Registramos tu llegada");
+  const {solicitudes} = await (await request.get(`${MOCK}/__datos`)).json();
+  expect(solicitudes[0].confirmada_en).toBeTruthy();
+  expect(solicitudes[0].llegada_distancia_m).toBeLessThan(300);
+  await page.goto(`/cita/?c=${s.folio}&t=equivocado`);
+  await expect(page.locator("h1")).toHaveText("No encontramos tu cita");
+});
+
+test("el cotizador arma la corrida y descarga un PDF ligado a la cita", async ({page, request}) => {
+  const s = await nuevaCita(request);
+  await page.goto(`/cotizador.html?d=valladolid&folio=${s.folio}`);
+  await expect(page.locator("#resumen-cot")).toContainText("Al apartar");
+  await page.locator("#q-meses").selectOption("6");
+  await expect(page.locator("#resumen-cot")).toContainText("6 mensualidades");
+  await page.locator("#q-nombre").fill("Lucía Prueba");
+  const [descarga] = await Promise.all([page.waitForEvent("download"), page.locator("#descargar").click()]);
+  expect(descarga.suggestedFilename()).toBe("Cotizacion-Fracc-Valladolid-etapa-II-Lucia-Prueba.pdf");
+  const bytes = await (await import("node:fs")).promises.readFile(await descarga.path());
+  expect(bytes.subarray(0, 8).toString("latin1")).toBe("%PDF-1.4");
+  expect(bytes.toString("latin1")).toContain("Cotizaci\xF3n informativa");
+  const {cotizaciones} = await (await request.get(`${MOCK}/__datos`)).json();
+  expect(cotizaciones).toHaveLength(1);
+  expect(cotizaciones[0]).toMatchObject({folio:s.folio, desarrollo:"valladolid", meses:6});
+});
+
+test("sin esquemas confirmados, la ficha lo dice y no ofrece corrida", async ({page}) => {
+  await page.goto("/desarrollos/cienega-2/");
+  await expect(page.locator(".condiciones")).toContainText("Esquemas de pago");
+  await expect(page.locator(".btn-corrida")).toHaveCount(0);
+  await page.goto("/desarrollos/valladolid/");
+  await expect(page.locator(".btn-corrida")).toBeVisible();
+  await page.goto("/asesores.html");
+  await expect(page.locator("h1")).toHaveText("Clientes que llegan con ARVENTA");
+});

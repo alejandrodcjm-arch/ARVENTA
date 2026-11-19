@@ -46,6 +46,25 @@ export function validar(lista, {hoy = new Date(), raiz = RAIZ} = {}){
       if(dias < 0) error(`"verificado" (${d.verificado}) está en el futuro.`);
       else if(dias > DIAS_VIGENCIA) pend.vencidos.push(`${d.id} (${dias} días)`);
     }
+    // Esquemas de pago (corrida financiera): solo los que la desarrolladora confirmó por escrito
+    if(d.esquemas !== undefined){
+      if(!Array.isArray(d.esquemas)) error("esquemas debe ser una lista.");
+      else d.esquemas.forEach((e, j) => {
+        const q = `esquema ${j + 1}${texto(e?.nombre) ? ` "${e.nombre}"` : ""}`;
+        const pct = k => esNumero(e?.[k]) && e[k] >= 0 && e[k] <= 100;
+        if(!texto(e?.nombre)) error(`${q}: falta el nombre.`);
+        for(const k of ["enganchePct", "diferidoPct", "liquidacionPct"]) if(!pct(k)) error(`${q}: ${k} debe ser un porcentaje de 0 a 100.`);
+        if(pct("enganchePct") && pct("diferidoPct") && pct("liquidacionPct") && Math.abs(e.enganchePct + e.diferidoPct + e.liquidacionPct - 100) > 0.01)
+          error(`${q}: enganche + diferido + liquidación deben sumar 100% (suman ${e.enganchePct + e.diferidoPct + e.liquidacionPct}%).`);
+        if(e.diferidoPct > 0 && !(Number.isInteger(e.diferidoMesesMax) && e.diferidoMesesMax >= 1 && e.diferidoMesesMax <= 60)) error(`${q}: diferidoMesesMax debe ser de 1 a 60.`);
+        if(e.apartado != null && !(esNumero(e.apartado) && e.apartado >= 0)) error(`${q}: apartado debe ser un número.`);
+        if(e.descuentoPct != null && !(esNumero(e.descuentoPct) && e.descuentoPct >= 0 && e.descuentoPct < 50)) error(`${q}: descuentoPct inválido.`);
+        if(e.creditos != null && (!Array.isArray(e.creditos) || e.creditos.some(c => !CREDITOS.includes(c)))) error(`${q}: créditos inválidos.`);
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(e?.confirmado || "") || !texto(e?.confirmadoPor)) error(`${q}: falta "confirmado" (fecha) y "confirmadoPor" (quién lo mandó y por dónde). Sin confirmación no se publica: sería publicidad engañosa.`);
+      });
+    }
+    if(d.beneficioArventa != null && !texto(d.beneficioArventa)) error("beneficioArventa debe ser texto (lo que acordaste con la desarrolladora) o no ir.");
+
     // ubicación
     const sinUb = d.lat == null && d.lng == null;
     if(sinUb) pend.ubicacion.push(d.id);

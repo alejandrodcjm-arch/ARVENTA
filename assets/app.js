@@ -821,6 +821,7 @@ function abrirFicha(d){
             <div><dt>Créditos que acepta</dt>${d.creditos.length ? `<dd>${esc(d.creditos.join(", "))}</dd>` : pend}</div>
             <div><dt>Entrega</dt>${d.entrega ? `<dd>${esc(d.entrega)}${d.fechaEntrega ? ". " + esc(d.fechaEntrega) : ""}</dd>` : pend}</div>
             <div><dt>Qué incluye</dt>${d.incluye ? `<dd>${esc(d.incluye)}</dd>` : pend}</div>
+            <div><dt>Esquemas de pago</dt>${d.esquemas?.length ? `<dd>${esc(d.esquemas.map(e => e.nombre).join(" · "))}</dd><dd class="pend">Confirmados por la desarrolladora</dd>` : pend}</div>
             ${d.modelos ? `<div><dt>Modelos</dt><dd>${esc(d.modelos)}</dd></div>` : ""}
             <div><dt>Ubicación</dt><dd>${d.lat == null ? "Por confirmar" : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd></div>
           </dl>
@@ -841,6 +842,7 @@ function abrirFicha(d){
           <div class="mensual" aria-live="polite">Mensualidad estimada con banco<b id="c-res"></b><span id="c-eng-txt"></span></div>
         </div>
         <button class="btn" type="button" id="agendar">Agendar visita</button>
+        ${d.esquemas?.length ? `<a class="btn claro btn-corrida" href="/cotizador.html?d=${esc(d.id)}">Arma tu corrida financiera</a>` : ""}
         ${botonComparar(d, "cmp-ficha")}
         <p class="leyenda">Agendar no te cuesta nada. Estimación sin seguros ni comisiones; las tasas en México van de 9% a 13%.</p>
       </aside>
@@ -993,6 +995,7 @@ $("#form-visita").addEventListener("submit", async e => {
   const res = await guardarSolicitud(registro);
   boton.disabled = false; boton.textContent = "Enviar por WhatsApp";
   if (res.error) { toast(res.error, 6000); return; }      // dato inválido: se corrige en el formulario
+  if (res.ok) toast("Recibimos tu solicitud. Te mandaremos por WhatsApp un enlace para confirmar tu cita.", 6000);
   const url = enlaceDe(d);
   const msg = `Hola ARVENTA, quiero visitar ${d.nombre} (desde ${dinero(d.desde)}).\nNombre: ${registro.nombre}\nWhatsApp: ${registro.whatsapp}\nCuándo: ${registro.cuando}\nPago: ${registro.pago}\nFolio: ${res.folio || folio}\n${url}`;
   $("#dlg-visita").close();

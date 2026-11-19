@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrida financiera · ARVENTA</title>
+<meta name="description" content="Arma tu corrida financiera antes de visitar: apartado, enganche, mensualidades durante la obra y liquidación con tu crédito. Descárgala en PDF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/estilos.css?v=94f9e4828d">
+<link rel="stylesheet" href="/assets/paginas.css?v=75f7d868b4">
+<link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="barra-sup"><a class="marca" href="/">ARVENTA</a><span id="logo-desarrolladora"></span></header>
+<main class="pag ancha">
+  <p class="marca" style="font-size:14px;margin:8px 0 0" id="eyebrow">COTIZADOR</p>
+  <h1>Tu corrida financiera</h1>
+  <p class="entrada">Cuánto pagas al apartar, a la firma, cada mes durante la obra y al recibir tu casa. Llega a la visita con tu cotización.</p>
+
+  <div id="sin-esquemas" class="caja" hidden>
+    <p style="margin:0">Ningún desarrollo tiene todavía sus esquemas de pago confirmados por la desarrolladora. Mientras, cada ficha tiene una calculadora general de mensualidades.</p>
+    <p style="margin:12px 0 0"><a class="btn" href="/">Ver desarrollos</a></p>
+  </div>
+
+  <div class="cotizador" id="cotizador" hidden>
+    <form class="form caja" id="form-cot" novalidate>
+      <label for="q-desarrollo">Desarrollo</label><select id="q-desarrollo"></select>
+      <label for="q-esquema">Esquema de pago</label><select id="q-esquema"></select>
+      <p class="nota" id="q-esquema-info" style="margin:2px 0 4px"></p>
+      <label for="q-precio">Precio de lista del modelo</label>
+      <input id="q-precio" type="number" inputmode="numeric" step="1000">
+      <p class="nota" id="q-precio-rango" style="margin:2px 0 0"></p>
+      <label for="q-enganche">Enganche: <b id="q-enganche-val"></b></label>
+      <input id="q-enganche" type="range" step="1">
+      <label for="q-meses">Mensualidades durante la obra</label><select id="q-meses"></select>
+      <label for="q-credito">Con qué liquidarías al recibirla</label><select id="q-credito"></select>
+      <div class="dos">
+        <div><label for="q-nombre">Tu nombre <small>(para el PDF)</small></label><input id="q-nombre" autocomplete="name"></div>
+        <div><label for="q-folio">Código de cita <small>(opcional)</small></label><input id="q-folio" placeholder="V-XXXXXX" autocomplete="off"></div>
+      </div>
+    </form>
+
+    <section class="resultado" aria-live="polite">
+      <div class="resumen-cot" id="resumen-cot"></div>
+      <details class="tabla-pagos"><summary>Ver todos los pagos</summary><div id="tabla-cot"></div></details>
+      <p class="form-error" id="cot-error" role="alert" hidden></p>
+      <button class="btn" type="button" id="descargar" style="width:100%;padding:15px;font-size:17px;margin-top:14px">Descargar PDF</button>
+      <p class="nota" id="leyenda-cot"></p>
+    </section>
+  </div>
+</main>
+<footer class="pie-pag" data-pie></footer>
+<script src="/assets/config.js?v=be39098ebf"></script>
+<script src="/assets/datos.js?v=67de0e0ef6"></script>
+<script type="module" src="/assets/cotizador.mjs?v=b847707c11"></script>
+</body>
+</html>

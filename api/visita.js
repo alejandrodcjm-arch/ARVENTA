@@ -1,6 +1,8 @@
 /* POST /api/visita: guarda una solicitud de visita ANTES de que el navegador abra WhatsApp.
-   docs/REQUISITOS.md §3: validación en el servidor, honeypot, 5 por hora por IP, aviso inmediato. */
-import {desarrollos, respuesta, error, leerJSON, huellaIP, texto, sb, avisar, nuevoFolio} from "./_lib/comun.js";
+   docs/REQUISITOS.md §3: validación en el servidor, honeypot, 5 por hora por IP, aviso inmediato.
+   La cita "vale" cuando el cliente la confirma desde el enlace que ARVENTA le manda a SU WhatsApp
+   (ver api/cita.js): no depende de lo que diga el asesor. */
+import {desarrollos, respuesta, error, leerJSON, huellaIP, texto, sb, avisar, nuevoFolio, nuevoToken, SITIO} from "./_lib/comun.js";
 
 export const LIMITE_POR_HORA = 5;
 const CUANDO = ["Este fin de semana", "Entre semana por la tarde", "Entre semana por la mañana", "Primero quiero más información"];
@@ -9,7 +11,7 @@ const CAJA = {s:23.85, w:-104.85, n:24.20, e:-104.45};
 
 export function revisar(d){
   const des = desarrollos().find(x => x.id === d.id);
-  const tel = String(d.whatsapp || "").replace(/\D/g, "").replace(/^52(?=\d{10}$)/, "").replace(/^521(?=\d{10}$)/, "");
+  const tel = String(d.whatsapp || "").replace(/\D/g, "").replace(/^521?(?=\d{10}$)/, "");
   if(!des) return {error:"Ese desarrollo no existe."};
   if(texto(d.nombre, 80).length < 2) return {error:"Escribe tu nombre."};
   if(!/^\d{10}$/.test(tel)) return {error:"Escribe tu WhatsApp a 10 dígitos."};
@@ -36,27 +38,36 @@ export async function POST(request){
   if(d.sitio) return respuesta(200, {ok:true, folio:nuevoFolio("V")}); // campo trampa: un robot lo llenó
   const r = revisar(d);
   if(r.error) return error(400, r.error);
-  const ip_hash = huellaIP(request);
+  const ip_hash = huellaIP(request), f = r.fila;
   try{
     // Límite: 5 solicitudes por hora por IP
     const hace1h = new Date(Date.now() - 3600e3).toISOString();
     const recientes = await sb(`solicitudes?select=id&ip_hash=eq.${ip_hash}&creado=gte.${encodeURIComponent(hace1h)}`);
     if(recientes.length >= LIMITE_POR_HORA) return error(429, "Recibimos varias solicitudes desde esta conexión. Escríbenos directo por WhatsApp.");
+    // Mismo teléfono y desarrollo en los últimos 60 días: se guarda, pero marcada como repetida (no se cobra dos veces)
+    const hace60 = new Date(Date.now() - 60 * 864e5).toISOString();
+    const previa = await sb(`solicitudes?select=folio&telefono=eq.${f.telefono}&desarrollo=eq.${f.desarrollo}&folio=neq.${f.folio}&creado=gte.${encodeURIComponent(hace60)}&limit=1`);
+    f.duplicada_de = previa[0]?.folio || null;
+    f.token = nuevoToken();
     try{
-      await sb("solicitudes", {method:"POST", body:{...r.fila, ip_hash}, headers:{Prefer:"return=minimal"}});
+      await sb("solicitudes", {method:"POST", body:{...f, ip_hash}, headers:{Prefer:"return=minimal"}});
     }catch(e){
       // Mismo folio = reintento de una solicitud ya guardada (cola del navegador): no es error
-      if(e.codigo === "23505") return respuesta(200, {ok:true, folio:r.fila.folio, repetida:true});
+      if(e.codigo === "23505") return respuesta(200, {ok:true, folio:f.folio, repetida:true});
       throw e;
     }
   }catch(e){
     console.error("[visita] No se pudo guardar:", e.message);
     return error(e.status === 503 ? 503 : 502, "No pudimos guardar tu solicitud; te la mandamos por WhatsApp.");
   }
-  // Ya está guardada: el aviso no puede hacer que se pierda
-  const f = r.fila, ok = await avisar(`Nueva solicitud ${f.folio}: ${r.des.nombre}`,
-    `${f.nombre} · WhatsApp ${f.telefono} (https://wa.me/52${f.telefono})\nCuándo: ${f.cuando}\nPago: ${f.pago}` +
-    `${f.trabajo_texto ? `\nTrabaja en: ${f.trabajo_texto}` : ""}${f.minutos ? ` (${f.minutos} min en auto)` : ""}`);
+  // Ya está guardada: el aviso no puede hacer que se pierda.
+  // El enlace de confirmación va al WhatsApp del cliente: que lo abra prueba que el teléfono es suyo.
+  const enlace = `${SITIO()}/cita/?c=${f.folio}&t=${f.token}`;
+  const paraCliente = `Hola ${f.nombre.split(" ")[0]}, soy de ARVENTA. Para confirmar tu visita a ${r.des.nombre} toca aquí: ${enlace}`;
+  const ok = await avisar(`Nueva solicitud ${f.folio}: ${r.des.nombre}${f.duplicada_de ? ` (repetida de ${f.duplicada_de})` : ""}`,
+    `${f.nombre} · WhatsApp ${f.telefono}\nCuándo: ${f.cuando}\nPago: ${f.pago}` +
+    `${f.trabajo_texto ? `\nTrabaja en: ${f.trabajo_texto}` : ""}${f.minutos ? ` (${f.minutos} min en auto)` : ""}` +
+    `\n\nMándale su confirmación: https://wa.me/52${f.telefono}?text=${encodeURIComponent(paraCliente)}`);
   if(ok) await sb(`solicitudes?folio=eq.${f.folio}`, {method:"PATCH", body:{aviso_enviado:true}, headers:{Prefer:"return=minimal"}}).catch(() => {});
   return respuesta(200, {ok:true, folio:f.folio});
 }
