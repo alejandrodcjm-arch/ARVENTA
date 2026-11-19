@@ -40,10 +40,15 @@ const AMEN = {
   verdes:    {nombre:"Áreas verdes", re:/verde|pista para correr/i},
   juegos:    {nombre:"Juegos infantiles", re:/juegos|ludoteca/i},
   canchas:   {nombre:"Canchas", re:/cancha|pádel|tenis/i},
+  casaclub:  {nombre:"Casa club", re:/casa club/i},
+  asador:    {nombre:"Asadores", re:/asador/i},
+  salon:     {nombre:"Salón de eventos", re:/sal[oó]n de (eventos|usos)/i},
+  roof:      {nombre:"Roof garden", re:/roof/i},
+  elevador:  {nombre:"Elevador", re:/elevador/i},
 };
 function amenidades(d){
   const t = [d.nombre, ...(d.ventajas || [])].join(" ");
-  return Object.keys(AMEN).filter(k => AMEN[k].re.test(t));
+  return Object.keys(AMEN).filter(k => AMEN[k].re.test(t) || d.amenidades?.includes(k));
 }
 
 /* ===== Íconos de línea (mismo trazo en todo el sitio) ===== */
@@ -64,6 +69,21 @@ const ICONOS = {
   juegos:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0M9 9.5h.01M15 9.5h.01"/>',
   canchas:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6c3.5 3.5 3.5 9.3 0 12.8M18.4 5.6c-3.5 3.5-3.5 9.3 0 12.8"/>',
   check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  casaclub:'<path d="M3 11 12 4l9 7M5 10v10h14V10M10 20v-5h4v5"/>',
+  asador:'<path d="M4 11h16a8 8 0 0 1-16 0zM8 19l-2 3M16 19l2 3M9 7c0-1.5 1.5-2 1.5-3.5M13 7c0-1.5 1.5-2 1.5-3.5"/>',
+  salon:'<path d="M8 3h8l-1 7a3 3 0 0 1-6 0zM12 13v7M8 21h8"/>',
+  roof:'<path d="M3 21h18M5 21v-6h14v6M12 15V8M12 8c-2 0-4-1.5-4-4 2.5 0 4 1.5 4 4zM12 8c2 0 4-1.5 4-4-2.5 0-4 1.5-4 4z"/>',
+  elevador:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 10l3-3 3 3M9 14l3 3 3-3"/>',
+  recamara:'<path d="M3 18v-7h18v7M3 14h18M6 11V8h5v3M3 18v2M21 18v2"/>',
+  bano:'<path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM6 12V5a2 2 0 0 1 4 0M7 19l-1 2M17 19l1 2"/>',
+  auto:'<path d="M5 16v-5l2-5h10l2 5v5M3 16h18v3H3zM6 11h12"/>',
+  regla:'<rect x="3" y="7" width="18" height="10" rx="1.5"/><path d="M7 7v3M11 7v4M15 7v3"/>',
+  terreno:'<path d="M3 18 8 8l4 6 3-4 6 8z"/>',
+  niveles:'<path d="M4 20h4v-4h4v-4h4V8h4"/>',
+  calendario:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  llave:'<path d="M14.5 5.5a4 4 0 0 0-5.3 5.3L4 16l4 4 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.6 2.6-2.4-.6-.6-2.4z"/>',
+  video:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',
+  recorrido:'<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/>',
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
   trabajo:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   centro:'<path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6"/>',
@@ -283,10 +303,11 @@ const CERCA_REQ = {
 };
 function recMin(d){ const m = String(d.recamaras).match(/\d+/); return m ? +m[0] : 0; }
 function recMaxNum(d){ const m = String(d.recamaras).match(/\d+/g); return m ? Math.max(...m.map(Number)) : 0; }
-function pasa(d){
-  const cat = CATEGORIAS.find(c => c.id === estado.cat);
+function pasa(d, catId){
+  if (typeof catId !== "string") catId = estado.cat;   // filter() pasa el índice como segundo argumento
+  const cat = CATEGORIAS.find(c => c.id === catId);
   // Rentas solo en "En renta" (y en Guardados): sus precios son al mes y no se mezclan con los de compra
-  if (estado.cat !== "guardados" && (estado.cat === "renta") !== esRenta(d)) return false;
+  if (catId !== "guardados" && (catId === "renta") !== esRenta(d)) return false;
   if (cat && !cat.f(d)) return false;
   if (estado.q) {
     const t = normal([d.nombre, d.zona, TIPO[d.tipo], d.desarrolladora].join(" "));
@@ -359,7 +380,7 @@ function tarjeta(d){
     <div class="info">
       <div class="l1"><h3><a class="titulo-enlace" href="/desarrollos/${d.id}/">${esc(d.nombre)}</a></h3>${cerc ? `<span class="cercania">${cerc}</span>` : ""}</div>
       <p class="gris">${esc(tipoTexto(d))} · ${esc(zonaCorta(d))}</p>
-      <p class="datos-t">${[d.tipo !== "terreno" && /^\d/.test(d.recamaras) ? `${esc(d.recamaras)} rec.` : "", esc(d.m2.replace(/\s*\(.*\)$/, "")), pm ? `${dinero(pm)}/m²` : ""].filter(Boolean).join(" · ")}</p>
+      <p class="datos-t">${[d.tipo !== "terreno" && /^\d/.test(d.recamaras) ? `${esc(d.recamaras)} rec.` : "", d.banos ? `${esc(d.banos)} baños` : "", esc(d.m2.replace(/\s*\(.*\)$/, "")), pm ? `${dinero(pm)}/m²` : ""].filter(Boolean).join(" · ")}</p>
       ${cercaTarjeta(d)}
       ${bueno ? `<p class="bueno">${esc(bueno)}</p>` : ""}
       <p class="precio">${vencido(d) ? `<b>${esRenta(d) ? "Renta" : "Precio"} por confirmar</b>` : esRenta(d) ? `<b>${dinero(d.desde)}</b> al mes${d.renta?.deposito != null ? `<span class="mensual-t"> · depósito de ${d.renta.deposito} ${d.renta.deposito === 1 ? "mes" : "meses"}</span>` : ""}`
@@ -472,8 +493,14 @@ function activarTarjetas(raiz){
 /* ===== Pintar resultados ===== */
 function pintarCategorias(){
   $("#cats").innerHTML = CATEGORIAS.filter(c => (c.id !== "guardados" || FAV.size) && (!c.hay || c.hay())).map(c =>
-    `<button class="cat" type="button" data-cat="${c.id}" aria-pressed="${estado.cat === c.id}"><svg viewBox="0 0 24 24" aria-hidden="true">${c.ico}</svg>${c.nombre}</button>`).join("");
+    `<button class="cat" type="button" data-cat="${c.id}" aria-pressed="${estado.cat === c.id}"><svg viewBox="0 0 24 24" aria-hidden="true">${c.ico}</svg><span>${c.nombre} <span class="n"></span></span></button>`).join("");
   $$(".cat").forEach(b => b.onclick = () => { estado.cat = b.dataset.cat; pintarCategorias(); pintar(); });
+  actualizarConteos();
+}
+/* Cuántos hay en cada categoría con la búsqueda y los filtros de ahora. Un desarrollo cuenta en varias
+   (una casa con alberca está en "Casas" y en "Con alberca"), por eso la suma pasa del total de "Todo". */
+function actualizarConteos(){
+  $$(".cat").forEach(b => { const n = DESARROLLOS.filter(d => pasa(d, b.dataset.cat)).length; b.querySelector(".n").textContent = n; b.classList.toggle("vacia", !n); });
 }
 function pintar(){
   const l = ordenar(DESARROLLOS.filter(pasa));
@@ -499,6 +526,7 @@ function pintar(){
     `<div class="vacio"><h2>No hay desarrollos con esa búsqueda</h2><p>Quita algún filtro o sube tu presupuesto.</p><button class="btn" type="button" id="limpiar-todo">Quitar filtros</button></div>`;
   $("#limpiar-todo")?.addEventListener("click", limpiarTodo);
   activarTarjetas($("#rejilla"));
+  actualizarConteos();
   if (estado.vista === "mapa") pintarPines(l);
   const n = (estado.rentaMax && enRenta ? 1 : 0) + estado.creditos.size + estado.amen.size + estado.cercaReq.size + estado.entrega.size + (estado.recMin ? 1 : 0) + (estado.trabajo15 && estado.ref?.tipo === "trabajo" ? 1 : 0);
   pintarBarraComparar();
@@ -689,7 +717,7 @@ function pintarFiltros(){
   $("#f-renta").innerHTML = [0, 5000, 8000, 12000, 18000].map(n => `<button type="button" class="chip" data-renta="${n}" aria-pressed="${(estado.rentaMax || 0) === n}">${n ? "Hasta " + dinero(n) : "Cualquiera"}</button>`).join("");
   $$("#f-renta .chip").forEach(b => b.onclick = () => { estado.rentaMax = +b.dataset.renta || null; pintarFiltros(); });
   const checks = (sel, items, set) => {
-    $(sel).innerHTML = items.map(([k, n]) => `<label><input type="checkbox" value="${esc(k)}" ${set.has(k) ? "checked" : ""}> ${esc(n)}</label>`).join("");
+    $(sel).innerHTML = items.map(([k, n]) => `<label><input type="checkbox" value="${esc(k)}" ${set.has(k) ? "checked" : ""}> ${esc(n)} <span class="n-op"></span></label>`).join("");
     $(sel).querySelectorAll("input").forEach(i => i.onchange = () => { i.checked ? set.add(i.value) : set.delete(i.value); contarFiltros(); });
   };
   checks("#f-credito", [["Infonavit", "Infonavit"], ["Fovissste", "Fovissste"], ["Banco", "Crédito bancario"], ["Cofinavit", "Cofinavit"]], estado.creditos);
@@ -703,17 +731,26 @@ function pintarFiltros(){
   $("#f15-trabajo")?.addEventListener("click", () => { $("#dlg-filtros").close(); abrirCerca("trabajo"); });
   contarFiltros();
 }
+// Cuántos quedarían al marcar cada opción (junto con lo que ya está marcado)
+function cuentaCon(set, k){ const tenia = set.has(k); set.add(k); const n = DESARROLLOS.filter(d => pasa(d)).length; if (!tenia) set.delete(k); return n; }
+function refrescarCuentas(){
+  for (const [sel, set] of [["#f-credito", estado.creditos], ["#f-amen", estado.amen], ["#f-cerca", estado.cercaReq], ["#f-entrega", estado.entrega]])
+    $(sel).querySelectorAll("input").forEach(i => { const s = i.parentElement.querySelector(".n-op"); if (s) s.textContent = `(${cuentaCon(set, i.value)})`; });
+}
 function contarFiltros(){
+  refrescarCuentas();
   const n = DESARROLLOS.filter(pasa).length;
   $("#ver-filtros").textContent = n ? `Mostrar ${n} ${n === 1 ? "desarrollo" : "desarrollos"}` : "Ningún desarrollo cumple";
 }
 
 /* ===== Mapa (vista alterna) ===== */
-let mapa = null, capaPines = null, marcaRef = null, marcando = false;
-// CARTO ya pide clave de API (sin ella cada mosaico sale en blanco con "API KEY REQUIRED").
-// OpenStreetMap no pide clave; es para tráfico moderado y necesita abrir el sitio desde un servidor.
+let mapa = null, marcaRef = null, marcando = false, pinesMapa = [];
 const MAPA = window.ARVENTA?.MAPA || {url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png", atribucion:"&copy; OpenStreetMap"};
-let leafletListo = null;
+/* Motor del mapa: Google Maps si config.js trae su clave; si no hay clave, o Google la rechaza (sin facturación,
+   llave restringida o tope diario alcanzado), OpenStreetMap con Leaflet. Los dos se cargan solo al abrir un mapa
+   y se usan igual a través de crearMapa(): pin, circulo, linea, encuadrar, alClic, remove. */
+const GOOGLE = window.ARVENTA?.GOOGLE_MAPS?.clave ? window.ARVENTA.GOOGLE_MAPS : null;
+let googleFallo = false, leafletListo = null, googleListo = null;
 function cargarLeaflet(){
   if (window.L) return Promise.resolve();
   if (!leafletListo) leafletListo = new Promise((ok, mal) => {
@@ -726,23 +763,82 @@ function cargarLeaflet(){
   });
   return leafletListo;
 }
+function cargarGoogle(){
+  if (window.google?.maps?.marker) return Promise.resolve();
+  if (!googleListo) googleListo = new Promise((ok, mal) => {
+    window.__arventaGoogle = ok;
+    window.gm_authFailure = () => { googleFallo = true; reiniciarMapas(); };
+    const js = document.createElement("script");
+    js.async = true;
+    js.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE.clave)}&v=weekly&loading=async&libraries=marker&language=es&region=MX&callback=__arventaGoogle`;
+    js.onerror = () => mal(new Error("No cargó Google Maps"));
+    setTimeout(() => mal(new Error("Google Maps tardó demasiado")), 10000);
+    document.head.append(js);
+  });
+  return googleListo;
+}
+async function motorMapa(){
+  if (GOOGLE && !googleFallo) { try { await cargarGoogle(); return "google"; } catch (e) { googleFallo = true; } }
+  await cargarLeaflet();
+  return "osm";
+}
+// Google rechazó la clave después de dibujar: se vuelve a dibujar con OpenStreetMap sin que la persona haga nada
+function reiniciarMapas(){
+  if (mapa) { mapa.remove(); mapa = null; marcaRef = null; pinesMapa = []; if (estado.vista === "mapa") cambiarVista("mapa"); }
+  if (mapaFicha && fichaActual) { mapaFicha.remove(); mapaFicha = null; mapaDeFicha(fichaActual, cercanos(fichaActual)); }
+}
 function capaMapa(m){
   let fallas = 0;
   return L.tileLayer(MAPA.url, {maxZoom:19, attribution:MAPA.atribucion})
     .on("tileerror", () => { if (++fallas === 6) toast("El mapa no está cargando bien. Puedes seguir usando la lista."); }).addTo(m);
 }
+function crearMapa(el, {centro, zoom, rueda = true, zoomArriba = false}, tipo){
+  const caja = document.createElement("div"); caja.className = "lienzo-mapa"; el.append(caja);
+  if (tipo === "google") {
+    const g = google.maps, pos = (lat, lng) => ({lat, lng});
+    const m = new g.Map(caja, {center:pos(...centro), zoom, mapId:GOOGLE.mapId || "DEMO_MAP_ID", disableDefaultUI:true, zoomControl:true,
+      zoomControlOptions:{position:zoomArriba ? g.ControlPosition.RIGHT_TOP : g.ControlPosition.RIGHT_BOTTOM}, clickableIcons:false, gestureHandling:rueda ? "greedy" : "cooperative"});
+    return {
+      pin(lat, lng, html, {titulo = "", alClic, clase = ""} = {}){
+        const div = document.createElement("div"); div.className = "gm-marca " + clase; div.innerHTML = html;
+        const k = new g.marker.AdvancedMarkerElement({map:m, position:pos(lat, lng), content:div, title:titulo, gmpClickable:!!alClic});
+        if (alClic) k.addListener("click", alClic);
+        return {remove(){ k.map = null; }};
+      },
+      circulo(lat, lng, radio, {color, grosor = 1, relleno = 0}){ const c = new g.Circle({map:m, center:pos(lat, lng), radius:radio, strokeColor:color, strokeWeight:grosor, strokeOpacity:.8, fillColor:color, fillOpacity:relleno, clickable:false}); return {remove(){ c.setMap(null); }}; },
+      linea(a, b, {color, grosor = 3}){ new g.Polyline({map:m, path:[pos(...a), pos(...b)], strokeColor:color, strokeWeight:grosor, strokeOpacity:.9, clickable:false}); },
+      encuadrar(pts, maxZoom){ const b = new g.LatLngBounds(); pts.forEach(p => b.extend(pos(...p))); m.fitBounds(b, 40); g.event.addListenerOnce(m, "idle", () => { if (m.getZoom() > maxZoom) m.setZoom(maxZoom); }); },
+      alClic(fn){ m.addListener("click", e => fn(e.latLng.lat(), e.latLng.lng())); },
+      redimensionar(){},
+      remove(){ g.event.clearInstanceListeners(m); caja.remove(); }
+    };
+  }
+  const m = L.map(caja, {zoomControl:false, scrollWheelZoom:rueda}).setView(centro, zoom);
+  L.control.zoom({position:zoomArriba ? "topright" : "topleft"}).addTo(m);
+  capaMapa(m);
+  return {
+    pin(lat, lng, html, {titulo = "", alClic} = {}){
+      const k = L.marker([lat, lng], {icon:L.divIcon({className:"", html, iconSize:[0, 0]}), title:titulo, keyboard:!!alClic, riseOnHover:true}).addTo(m);
+      if (alClic) k.on("click", e => { L.DomEvent.stopPropagation(e); alClic(); });
+      return k;
+    },
+    circulo(lat, lng, radio, {color, grosor = 1, relleno = 0, punteado}){ return L.circle([lat, lng], {radius:radio, color, weight:grosor, dashArray:punteado, fill:relleno > 0, fillColor:color, fillOpacity:relleno, interactive:false}).addTo(m); },
+    linea(a, b, {color, grosor = 3}){ L.polyline([a, b], {color, weight:grosor, opacity:.9, interactive:false}).addTo(m); },
+    encuadrar(pts, maxZoom, margen = .15){ m.fitBounds(L.latLngBounds(pts).pad(margen), {maxZoom}); },
+    alClic(fn){ m.on("click", e => fn(e.latlng.lat, e.latlng.lng)); },
+    redimensionar(){ m.invalidateSize(); },
+    remove(){ m.remove(); caja.remove(); }
+  };
+}
 async function iniciarMapa(){
   if (mapa) return;
-  await cargarLeaflet();
+  const tipo = await motorMapa();
   if (mapa) return;
-  mapa = L.map("mapa", {zoomControl:false}).setView([24.018, -104.655], 13);
-  L.control.zoom({position:"topright"}).addTo(mapa);
-  capaMapa(mapa);
-  capaPines = L.layerGroup().addTo(mapa);
-  mapa.on("click", e => {
+  mapa = crearMapa($("#mapa"), {centro:[24.018, -104.655], zoom:13, zoomArriba:true}, tipo);
+  mapa.alClic((lat, lng) => {
     if (marcando) {
       marcando = false; document.body.classList.remove("marcando"); $("#aviso-marcar").hidden = true;
-      ponerRef({tipo:"trabajo", lat:e.latlng.lat, lng:e.latlng.lng, nombre:"el punto que marcaste"});
+      ponerRef({tipo:"trabajo", lat, lng, nombre:"el punto que marcaste"});
       return;
     }
     $("#tarjeta-flotante").hidden = true; $$(".pin.activo").forEach(p => p.classList.remove("activo"));
@@ -752,21 +848,20 @@ async function iniciarMapa(){
 function ponerMarcaRef(){
   if (marcaRef) marcaRef.remove();
   const ico = icono({trabajo:"trabajo", ubicacion:"ubicacion", escuela:"escuela", hospital:"hospital", centro:"centro"}[estado.ref.tipo] || "ubicacion");
-  marcaRef = L.marker([estado.ref.lat, estado.ref.lng], {icon:L.divIcon({className:"", html:`<div class="yo"><span>${ico}</span></div>`, iconSize:[0, 0]}), title:estado.ref.nombre, keyboard:false}).addTo(mapa);
+  marcaRef = mapa.pin(estado.ref.lat, estado.ref.lng, `<div class="yo"><span>${ico}</span></div>`, {titulo:estado.ref.nombre, clase:"ancla"});
 }
 function pintarPines(l){
   if (!mapa) return;
-  capaPines.clearLayers();
+  pinesMapa.forEach(p => p.remove()); pinesMapa = [];
   const pts = [];
   for (const d of l) {
     if (d.lat == null) continue;
     const min = estado.ref?.tipo === "trabajo" && MINUTOS[d.id] != null ? `<small>${MINUTOS[d.id]} min</small>` : "";
-    const m = L.marker([d.lat, d.lng], {icon:L.divIcon({className:"", html:`<span class="pin" data-id="${d.id}">${precioCorto(d)}${min}</span>`, iconSize:[0, 0]}), title:d.nombre, riseOnHover:true});
-    m.on("click", e => { L.DomEvent.stopPropagation(e); mostrarFlotante(d); });
-    capaPines.addLayer(m); pts.push([d.lat, d.lng]);
+    pinesMapa.push(mapa.pin(d.lat, d.lng, `<span class="pin" data-id="${d.id}">${precioCorto(d)}${min}</span>`, {titulo:d.nombre, alClic:() => mostrarFlotante(d)}));
+    pts.push([d.lat, d.lng]);
   }
   if (estado.ref) pts.push([estado.ref.lat, estado.ref.lng]);
-  if (pts.length) mapa.fitBounds(L.latLngBounds(pts).pad(.15), {maxZoom:15});
+  if (pts.length) mapa.encuadrar(pts, 15);
 }
 function mostrarFlotante(d){
   $$(".pin").forEach(p => p.classList.toggle("activo", p.dataset.id === d.id));
@@ -782,7 +877,7 @@ function cambiarVista(v){
   $("#vista-mapa").hidden = !enMapa;
   document.body.classList.toggle("en-mapa", enMapa);
   $("#alternar-txt").textContent = enMapa ? "Mostrar lista" : "Mostrar mapa";
-  if (enMapa) iniciarMapa().then(() => setTimeout(() => { mapa.invalidateSize(); pintarPines(ordenar(DESARROLLOS.filter(pasa))); }, 30))
+  if (enMapa) iniciarMapa().then(() => setTimeout(() => { mapa.redimensionar(); pintarPines(ordenar(DESARROLLOS.filter(pasa))); }, 30))
     .catch(() => { toast("No se pudo cargar el mapa. Puedes seguir usando la lista."); cambiarVista("lista"); });
   else $("#tarjeta-flotante").hidden = true;
 }
@@ -824,7 +919,7 @@ function abrirFicha(d){
   }).join("") : "";
   const seccionCerca = d.lat == null
     ? `<p class="nota">Todavía no tenemos la ubicación exacta. En cuanto la confirmemos verás aquí qué tiene cerca.</p>`
-    : (c ? `<ul class="cerca">${filasCerca}</ul><div class="mapa-ficha" id="mapa-ficha" role="img" aria-label="Mapa de lo que hay cerca"></div><p class="nota">Distancias en línea recta según OpenStreetMap${OSM.fecha ? ` (${esc(OSM.fecha)})` : ""}${d.aprox ? ", desde una ubicación aproximada" : ""}. El tiempo caminando considera las vueltas de las calles.</p>`
+    : (c ? `<ul class="cerca">${filasCerca}</ul><div class="mapa-ficha" id="mapa-ficha" role="img" aria-label="Mapa de lo que hay cerca"></div><p class="nota">Distancias en línea recta según <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>${OSM.fecha ? ` (${esc(OSM.fecha)})` : ""}${d.aprox ? ", desde una ubicación aproximada" : ""}. El tiempo caminando considera las vueltas de las calles.</p>`
          : `<p class="nota">Por ahora no tenemos la lista de lugares cercanos; pregúntala en tu visita.</p><div class="mapa-ficha" id="mapa-ficha"></div>`);
   const camino = d.lat == null ? `<p class="nota">Disponible cuando confirmemos la ubicación.</p>`
     : estado.ref?.tipo === "trabajo" && MINUTOS[d.id] != null ? `<p class="resumen"><span><b>${MINUTOS[d.id]} min</b> en auto a ${esc(estado.ref.nombre)}</span></p>`
@@ -841,13 +936,14 @@ function abrirFicha(d){
     <div class="ficha-texto">
       <h1 id="ficha-titulo">${esc(d.nombre)}</h1>
       <p class="sub-titulo">${esc(tipoTexto(d))} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
+      ${d.video || d.recorrido ? `<div class="multimedia">${d.video ? `<a class="btn claro" href="${esc(d.video)}" target="_blank" rel="noopener">${icono("video")}Ver video</a>` : ""}${d.recorrido ? `<a class="btn claro" href="${esc(d.recorrido)}" target="_blank" rel="noopener">${icono("recorrido")}Recorrido virtual</a>` : ""}</div>` : ""}
     </div>
     <div class="mosaico">${mosaico.map((x, i) => `<div>${x}${x.startsWith("<svg") || i === 0 ? aviso || (x.startsWith("<svg") ? '<span class="ilustrativa">Imagen ilustrativa</span>' : "") : ""}</div>`).join("")}</div>
     <div class="cuerpo-ficha">
       <div>
-        <section class="seccion">
-          <ul class="resumen">${d.tipo !== "terreno" ? `<li><b>${esc(d.recamaras)}</b> recámaras</li>` : ""}<li><b>${esc(d.m2)}</b></li>${pm ? `<li><b>${dinero(pm)}</b> por m²</li>` : ""}${d.anunciante ? `<li>${esc(quienAnuncia(d))}</li>` : d.desarrolladora ? `<li>Por ${esc(d.desarrolladora)}</li>` : ""}</ul>
-        </section>
+        <section class="seccion">${htmlCaracteristicas(d)}</section>
+        ${d.descripcion ? `<section class="seccion"><h2>${opDe(d) === "nueva" ? "Acerca de este desarrollo" : "Acerca de este inmueble"}</h2><p class="descripcion">${esc(d.descripcion)}</p></section>` : ""}
+        ${htmlModelos(d)}
         ${mejores.length ? `<section class="seccion"><h2>Lo mejor de aquí</h2><ul class="lo-mejor">${mejores.map(([i, t]) => `<li><span class="i" aria-hidden="true">${i}</span><span>${t}</span></li>`).join("")}</ul></section>` : ""}
         <section class="seccion"><h2>Lo que tienes cerca</h2>${seccionCerca}</section>
         <section class="seccion"><h2>Tu camino al trabajo</h2>${camino}</section>
@@ -857,6 +953,7 @@ function abrirFicha(d){
         </section>
         <section class="seccion fuentes"><h2>De dónde salen estos datos</h2>
           <p class="nota" style="margin:0">${!d.fuentes?.length ? `Datos que nos dio quien lo anuncia; ARVENTA los revisó el ${fechaLarga(d.anunciante?.verificado || d.verificado)}.` : "Visto en " + d.fuentes.map((f, i) => { const rep = d.fuentes.filter(x => x[0] === f[0]).length > 1; return `<a href="${esc(f[1])}" target="_blank" rel="noopener">${esc(f[0])}${rep ? " (" + d.fuentes.slice(0, i + 1).filter(x => x[0] === f[0]).length + ")" : ""}</a>`; }).join(", ") + "."} Precio verificado el ${fechaLarga(d.verificado)}.</p>
+          <p class="meta-ficha">Código del anuncio: ${esc(d.id)} · Datos revisados ${haceDias(d.verificado)}${WHATSAPP ? ` · <a href="https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hola ARVENTA, quiero reportar un dato incorrecto en ${d.nombre} (${enlaceDe(d)}): `)}" target="_blank" rel="noopener">Reportar un dato incorrecto</a>` : ""}</p>
         </section>
       </div>
       <aside class="caja" aria-label="Precio y visita">
@@ -867,38 +964,46 @@ function abrirFicha(d){
         <p class="leyenda">${esRenta(d) ? "Agendar no te cuesta nada. ARVENTA no cobra ni recibe depósitos ni rentas." : "Agendar no te cuesta nada. Estimación sin seguros ni comisiones; las tasas en México van de 9% a 13%."}</p>
       </aside>
     </div>
+    <section class="similares" id="similares" aria-labelledby="t-similares"></section>
     <div class="barra-reserva"><span><b>${esRenta(d) ? dinero(d.desde) + " al mes" : (esUsada(d) ? "" : "desde ") + corto(d.desde)}</b><small>${esc(tipoTexto(d))} · ${esc(zonaCorta(d))}</small></span><button class="btn" type="button" id="agendar-2">Agendar visita</button></div>`;
   $("#volver").onclick = irAInicio;
   $("#agendar").onclick = $("#agendar-2").onclick = () => agendar(d);
   $("#compartir").onclick = () => abrirCompartir(d);
   enlazarAlcanceFicha();
   pintarBarraComparar();
+  const sim = similares(d);
+  if (sim.length) { $("#similares").innerHTML = `<h2 id="t-similares">También te puede interesar</h2><div class="rejilla-sim">${sim.map(tarjeta).join("")}</div>`; activarTarjetas($("#similares")); }
   $("#f-trabajo")?.addEventListener("click", () => abrirCerca("trabajo"));
   ["c-precio", "c-eng", "c-tasa", "c-plazo"].forEach(id => { const el = $("#" + id); if (el?.tagName === "SELECT") el.onchange = calcular; });
   calcular();
   window.scrollTo({top:0});
   document.title = `${d.nombre}: ${tipoTexto(d).toLowerCase()}, ${esRenta(d) ? dinero(d.desde) + " al mes" : (esUsada(d) ? "" : "desde ") + corto(d.desde)} · ARVENTA`;
-  if (d.lat != null) setTimeout(() => mapaDeFicha(d, c), 0);
+  const elMapa = $("#mapa-ficha");
+  if (d.lat != null && elMapa) {
+    if ("IntersectionObserver" in window) { const o = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { o.disconnect(); if (fichaActual === d) mapaDeFicha(d, c); } }, {rootMargin:"300px"}); o.observe(elMapa); }
+    else setTimeout(() => mapaDeFicha(d, c), 0);
+  }
 }
 async function mapaDeFicha(d, c){
   if (mapaFicha) { mapaFicha.remove(); mapaFicha = null; }
-  try { await cargarLeaflet(); }
+  let tipo;
+  try { tipo = await motorMapa(); }
   catch (e) { const x = $("#mapa-ficha"); if (x) x.outerHTML = '<p class="nota">El mapa no está disponible ahora; las distancias de arriba siguen siendo válidas.</p>'; return; }
-  const el = $("#mapa-ficha"); if (!el || fichaActual !== d) return;
-  mapaFicha = L.map(el, {scrollWheelZoom:false, zoomControl:true}).setView([d.lat, d.lng], 15);
-  capaMapa(mapaFicha);
-  L.circle([d.lat, d.lng], {radius:310, color:"#2F6B5E", weight:1.5, dashArray:"4 6", fillColor:"#2F6B5E", fillOpacity:.07, interactive:false}).addTo(mapaFicha);
-  L.circle([d.lat, d.lng], {radius:615, color:"#2F6B5E", weight:1, dashArray:"2 8", fill:false, interactive:false}).addTo(mapaFicha);
-  L.marker([d.lat, d.lng], {icon:L.divIcon({className:"", html:`<span class="pin activo">${precioCorto(d)}</span>`, iconSize:[0, 0]}), keyboard:false}).addTo(mapaFicha);
+  const el = $("#mapa-ficha"); if (!el || fichaActual !== d || mapaFicha) return;
+  mapaFicha = crearMapa(el, {centro:[d.lat, d.lng], zoom:15, rueda:false}, tipo);
+  mapaFicha.circulo(d.lat, d.lng, 310, {color:"#2F6B5E", grosor:1.5, relleno:.07, punteado:"4 6"});
+  mapaFicha.circulo(d.lat, d.lng, 615, {color:"#2F6B5E", grosor:1, punteado:"2 8"});
+  mapaFicha.pin(d.lat, d.lng, `<span class="pin activo">${precioCorto(d)}</span>`);
   const pts = [[d.lat, d.lng]];
   if (c) for (const k of ["escuela", "oxxo", "super", "farmacia", "salud", "parque"]) {
     const l = c.mas[k]; if (!l || l.m > 2500) continue;
-    L.polyline([[d.lat, d.lng], [l.lat, l.lng]], {color:"#F0A202", weight:3, opacity:.9, interactive:false}).addTo(mapaFicha);
-    L.marker([l.lat, l.lng], {icon:L.divIcon({className:"", html:`<div class="poi" title="${esc(l.nombre)}">${icono(k)}</div><span class="poi-etq">${textoDist(l.m)}</span>`, iconSize:[0, 0]}), title:l.nombre, keyboard:false}).addTo(mapaFicha);
+    mapaFicha.linea([d.lat, d.lng], [l.lat, l.lng], {color:"#F0A202"});
+    mapaFicha.pin(l.lat, l.lng, `<div class="poi" title="${esc(l.nombre)}">${icono(k)}</div><span class="poi-etq">${textoDist(l.m)}</span>`, {titulo:l.nombre, clase:"poi-w"});
     pts.push([l.lat, l.lng]);
   }
-  if (pts.length > 1) mapaFicha.fitBounds(L.latLngBounds(pts).pad(.2), {maxZoom:16});
+  if (pts.length > 1) mapaFicha.encuadrar(pts, 16, .2);
 }
+
 // El veredicto se actualiza al cerrar "¿Qué me alcanza?", sin mover la página
 function enlazarAlcanceFicha(){ $("#f-alcanza")?.addEventListener("click", () => { pintarPresupuesto(); $("#dlg-presupuesto").showModal(); }); }
 $("#dlg-presupuesto").addEventListener("close", () => {
@@ -941,7 +1046,7 @@ function htmlCondiciones(d){
             <div><dt>Entrega</dt>${d.entrega ? `<dd>${esc(d.entrega)}${d.fechaEntrega ? ". " + esc(d.fechaEntrega) : ""}</dd>` : pend}</div>
             <div><dt>Qué incluye</dt>${d.incluye ? `<dd>${esc(d.incluye)}</dd>` : pend}</div>
             <div><dt>Esquemas de pago</dt>${d.esquemas?.length ? `<dd>${esc(d.esquemas.map(e => e.nombre).join(" · "))}</dd><dd class="pend">Confirmados por la desarrolladora</dd>` : pend}</div>
-            ${d.modelos ? `<div><dt>Modelos</dt><dd>${esc(d.modelos)}</dd></div>` : ""}
+            ${d.modelos && !d.precios?.length ? `<div><dt>Modelos</dt><dd>${esc(d.modelos)}</dd></div>` : ""}
             <div><dt>Ubicación</dt><dd>${d.lat == null ? "Por confirmar" : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd></div>`;
   const a = d.anunciante;
   const quien = opDe(d) === "nueva" ? `${d.convenio ? "Anunciante en ARVENTA: los datos los confirmó la desarrolladora." : "Información pública de anuncios."} ARVENTA no vende: al agendar, le pasamos tu solicitud a quien comercializa este desarrollo para que te atienda. Para ti no tiene costo.`
@@ -965,11 +1070,46 @@ function htmlCaja(d){
           <div class="mensual" aria-live="polite">Mensualidad estimada con banco<b id="c-res"></b><span id="c-eng-txt"></span></div>
         </div>`;
 }
+/* Lo que enseña cualquier ficha de portal (recámaras, baños, estacionamiento, m², antigüedad, mantenimiento),
+   con "Por confirmar" en lo que no sabemos en lugar de inventarlo */
+function htmlCaracteristicas(d){
+  const pend = "Por confirmar", casa = d.tipo !== "terreno";
+  const anios = d.reventa?.construida ? new Date().getFullYear() - d.reventa.construida : null, pm = porM2(d);
+  const items = [
+    casa && ["recamara", "Recámaras", /^\d/.test(d.recamaras) ? d.recamaras : pend],
+    casa && ["bano", "Baños", d.banos ? String(d.banos) : pend],
+    casa && ["auto", "Estacionamiento", d.estacionamientos ? `${d.estacionamientos} ${String(d.estacionamientos) === "1" ? "lugar" : "lugares"}` : pend],
+    [casa ? "regla" : "terreno", casa ? (d.tipo === "departamento" ? "Superficie" : "Construcción") : "Lote", d.m2 && !/confirmar/i.test(d.m2) ? d.m2 : pend],
+    casa && d.terreno && ["terreno", "Terreno", String(d.terreno)],
+    casa && d.niveles && ["niveles", "Niveles", String(d.niveles)],
+    opDe(d) === "nueva" ? (casa && ["calendario", "Antigüedad", "A estrenar"]) : casa && ["calendario", "Antigüedad", anios == null ? pend : anios < 1 ? "Menos de 1 año" : `${anios} ${anios === 1 ? "año" : "años"}`],
+    !esRenta(d) && d.mantenimiento != null && ["llave", "Mantenimiento", d.mantenimiento ? `${dinero(d.mantenimiento)} al mes` : "Sin cuota"],
+    pm && ["precio", "Precio por m²", dinero(pm)],
+  ].filter(Boolean);
+  const quien = d.anunciante ? quienAnuncia(d) : d.desarrolladora ? `Por ${d.desarrolladora}` : "";
+  return `<ul class="caract">${items.map(([i, t, v]) => `<li>${icono(i)}<span><small>${t}</small><b${v === pend ? ' class="pend"' : ""}>${esc(v)}</b></span></li>`).join("")}</ul>${quien ? `<p class="quien-ficha">${esc(quien)}</p>` : ""}`;
+}
+// Tabla de modelos, como la de los desarrollos en los portales (solo con precios confirmados)
+function htmlModelos(d){
+  const p = d.precios;
+  if (!p?.length) return "";
+  const cols = [["recamaras", "Rec."], ["banos", "Baños"], ["m2", "m²"], ["terreno", "Terreno"]].filter(([k]) => p.some(x => x[k] != null));
+  return `<section class="seccion"><h2>Modelos</h2><div class="tabla-envoltura"><table class="modelos"><thead><tr><th scope="col">Modelo</th><th scope="col">Precio</th>${cols.map(([, t]) => `<th scope="col">${t}</th>`).join("")}</tr></thead>
+    <tbody>${p.map(x => `<tr><td>${esc(x.modelo)}</td><td>${vencido(d) ? "Por confirmar" : dinero(x.precio)}</td>${cols.map(([k]) => `<td>${x[k] != null ? esc(x[k]) : "—"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="nota">Precios verificados el ${fechaLarga(d.verificado)}; pueden variar al cerrar la operación.</p></section>`;
+}
+function haceDias(f){ const n = Math.max(0, Math.floor((Date.now() - new Date(f + "T12:00:00")) / 864e5)); return n === 0 ? "hoy" : n === 1 ? "hace 1 día" : `hace ${n} días`; }
+// Parecidos: misma operación, precio cercano, mismo tipo y cerca en el mapa
+function similares(d){
+  return DESARROLLOS.filter(x => x.id !== d.id && esRenta(x) === esRenta(d))
+    .map(x => ({x, s:Math.abs(Math.log(x.desde / d.desde)) + (x.tipo === d.tipo ? 0 : .5) + (x.lat != null && d.lat != null ? metros(x, d) / 20000 : .3)}))
+    .sort((a, b) => a.s - b.s).slice(0, 3).map(o => o.x);
+}
 function cerrarFicha(){
   fichaActual = null;
   document.body.classList.remove("en-ficha");
   if (mapaFicha) { mapaFicha.remove(); mapaFicha = null; }
-  $("#ficha").hidden = true; $("#principal").hidden = false; $(".categorias").hidden = false;
+  $("#ficha").hidden = true; $("#ficha").innerHTML = ""; $("#principal").hidden = false; $(".categorias").hidden = false;
   document.title = "ARVENTA · Vivienda nueva en Durango";
 }
 /* Calculadora: el precio y la tasa no se escriben, solo se eligen entre las opciones que dio cada proyecto

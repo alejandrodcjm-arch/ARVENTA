@@ -228,3 +228,30 @@ test("renta: va aparte de la compra, con depósito, y el formulario pide garant�
   const {solicitudes} = await (await request.get(`${MOCK}/__datos`)).json();
   expect(solicitudes[0]).toMatchObject({desarrollo:"prueba-depa-renta", pago:"Aval (obligado solidario)", mensualidad:null});
 });
+
+test("cada categoría dice cuántos tiene (uno puede estar en varias)", async ({page}) => {
+  await page.goto("/");
+  await expect(page.locator('.cat[data-cat="todo"] .n')).toHaveText(String(COMPRA.length));
+  await expect(page.locator('.cat[data-cat="casa"] .n')).toHaveText(String(COMPRA.filter(d => d.tipo === "casa").length));
+  await expect(page.locator('.cat[data-cat="renta"] .n')).toHaveText("1");
+  await page.locator("#abrir-filtros").click();
+  await expect(page.locator("#f-credito label").first()).toContainText(/\(\d+\)/);
+});
+
+test("la ficha trae lo de un portal: características, modelos, similares y reportar un dato", async ({page}) => {
+  await page.goto("/desarrollos/cienega-2/");
+  const f = page.locator("#ficha");
+  await expect(f.locator(".caract")).toContainText("Baños");
+  await expect(f.locator(".caract")).toContainText("Por confirmar");
+  await expect(f.locator(".modelos tbody tr")).toHaveCount(3);
+  await expect(f.locator(".modelos")).toContainText("San Jerónimo");
+  await expect(f.locator(".similares .tarjeta")).toHaveCount(3);
+  await expect(f.getByRole("link", {name:"Reportar un dato incorrecto"})).toHaveAttribute("href", /wa\.me\/526184463867/);
+  await page.goto("/");
+  await page.locator('.cat[data-cat="usadas"]').click();
+  await page.locator(".tarjeta .titulo-enlace").click();
+  await expect(f.locator(".caract")).toContainText(/\d+ años/);
+  await expect(f.locator(".caract")).toContainText("2 lugares");
+  await expect(f.getByRole("link", {name:"Ver video"})).toHaveAttribute("href", /youtube/);
+  await expect(f).toContainText("Asadores");
+});

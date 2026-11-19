@@ -127,9 +127,10 @@ function fichaEstatica(d){
   <h1 id="ficha-titulo">${esc(d.nombre)}</h1>
   <p>${esc(tipoTexto(d))} · ${esc(d.zona)}${d.aprox ? " (ubicación aproximada)" : ""}</p>
   ${precio}
+  ${d.descripcion ? `<p>${esc(d.descripcion)}</p>` : ""}
   <h2>Condiciones</h2>
   <dl>
-    ${d.tipo !== "terreno" ? `<dt>Recámaras</dt><dd>${esc(d.recamaras)}</dd>` : ""}<dt>Tamaño</dt><dd>${esc(d.m2)}</dd>
+    ${d.tipo !== "terreno" ? `<dt>Recámaras</dt><dd>${esc(d.recamaras)}</dd>` : ""}<dt>Tamaño</dt><dd>${esc(d.m2)}</dd>${d.banos ? `<dt>Baños</dt><dd>${esc(d.banos)}</dd>` : ""}${d.estacionamientos ? `<dt>Estacionamiento</dt><dd>${esc(d.estacionamientos)}</dd>` : ""}
 ${condiciones}
     <dt>Ubicación</dt><dd>${d.lat == null ? pend : d.aprox ? "Aproximada, por zona" : "Confirmada"}</dd>
   </dl>

@@ -54,7 +54,8 @@ La información y publicidad debe ser veraz, comprobable, clara y sin nada que l
 - [ ] Casilla de consentimiento para compartir los datos con la desarrolladora del desarrollo elegido.
 
 ### 5. Servicios gratuitos que usa el sitio
-- [ ] Mostrar siempre la atribución de OpenStreetMap en el mapa (los mosaicos y los lugares vienen de OpenStreetMap). CARTO dejó de usarse en noviembre de 2026 porque ya exige clave de API.
+- [ ] Mostrar siempre la atribución de OpenStreetMap donde se usen sus datos: los lugares cercanos (siempre vienen de OpenStreetMap) y los mosaicos cuando el mapa es de OpenStreetMap. Con Google Maps (`GOOGLE_MAPS` en `assets/config.js`), Google pone su atribución. CARTO dejó de usarse en noviembre de 2026 porque ya exige clave de API.
+- [ ] Google Maps: gratis hasta 10,000 cargas de mapa al mes; mantener el tope diario en Google Cloud para no pagar sin querer. Sin clave, o si Google la rechaza, el sitio usa OpenStreetMap solo.
 - [ ] Nominatim, OSRM y los mosaicos de tile.openstreetmap.org son para uso ligero; si el sitio crece, cambiar a un plan propio o de pago.
 
 Si un cambio choca con alguno de estos puntos, no lo hagas y explica por qué.
@@ -78,7 +79,7 @@ Sigue la de `docs/REQUISITOS.md`. Lo principal:
 | `scripts/` | `validar`, `construir`, `lugares` (Overpass, semanal), `servidor` (local), `respaldo` |
 | `tests/` | `api.test.mjs` (node --test) y `sitio.spec.mjs` (Playwright) |
 
-Servicios externos: OpenStreetMap o MapTiler para el mapa, OSRM para rutas, Nominatim para direcciones, Supabase para datos y Vercel para el sitio. Los lugares cercanos se precalculan (no se consulta Overpass al cargar). Cada servicio tiene plan B: sin mapa se usa la lista, sin rutas se estiman minutos por distancia, sin búsqueda de direcciones se marca en el mapa, y sin `/api` la solicitud se manda por WhatsApp y queda en cola.
+Servicios externos: Google Maps (con clave) u OpenStreetMap/MapTiler para el mapa, OSRM para rutas, Nominatim para direcciones, Supabase para datos y Vercel para el sitio. Los lugares cercanos se precalculan (no se consulta Overpass al cargar). Cada servicio tiene plan B: sin mapa se usa la lista, sin rutas se estiman minutos por distancia, sin búsqueda de direcciones se marca en el mapa, y sin `/api` la solicitud se manda por WhatsApp y queda en cola.
 
 ## Requisitos técnicos para producción
 Están en `docs/REQUISITOS.md`: arquitectura, estructura de carpetas, solicitudes de visita, rendimiento, fiabilidad, seguridad, SEO, medición, legal, accesibilidad, pruebas y la lista para lanzar. Trabaja hacia esa estructura y marca los puntos que vayas cumpliendo.

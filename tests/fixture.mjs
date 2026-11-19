@@ -9,6 +9,8 @@ export const ANUNCIOS_PRUEBA = [
   {id:"prueba-casa-usada", operacion:"reventa", nombre:"Casa usada de prueba", tipo:"casa", desde:1350000, zona:"Fracc. de prueba, Durango",
     lat:24.06, lng:-104.62, aprox:true, recamaras:"3", m2:"160 m² de terreno", creditos:["Infonavit", "Banco", "Contado"], incluye:"Cocina integral y boiler",
     convenio:true, fotos:[], ventajas:[], verificado:"2026-11-18", anunciante:{tipo:"particular", verificado:"2026-11-18"},
+    banos:"2", estacionamientos:"2", niveles:"2", mantenimiento:0, video:"https://www.youtube.com/watch?v=prueba", amenidades:["asador"],
+    descripcion:"Casa de dos plantas con patio y cochera techada. Texto de prueba.",
     reventa:{construida:2012, escrituras:true, gravamen:"2026-11-10", alCorriente:true}},
   {id:"prueba-depa-renta", operacion:"renta", nombre:"Departamento en renta de prueba", tipo:"departamento", desde:8500, zona:"Zona de prueba, Durango",
     lat:24.03, lng:-104.66, aprox:true, recamaras:"2", m2:"75 m²", creditos:[], incluye:null, convenio:true, fotos:[], ventajas:["Estacionamiento techado"],

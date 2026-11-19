@@ -43,6 +43,12 @@ Cada desarrollo lleva:
 | `anunciante` | Obligatorio en usadas y rentas: `{"tipo":"particular"}` o `{"tipo":"inmobiliaria","nombre":"…"}`, con `"verificado":"AAAA-MM-DD"`: el día que confirmaste **en persona** que es el dueño (escrituras e identificación) o que la inmobiliaria lo tiene autorizado. No guardes copias. Registra su WhatsApp en la tabla `desarrolladoras` para que le lleguen las citas. |
 | `reventa` | Casa usada: `{"construida":2012,"escrituras":true,"gravamen":"AAAA-MM-DD","alCorriente":true}` (certificado de libertad de gravamen y predial/agua). Lo que falte sale "Por confirmar". |
 | `renta` | `{"deposito":1,"garantia":["Depósito","Aval","Póliza jurídica"],"plazoMeses":12,"mantenimiento":"Incluido","servicios":"Agua","amueblado":false,"mascotas":true,"requisitos":"…","disponible":"Inmediata"}`. Una renta no lleva créditos. Confírmala cada 30 días o quítala. |
+| `banos`, `estacionamientos`, `niveles`, `terreno` | Opcionales, como en los portales: `"2"`, `"1.5 a 2.5"`, `"96 a 120 m²"`. Lo que falte sale "Por confirmar" en la ficha. |
+| `mantenimiento` | Cuota mensual de la privada en pesos (`0` si no hay). En renta va en `renta.mantenimiento`. |
+| `descripcion` | Texto libre de hasta 800 letras ("Acerca de este desarrollo"). Solo lo comprobable. |
+| `video`, `recorrido` | Enlaces `https://` a un video (YouTube) y a un recorrido virtual 360. |
+| `amenidades` | Lista del catálogo: alberca, vigilancia, gimnasio, verdes, juegos, canchas, casaclub, asador, salon, roof, elevador. Se suman a las que se leen en `ventajas`. |
+| `precios[].recamaras`, `banos`, `m2`, `terreno` | Datos de cada modelo para la tabla "Modelos" de la ficha. |
 | `beneficioArventa` | Opcional: lo que el cliente recibe al registrar su llegada (solo si lo acordaste con la desarrolladora). |
 | `logo` | Opcional: logo de la desarrolladora para el cotizador de su oficina (`fotos/<id>/logo.webp`). |
 | `fotos`, `permisoFotos` | `["fotos/<id>/1.webp"]` o `{"archivo":"…","render":true}` para renders. Solo con permiso por escrito: anota en `permisoFotos` de quién y cuándo. WebP de ~1200 px y menos de 300 KB. |
@@ -114,7 +120,13 @@ Todo lo que es código ya está hecho; esto son cuentas y configuración que sol
 **5. Que no se caiga**
 1. [UptimeRobot](https://uptimerobot.com) o Better Stack: monitorea cada 5 minutos `https://arventa.mx/` y `https://arventa.mx/api/salud`. `/api/salud` falla también si una solicitud lleva 10 minutos sin aviso.
 2. [Sentry](https://sentry.io) (plan gratis): proyecto "Browser JavaScript"; pega su *Loader Script* en `SENTRY_LOADER` de `assets/config.js`. Los errores de `/api` se ven en Vercel → Logs.
-3. Mapa con llave propia: crea una llave en [MapTiler](https://cloud.maptiler.com), restríngela a `arventa.mx` y ponla en `MAPA` de `assets/config.js`.
+3. Mapa de Google (opcional; sin clave el sitio usa OpenStreetMap y, si Google rechaza la clave, regresa solo a OpenStreetMap):
+   1. En [Google Cloud](https://console.cloud.google.com) crea un proyecto, activa **Maps JavaScript API** y liga una cuenta de facturación (pide tarjeta).
+   2. Crea una **clave de API**: restríngela a sitios web `https://arventa.mx/*` y `https://*.vercel.app/*`, y a la API "Maps JavaScript API".
+   3. En Google Maps Platform → **Map management** crea un **Map ID** (JavaScript, vectorial). Lo piden los marcadores con precio.
+   4. En **Cuotas** de Maps JavaScript API pon "Map loads per day" en **300**: así no pasas de unas 9,000 cargas al mes y te quedas en lo gratis (10,000 al mes; después, unos 7 dólares por cada 1,000).
+   5. Pon la clave y el Map ID en `GOOGLE_MAPS` de `assets/config.js`.
+   Sin Google, para mucho tráfico usa una llave de [MapTiler](https://cloud.maptiler.com) en `MAPA`.
 
 **6. Que te encuentren**
 1. [Google Search Console](https://search.google.com/search-console): agrega `arventa.mx` y envía `https://arventa.mx/sitemap.xml`.

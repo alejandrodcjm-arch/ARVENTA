@@ -392,3 +392,39 @@ button.compartir{background:none;border:0;padding:0;font:inherit;cursor:pointer;
 .aviso-seguro{display:flex;gap:10px;align-items:flex-start;background:var(--sol-claro);color:var(--tinta);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.45;margin:14px 0 4px}
 .aviso-seguro svg{flex:none;width:20px;height:20px;margin-top:1px}
 .renta-caja{list-style:none;padding:0;margin:0 0 14px;display:grid;gap:4px;font-size:14px}
+
+/* Mapa: el lienzo va dentro del contenedor (Google o Leaflet) */
+.lienzo-mapa{position:absolute;inset:0}
+.gm-marca{transform:translateY(50%)}
+.gm-marca .pin,.gm-marca .poi,.gm-marca .poi-etq{transform:none}
+.gm-marca .pin:hover{transform:scale(1.07)}
+.gm-marca.ancla{transform:none}
+.gm-marca .yo{transform:rotate(-45deg)}
+.gm-marca.poi-w{display:flex;flex-direction:column;align-items:center;gap:3px;transform:translateY(calc(100% - 15px))}
+/* Conteos */
+.cat .n{font-weight:400}
+.cat.vacia{opacity:.45}
+.n-op{color:var(--tinta-suave);font-weight:400}
+/* Ficha como en los portales */
+.caract{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+@media (min-width:900px){.caract{grid-template-columns:repeat(3,1fr)}}
+.caract li{display:flex;gap:10px;align-items:flex-start;min-width:0}
+.caract .icono{width:24px;height:24px;flex:none;margin-top:2px;color:var(--agave)}
+.caract small{display:block;font-size:12px;color:var(--tinta-suave)}
+.caract b{font-family:var(--display);font-size:16px;overflow-wrap:anywhere}
+.caract b.pend{font-family:var(--texto);font-weight:400;color:var(--tinta-suave)}
+.quien-ficha{margin:16px 0 0;color:var(--tinta-suave);font-size:14px}
+.descripcion{margin:0;white-space:pre-line;line-height:1.55}
+.multimedia{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+.multimedia .btn{display:inline-flex;gap:8px;align-items:center;width:auto;padding:10px 16px}
+.multimedia .icono{width:18px;height:18px}
+.ficha .tabla-envoltura{overflow-x:auto}
+.modelos{width:100%;border-collapse:collapse;font-size:15px}
+.modelos th{text-align:left;font-size:12px;color:var(--tinta-suave);font-weight:700;padding:6px 8px;border-bottom:1px solid var(--niebla)}
+.modelos td{padding:10px 8px;border-bottom:1px solid var(--niebla)}
+.modelos td:nth-child(2){font-weight:700;white-space:nowrap}
+.meta-ficha{font-size:13px;color:var(--tinta-suave);margin:10px 0 0}
+.similares:empty{display:none}
+.similares{padding:28px 0 8px}
+.similares h2{font-family:var(--display);font-size:22px;margin:0 0 16px}
+.rejilla-sim{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}

@@ -164,3 +164,9 @@ test("renta: se pide la garantía en lugar de la forma de pago, y así le llega 
   const ficha = whats.find(m => m.template.name === "arventa_cita").template.components[0].parameters[2].text;
   assert.match(ficha, /Garantía que daría: Póliza jurídica/); assert.match(ficha, /Renta máxima: hasta \$9,000 al mes/);
 });
+
+test("campos de portal: enlaces https, amenidades del catálogo y mantenimiento de renta en su lugar", () => {
+  const [usada, renta] = structuredClone(ANUNCIOS_PRUEBA);
+  const e = validar([{...usada, video:"http://x", amenidades:["helipuerto"]}, {...renta, mantenimiento:500}]).errores.join("\n");
+  assert.match(e, /video: enlace/); assert.match(e, /amenidades/); assert.match(e, /renta.mantenimiento/);
+});

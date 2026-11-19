@@ -13,6 +13,11 @@ window.ARVENTA = {
     url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
     atribucion: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   },
+  // Google Maps (opcional). Con clave, los mapas son de Google; vacía, de OpenStreetMap. Si Google la rechaza
+  // (sin facturación, llave restringida o tope diario), el sitio regresa solo a OpenStreetMap.
+  // La clave es pública por diseño: restríngela a arventa.mx en Google Cloud y ponle tope diario (ver README).
+  // mapId: el "Map ID" de Google Cloud (lo piden los marcadores con precio); vacío = DEMO_MAP_ID, solo para pruebas.
+  GOOGLE_MAPS: {clave:"", mapId:""},
   // Analítica sin cookies (visitas por página y de dónde llegan). Website ID de cloud.umami.is; vacío = apagada
   UMAMI_ID: "",
   // Registro de errores con Sentry: "Loader Script" de tu proyecto (https://js.sentry-cdn.com/….min.js); vacío = apagado.

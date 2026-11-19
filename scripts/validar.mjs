@@ -11,6 +11,7 @@ export const ENTREGAS = ["Preventa", "Entrega inmediata"];
 // nueva: desarrollos (por omisión) · reventa: casa usada de un particular o inmobiliaria · renta
 export const OPERACIONES = ["nueva", "reventa", "renta"];
 export const GARANTIAS = ["Depósito", "Aval", "Póliza jurídica"];
+export const AMENIDADES = ["alberca", "vigilancia", "gimnasio", "verdes", "juegos", "canchas", "casaclub", "asador", "salon", "roof", "elevador"];
 export const DIAS_VIGENCIA = 60; // pasado esto, la ficha dice "precio por confirmar"
 const CAJA = {s:23.85, w:-104.85, n:24.20, e:-104.45};
 
@@ -122,6 +123,17 @@ export function validar(lista, {hoy = new Date(), raiz = RAIZ} = {}){
       if(f.plazos != null && (!Array.isArray(f.plazos) || f.plazos.some(x => !Number.isInteger(x) || x < 1 || x > 30))) error("financiamiento.plazos: años enteros de 1 a 30.");
       if(!/^\d{4}-\d{2}-\d{2}$/.test(f.confirmado || "") || !texto(f.confirmadoPor)) error('financiamiento: falta "confirmado" (fecha) y "confirmadoPor". Solo se publican opciones que dio el proyecto.');
     }
+    // Lo que piden los portales (opcional; lo que falte sale "Por confirmar")
+    const textoONum = x => texto(x) || esNumero(x);
+    for(const k of ["banos", "estacionamientos", "niveles", "terreno"]) if(d[k] != null && !textoONum(d[k])) error(`${k}: texto o número (por ejemplo "2" o "1.5 a 2.5").`);
+    if(d.mantenimiento != null){
+      if(op === "renta") error('en renta, el mantenimiento va en "renta.mantenimiento".');
+      else if(!(esNumero(d.mantenimiento) && d.mantenimiento >= 0)) error("mantenimiento: cuota mensual en pesos (0 si no hay).");
+    }
+    if(d.descripcion != null && (!texto(d.descripcion) || d.descripcion.length > 800)) error("descripcion: texto de hasta 800 letras.");
+    for(const k of ["video", "recorrido"]) if(d[k] != null && !/^https:\/\/\S+$/.test(d[k])) error(`${k}: enlace que empiece con https://`);
+    if(d.amenidades != null && (!Array.isArray(d.amenidades) || d.amenidades.some(a => !AMENIDADES.includes(a)))) error(`amenidades: lista con ${AMENIDADES.join(", ")}.`);
+    if(Array.isArray(d.precios)) d.precios.forEach((p, j) => { for(const k of ["recamaras", "banos", "m2", "terreno"]) if(p?.[k] != null && !textoONum(p[k])) error(`precio ${j + 1}: ${k} debe ser texto o número.`); });
     if(d.beneficioArventa != null && !texto(d.beneficioArventa)) error("beneficioArventa debe ser texto (lo que acordaste con la desarrolladora) o no ir.");
 
     // ubicación
