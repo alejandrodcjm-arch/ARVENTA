@@ -744,7 +744,6 @@ function abrirFicha(d){
   const usadas = new Set();
   for (const a of am) { const v = (d.ventajas || []).find(v => AMEN[a].re.test(v)) || AMEN[a].nombre; if (usadas.has(v)) continue; usadas.add(v); mejores.push([AMEN[a].ico, esc(v)]); }
   for (const v of d.ventajas || []) if (!am.some(a => AMEN[a].re.test(v)) && !/crédito|infonavit|fovissste/i.test(v)) mejores.push(["✔️", esc(v)]);
-  if (d.entrega === "Preventa" && d.tipo !== "terreno") mejores.push(["🏗️", "Comprar en preventa suele salir entre 10% y 20% más barato que una vivienda ya terminada."]);
 
   const filasCerca = c ? Object.keys(CATS).filter(k => c.mas[k] && c.mas[k].m <= 5000).map(k => {
     const l = c.mas[k], cam = minCaminando(l.m), modo = cam <= 20 ? `${cam} min caminando` : `${minAuto(l.m)} min en auto`;
