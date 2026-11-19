@@ -71,9 +71,9 @@ Sigue la de `docs/REQUISITOS.md`. Lo principal:
 | `index.html`, `assets/app.js`, `assets/estilos.css` | La app: buscador, tarjetas, filtros, mapa (Leaflet se carga solo al abrirlo), ficha, ¿qué me alcanza?, comparador y formulario de visita |
 | `assets/config.js` | Configuración pública: WhatsApp, mapa, Umami, Sentry y datos legales. Nunca llaves secretas |
 | `desarrollos/<id>/`, `assets/datos.js`, `data/lugares.json`, `sitemap.xml`, `robots.txt` | **Generados** por `scripts/construir.mjs`; no se editan a mano |
-| `api/` | Funciones de Vercel (`visita`, `cita`, `cotizacion`, `reclamo`, `evento`, `contacto`, `reporte`, `salud`) con Supabase por REST, sin librerías |
+| `api/` | Funciones de Vercel (`visita`, `cita`, `panel`, `cotizacion`, `evento`, `contacto`, `reporte`, `salud`) con Supabase por REST, sin librerías |
 | `cotizador.html`, `assets/corrida.mjs`, `assets/pdf.mjs` | Corrida financiera con los esquemas confirmados por cada desarrolladora y PDF sin librerías. Nunca inventes un esquema |
-| `cita/`, `asesores.html` | El cliente confirma su cita y registra su llegada (a menos de 300 m); el asesor solo reporta citas inválidas con motivo |
+| `cita/`, `panel.html` | El cliente confirma su cita y registra su llegada (a menos de 300 m); tu panel sigue cada solicitud y marca inválidas con motivo |
 | `supabase/esquema.sql` | Tablas, RLS y borrado a los 12 meses |
 | `scripts/` | `validar`, `construir`, `lugares` (Overpass, semanal), `servidor` (local), `respaldo` |
 | `tests/` | `api.test.mjs` (node --test) y `sitio.spec.mjs` (Playwright) |
@@ -83,8 +83,10 @@ Servicios externos: OpenStreetMap o MapTiler para el mapa, OSRM para rutas, Nomi
 ## Requisitos técnicos para producción
 Están en `docs/REQUISITOS.md`: arquitectura, estructura de carpetas, solicitudes de visita, rendimiento, fiabilidad, seguridad, SEO, medición, legal, accesibilidad, pruebas y la lista para lanzar. Trabaja hacia esa estructura y marca los puntos que vayas cumpliendo.
 
-## Citas y cobro
-- La cita vale cuando el cliente la confirma desde el enlace que le llega a su WhatsApp. La llegada la registra el cliente con "Ya llegué" (a menos de 300 m, solo si el desarrollo tiene `aprox:false`). Lo que diga el asesor no cambia el cobro: solo puede reportar citas inválidas con motivo y ARVENTA decide.
+## Citas y cobro (todo por WhatsApp)
+- Camino de una solicitud: nueva → verificada (el cliente confirma desde el enlace que le llega por WhatsApp) → enviada (sale por WhatsApp a quien comercializa, con fecha y hora: esto se cobra) → visita hecha ("Ya llegué" a menos de 300 m) · inválida (con motivo).
+- Toda la comunicación es por WhatsApp (`api/_lib/whatsapp.js`, plantillas de Meta). Nada de correo.
+- Solo ARVENTA tiene panel (`panel.html`). Las desarrolladoras no entran al sistema: reciben las citas por WhatsApp y reportan citas inválidas por WhatsApp a ARVENTA, que las marca en el panel. No hagas paneles para anunciantes hasta que se pida.
 
 ## Antes de terminar cualquier cambio
 1. `npm run dev` y revisa en 390 px y en escritorio la lista, el mapa, una ficha y el formulario de visita.

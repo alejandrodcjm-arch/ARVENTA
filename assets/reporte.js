@@ -111,6 +111,7 @@
         <div class="tile"><span class="et">Piden visita</span><span class="v">${r.medicion.ok && conversion != null ? conversion : "—"}</span><span class="nota">de cada 100 vistas</span></div>
         <div class="tile"><span class="et">Compartido por WhatsApp</span><span class="v">${r.medicion.ok ? num(t.compartidos) : "—"}</span><span class="nota">veces</span></div>
       </div>`;
+    if(t.confirmadas != null) h += `<p class="nota" style="margin-top:12px">Verificadas por el cliente: <b>${num(t.confirmadas)}</b> · Enviadas a la desarrolladora: <b>${num(t.enviadas || 0)}</b> · Llegada verificada: <b>${num(t.llegadas || 0)}</b> · Cotizaciones: <b>${num(t.cotizaciones || 0)}</b></p>`;
     h += `<section class="seccion"><h2>Solicitudes por semana</h2><p class="nota">Pasa el dedo o el cursor por una columna para ver la semana.</p>${columnasPorSemana(r.semanas)}</section>`;
     if(!des) h += `<section class="seccion"><h2>Por desarrollo</h2><p class="nota">Ordenado por solicitudes.</p>${tablaDesarrollos(r.desarrollos)}</section>`;
     h += `<div class="dos-col">

@@ -1,5 +1,6 @@
 /* POST /api/contacto: formulario de anuncia.html (desarrolladoras). */
-import {respuesta, error, leerJSON, texto, sb, avisar, nuevoFolio, huellaIP} from "./_lib/comun.js";
+import {respuesta, error, leerJSON, texto, sb, nuevoFolio, huellaIP} from "./_lib/comun.js";
+import {avisar} from "./_lib/whatsapp.js";
 
 export async function POST(request){
   let d;

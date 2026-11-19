@@ -20,7 +20,9 @@ Cada punto es **Esencial** (sin esto no se lanza) o **Después** (en los primero
 | 8. Medición | ✅ `/api/evento` anónimo (búsquedas, filtros, presupuesto, vistas, clics, zona a ~1 km) y reporte por desarrollo. 🔧 Umami. |
 | 9. Legal | ✅ NOM-247 en cada ficha, aviso de privacidad, consentimiento, términos, borrado a 12 meses. ⏳ Razón social, domicilio, licencia, contratos y registro en el SAT. |
 | 10. Accesibilidad | ✅ Etiquetas en campos, textos alternativos, foco visible, `prefers-reduced-motion`. ⏳ Probar en Safari y Samsung Internet. |
-| 11. Pruebas | ✅ Las 7 de la lista, más mapa diferido y reporte (19 pruebas). |
+| 3. Citas por WhatsApp | ✅ Verificación al cliente, envío a la desarrolladora con fecha y hora, estados nueva → verificada → enviada → visita hecha / inválida con motivo, "Ya llegué" a 300 m, panel solo para ARVENTA (el panel de anunciantes queda para después, a pedido). 🔧 API de WhatsApp de Meta y sus 3 plantillas; WhatsApp de cada desarrolladora en Supabase. |
+| Cotizador | ✅ Corrida con esquemas confirmados y PDF a nombre del cliente ligado a la cita. ⏳ Esquemas de pago de cada desarrolladora. |
+| 11. Pruebas | ✅ Las 7 de la lista y las de citas, WhatsApp, panel y cotizador (33 pruebas). |
 
 ---
 

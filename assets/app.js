@@ -959,6 +959,11 @@ function agendar(d){
   $("#dlg-visita").showModal();
 }
 // Enlace para compartir: la página d/<id>.html tiene la vista previa para WhatsApp (ver generar-paginas.js)
+// Mensualidad que la persona estaba viendo en la calculadora de la ficha (si la tocó)
+function mensualidadVista(){
+  const P = +$("#c-precio")?.value, e = +$("#c-eng")?.value, t = +$("#c-tasa")?.value, n = +$("#c-plazo")?.value;
+  return P && n ? Math.round(pago(P * (1 - e), t || TASA_BANCO, n)) : null;
+}
 function enlaceDe(d){ return `${location.origin}/desarrollos/${d.id}/`; }
 function abrirCompartir(d){
   const url = enlaceDe(d), texto = `${d.nombre}: ${TIPO[d.tipo].toLowerCase()} desde ${dinero(d.desde)} en Durango.`;
@@ -985,7 +990,8 @@ $("#form-visita").addEventListener("submit", async e => {
   if (!$("#v-consent").checked) { $("#v-consent").focus(); return; }
   const d = visitaDe, folio = nuevoFolio("V");
   const registro = {tipo:"visita", folio, id:d.id, nombre:$("#v-nombre").value.trim(), whatsapp:$("#v-tel").value.trim(),
-    cuando:$("#v-cuando").value, pago:$("#v-credito").value, consentimiento:true, versionAviso:window.ARVENTA?.VERSION_AVISO || "",
+    cuando:$("#v-cuando").value, pago:$("#v-credito").value, consentimiento:true,
+    presupuesto:estado.max || null, mensualidad:mensualidadVista(), otros:[...new Set([...FAV, ...COMPARAR])].filter(id => id !== d.id).slice(0, 5), versionAviso:window.ARVENTA?.VERSION_AVISO || "",
     sitio:$("#v-sitio").value, // campo trampa: una persona lo deja vacío
     minutos:estado.ref?.tipo === "trabajo" ? MINUTOS[d.id] ?? null : null};
   // Zona de trabajo redondeada a ~1 km aquí mismo: el punto exacto nunca sale del teléfono

@@ -83,3 +83,28 @@ html,body{height:auto}
 /* En estilos.css la caja de la ficha oculta sus botones en celular (ahí van en la barra de abajo); en estas páginas sí se ven */
 .pag .caja .btn{display:inline-block}
 .pag .caja .btn.claro,.pag .caja a.btn{display:block;text-align:center}
+
+/* Panel de ARVENTA */
+.controles-panel{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:6px 0 14px}
+.controles-panel label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--tinta-suave)}
+.controles-panel select{padding:9px 12px;border:1px solid var(--niebla);border-radius:10px;background:#fff;font-size:16px}
+.alerta-panel{background:#FFF3D6;border-radius:10px;padding:10px 14px;font-size:14px}
+.tabla-panel{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:18px}
+.tabla-panel th,.tabla-panel td{padding:7px 8px;border-bottom:1px solid var(--niebla);text-align:left}
+.sol{background:#fff;border:1px solid var(--niebla);border-radius:var(--radio);padding:14px 16px;margin:0 0 12px}
+.sol header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.sol header small{color:var(--tinta-suave)}
+.sol .gris{color:var(--tinta-suave);font-size:14px}
+.estado{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap;background:#EEF1F4;color:var(--tinta-suave)}
+.e-verificada{background:#FFF3D6;color:#7A5200}.e-enviada,.e-visita_hecha{background:#E2F1EC;color:var(--agave-hondo)}.e-invalida{background:#F7E9E4;color:#8A4535}
+.datos-sol{font-size:14px;margin:8px 0 0}
+.camino{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--tinta-suave)}
+.camino li span{margin-right:4px}.camino .hecho{color:var(--agave-hondo);font-weight:700}
+.camino small{font-weight:400;color:var(--tinta-suave)}
+.cobrable{display:inline-block;margin:8px 0 0;font-size:13px;font-weight:700;color:var(--agave-hondo);background:#E2F1EC;border-radius:999px;padding:2px 10px}
+.aviso-sol{background:#F7E9E4;color:#6E3527;border-radius:8px;padding:6px 10px;font-size:14px;margin:8px 0 0}
+.acciones-sol{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.acciones-sol .btn{padding:8px 12px;font-size:14px}
+.mini-form{margin-top:10px;gap:2px}
+.pag a.btn{display:inline-block}
+.tabla-envoltura{overflow-x:auto}

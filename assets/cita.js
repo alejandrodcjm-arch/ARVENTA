@@ -22,6 +22,7 @@
       <div class="codigo-cita"><small>Tu código ARVENTA</small><b>${esc(s.folio)}</b><small>Muéstralo en la oficina de ventas</small></div>`;
     if(s.cita_fecha) h += `<p>Tu visita: <b>${esc(hora(s.cita_fecha))}</b></p>`;
     if(msg) h += `<p class="${msg.error ? "form-error" : "form-ok"}" role="status">${esc(msg.texto)}</p>`;
+    if(s.invalida){ $("#cita").innerHTML = h + `<p>Esta cita ya no está activa. Si quieres agendar de nuevo, escríbenos por WhatsApp.</p>`; return; }
     if(!s.confirmada) h += `<section class="caja"><h2 style="margin-top:0">¿Confirmas tu visita?</h2>
         <p>Así apartamos tu lugar y la desarrolladora te espera.</p>
         <button class="btn" type="button" id="confirmar" style="width:100%;padding:15px;font-size:17px">Confirmo mi visita</button></section>`;

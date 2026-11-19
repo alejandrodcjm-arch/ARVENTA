@@ -3,8 +3,7 @@
      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   base de datos (la llave solo vive en el servidor)
      IP_SALT                                   para guardar la IP como huella, nunca en claro
      REPORTE_CLAVE                             clave del reporte para desarrolladoras
-     RESEND_API_KEY, AVISO_CORREO_PARA, AVISO_CORREO_DE        aviso por correo (opcional)
-     CALLMEBOT_TELEFONO, CALLMEBOT_APIKEY                      aviso por WhatsApp (opcional) */
+     WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, ARVENTA_WHATSAPP, CALLMEBOT_*   mensajes (ver whatsapp.js) */
 import {readFileSync} from "node:fs";
 import {createHash, timingSafeEqual} from "node:crypto";
 
@@ -68,20 +67,6 @@ export async function sbTodo(ruta){
     filas.push(...lote);
     if(lote.length < 1000) return filas;
   }
-}
-
-/* Aviso inmediato a ARVENTA. Devuelve true si al menos un canal funcionó. Nunca lanza error. */
-export async function avisar(asunto, cuerpo){
-  const intentos = [];
-  if(env("RESEND_API_KEY") && env("AVISO_CORREO_PARA")) intentos.push(conTiempo("https://api.resend.com/emails", {method:"POST",
-    headers:{Authorization:`Bearer ${env("RESEND_API_KEY")}`, "Content-Type":"application/json"},
-    body:JSON.stringify({from:env("AVISO_CORREO_DE") || "ARVENTA <onboarding@resend.dev>", to:env("AVISO_CORREO_PARA").split(","), subject:asunto, text:cuerpo})}).then(r => r.ok));
-  if(env("CALLMEBOT_TELEFONO") && env("CALLMEBOT_APIKEY")) intentos.push(conTiempo(`https://api.callmebot.com/whatsapp.php?${new URLSearchParams({
-    phone:env("CALLMEBOT_TELEFONO"), apikey:env("CALLMEBOT_APIKEY"), text:`${asunto}\n${cuerpo}`})}`).then(r => r.ok));
-  const res = await Promise.allSettled(intentos);
-  const ok = res.some(r => r.status === "fulfilled" && r.value);
-  if(!ok) console.error("[aviso] No se pudo avisar a ARVENTA:", asunto, res.map(r => r.reason?.message || r.value));
-  return ok;
 }
 
 export function nuevoFolio(prefijo){

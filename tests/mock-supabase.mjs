@@ -20,6 +20,7 @@ export function crearMock(llave){
           case "lt": return v < val;
           case "is": return val === "null" ? v == null : String(v) === val;
           case "in": return val.replace(/^\(|\)$/g, "").split(",").includes(String(v));
+          case "cs": return Array.isArray(v) && val.replace(/^\{|\}$/g, "").split(",").every(x => v.includes(x));
           default: return true;
         }
       });

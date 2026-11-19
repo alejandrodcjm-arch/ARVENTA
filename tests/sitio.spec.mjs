@@ -126,7 +126,7 @@ test("el cliente confirma su cita desde su enlace y registra su llegada", async 
   await page.locator("#llegue").click();
   await expect(page.locator("#cita")).toContainText("Registramos tu llegada");
   const {solicitudes} = await (await request.get(`${MOCK}/__datos`)).json();
-  expect(solicitudes[0].confirmada_en).toBeTruthy();
+  expect(solicitudes[0].verificada_en).toBeTruthy();
   expect(solicitudes[0].llegada_distancia_m).toBeLessThan(300);
   await page.goto(`/cita/?c=${s.folio}&t=equivocado`);
   await expect(page.locator("h1")).toHaveText("No encontramos tu cita");
@@ -155,6 +155,19 @@ test("sin esquemas confirmados, la ficha lo dice y no ofrece corrida", async ({p
   await expect(page.locator(".btn-corrida")).toHaveCount(0);
   await page.goto("/desarrollos/valladolid/");
   await expect(page.locator(".btn-corrida")).toBeVisible();
-  await page.goto("/asesores.html");
-  await expect(page.locator("h1")).toHaveText("Clientes que llegan con ARVENTA");
+});
+
+test("tu panel muestra la solicitud y la puedes marcar inválida", async ({page, request}) => {
+  const s = await nuevaCita(request);
+  await page.goto("/panel.html");
+  await page.locator("#clave").fill("clave-e2e");
+  await page.locator("#form-clave button").click();
+  const tarjeta = page.locator(`.sol[data-folio="${s.folio}"]`);
+  await expect(tarjeta).toContainText("Lucía Prueba");
+  await expect(tarjeta.locator(".estado")).toHaveText("Nueva");
+  await tarjeta.getByRole("button", {name:"Inválida…"}).click();
+  await tarjeta.locator("select[name=motivo]").selectOption("telefono_falso");
+  await tarjeta.locator("textarea[name=detalle]").fill("El número no existe");
+  await tarjeta.getByRole("button", {name:"Marcar inválida"}).click();
+  await expect(page.locator(`.sol[data-folio="${s.folio}"] .estado`)).toHaveText("Inválida");
 });

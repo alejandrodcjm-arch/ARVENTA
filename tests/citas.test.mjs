@@ -1,4 +1,4 @@
-/* Pruebas: la cita vale sin depender del asesor, cotizador y reclamos. node --test tests/citas.test.mjs */
+/* Pruebas: todo por WhatsApp (verificación → envío a la desarrolladora), llegada, cotizador y tu panel. node --test tests/citas.test.mjs */
 import {test, before, after, beforeEach} from "node:test";
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
@@ -8,17 +8,18 @@ import {validar} from "../scripts/validar.mjs";
 import {calcularCorrida} from "../assets/corrida.mjs";
 
 const LLAVE = "llave-citas", mock = crearMock(LLAVE);
-let api = {};
+let api = {}, whats = [], metaCaida = false;
 const fetchReal = globalThis.fetch;
 before(async () => {
   await new Promise(ok => mock.servidor.listen(0, ok));
   Object.assign(process.env, {SUPABASE_URL:`http://127.0.0.1:${mock.servidor.address().port}`, SUPABASE_SERVICE_ROLE_KEY:LLAVE,
-    IP_SALT:"s", REPORTE_CLAVE:"clave-reporte", DESARROLLOS_JSON:escribirFixture(), RESEND_API_KEY:"", CALLMEBOT_APIKEY:""});
-  globalThis.fetch = (u, o) => String(u).startsWith("https://") ? Promise.resolve(new Response("{}")) : fetchReal(u, o);
-  for(const n of ["visita", "cita", "cotizacion", "reclamo", "reporte"]) api[n] = await import(`../api/${n}.js`);
+    IP_SALT:"s", REPORTE_CLAVE:"clave-reporte", DESARROLLOS_JSON:escribirFixture(), WHATSAPP_TOKEN:"tok", WHATSAPP_PHONE_ID:"123", ARVENTA_WHATSAPP:"6184463867", CALLMEBOT_APIKEY:""});
+  // WhatsApp de mentiras: registra cada plantilla; si "metaCaida", responde error como si Meta fallara
+  globalThis.fetch = (u, o) => String(u).startsWith("https://graph.facebook.com") ? (whats.push(JSON.parse(o.body)), Promise.resolve(new Response("{}", {status:metaCaida ? 500 : 200}))) : String(u).startsWith("https://") ? Promise.resolve(new Response("{}")) : fetchReal(u, o);
+  for(const n of ["visita", "cita", "cotizacion", "panel", "reporte"]) api[n] = await import(`../api/${n}.js`);
 });
 after(() => { globalThis.fetch = fetchReal; mock.servidor.close(); });
-beforeEach(() => { for(const k in mock.tablas) mock.tablas[k].length = 0; });
+beforeEach(() => { for(const k in mock.tablas) mock.tablas[k].length = 0; whats.length = 0; metaCaida = false; });
 
 const post = (fn, cuerpo, headers = {}) => fn.POST(new Request("http://x/api", {method:"POST", headers:{"x-forwarded-for":"9.9.9." + Math.random(), ...headers}, body:JSON.stringify(cuerpo)}));
 const solicitud = async (id = "valladolid", tel = "6181112233", folio) => {
@@ -59,7 +60,7 @@ test("cita: el enlace equivocado no sirve; el cliente confirma y queda la hora",
   assert.ok(!JSON.stringify(g).includes("6181112233"), "no expone el teléfono");
   const r = await (await cita(s.folio, s.token, {accion:"confirmar"})).json();
   assert.equal(r.confirmada, true);
-  assert.ok(s.confirmada_en); assert.equal(s.estado, "visita_agendada");
+  assert.ok(s.verificada_en); assert.equal(s.estado, "verificada", "sin desarrolladora registrada se queda verificada");
 });
 
 test("Ya llegué: solo a menos de 300 m, con ubicación exacta, y sin guardar coordenadas", async () => {
@@ -70,7 +71,7 @@ test("Ya llegué: solo a menos de 300 m, con ubicación exacta, y sin guardar co
   assert.equal(r.status, 422);
   r = await cita(s.folio, s.token, {accion:"llegue", lat:24.0035, lng:-104.6117, precision:15});           // ~115 m
   assert.equal(r.status, 200);
-  assert.ok(s.llegada_en && s.confirmada_en); assert.ok(s.llegada_distancia_m < 300);
+  assert.ok(s.llegada_en && s.verificada_en); assert.ok(s.llegada_distancia_m < 300);
   assert.equal(s.estado, "visita_hecha");
   assert.ok(!JSON.stringify(s).includes("24.0035"), "no guarda la ubicación del cliente");
   const otra = await solicitud("cienega-2", "6189998877");      // ubicación aproximada: no se puede verificar
@@ -91,17 +92,47 @@ test("cotización: solo con esquema confirmado, dentro de sus reglas, y ligada a
   assert.deepEqual(mock.tablas.cotizaciones.map(c => [c.folio, c.origen, c.precio]), [[s.folio, "oficina", 760000]]);
 });
 
-test("reclamo del asesor: con clave, motivo y prueba de 60 días; no se repite", async () => {
-  mock.tablas.desarrolladoras.push({id:1, nombre:"Desarrolladora Prueba", clave_hash:createHash("sha256").update("clave-desarrolladora-1").digest("hex"), desarrollos:["valladolid"], activa:true});
-  const s = await solicitud(), otra = await solicitud("cienega-2", "6187776655");
-  const rec = (cuerpo, clave = "clave-desarrolladora-1") => post(api.reclamo, cuerpo, {"x-clave":clave});
+test("verificada → sale por WhatsApp a la desarrolladora con la ficha de la cita, y queda enviada", async () => {
+  mock.tablas.desarrolladoras.push({id:1, nombre:"Desarrolladora Prueba", whatsapp:"6187654321", desarrollos:["valladolid"], activa:true});
+  const s = await solicitud();
+  whats.length = 0;
+  await cita(s.folio, s.token, {accion:"confirmar"});
+  assert.equal(s.estado, "enviada"); assert.ok(s.enviada_en); assert.equal(s.enviada_a, "6187654321");
+  const aDesarrolladora = whats.find(m => m.template.name === "arventa_cita");
+  assert.equal(aDesarrolladora.to, "526187654321");
+  const ficha = aDesarrolladora.template.components[0].parameters[2].text;
+  for(const t of ["Rosa Pérez", "6181112233", "Infonavit", "Código: " + s.folio]) assert.ok(ficha.includes(t), t);
+  assert.ok(whats.some(m => m.template.name === "arventa_aviso"), "te avisa a ti");
+});
+
+test("si Meta falla, nada se pierde: queda verificada y tu panel da el mensaje listo", async () => {
+  mock.tablas.desarrolladoras.push({id:1, nombre:"Desarrolladora Prueba", whatsapp:"6187654321", desarrollos:["valladolid"], activa:true});
+  metaCaida = true;
+  const s = await solicitud();
+  assert.equal(s.verificacion_enviada_en, undefined, "no se marca enviada si Meta no la aceptó");
+  await cita(s.folio, s.token, {accion:"confirmar"});
+  assert.equal(s.estado, "verificada"); assert.equal(s.enviada_en, undefined);
+  const panel = (cuerpo, clave = "clave-reporte") => post(api.panel, cuerpo, {"x-clave":clave});
+  const r = await (await panel({folio:s.folio, accion:"enviar"})).json();
+  assert.equal(r.enviado, false); assert.match(r.manual, /^https:\/\/wa\.me\/526187654321\?text=/);
+  await panel({folio:s.folio, accion:"marcar_enviada"});
+  assert.equal(s.estado, "enviada"); assert.ok(s.enviada_en);
+});
+
+test("tu panel: pide clave, lista con el camino y marca inválidas con motivo", async () => {
+  const panel = (cuerpo, clave = "clave-reporte") => post(api.panel, cuerpo, {"x-clave":clave});
+  const s = await solicitud();
+  assert.equal((await api.panel.GET(new Request("http://x/api/panel", {headers:{"x-clave":"mala"}}))).status, 401);
+  const lista = await (await api.panel.GET(new Request("http://x/api/panel?dias=30", {headers:{"x-clave":"clave-reporte"}}))).json();
+  assert.equal(lista.solicitudes[0].folio, s.folio); assert.equal(lista.solicitudes[0].token, undefined, "el token no sale del servidor");
+  assert.equal((await panel({folio:s.folio, accion:"enviar"})).status, 409, "solo se envían verificadas");
   const dias = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
-  assert.equal((await rec({folio:s.folio, motivo:"duplicada", detalle:"Vino dos veces la misma persona"}, "clave-mala-123")).status, 401);
-  assert.equal((await rec({folio:otra.folio, motivo:"duplicada", detalle:"Vino dos veces la misma persona"})).status, 404, "no es su desarrollo");
-  assert.equal((await rec({folio:s.folio, motivo:"cliente_previo", detalle:"Ya nos había visitado antes", pruebaFecha:dias(90)})).status, 400, "prueba vieja");
-  assert.equal((await rec({folio:s.folio, motivo:"cliente_previo", detalle:"Ya nos había visitado antes", pruebaFecha:dias(10)})).status, 200);
-  assert.equal((await rec({folio:s.folio, motivo:"duplicada", detalle:"Otra vez lo mismo de antes"})).status, 409, "ya hay uno en revisión");
-  assert.equal(mock.tablas.reclamos[0].estado, "pendiente");
+  assert.equal((await panel({folio:s.folio, accion:"invalida", motivo:"cliente_previo", detalle:"Ya era cliente", pruebaFecha:dias(90)})).status, 400, "prueba vieja");
+  assert.equal((await panel({folio:s.folio, accion:"invalida", motivo:"cliente_previo", detalle:"Ya era cliente", pruebaFecha:dias(10)})).status, 200);
+  assert.equal(s.estado, "invalida"); assert.equal(s.motivo_invalida, "cliente_previo");
+  assert.equal((await cita(s.folio, s.token, {accion:"confirmar"})).status, 409, "una cita inválida ya no se confirma");
+  await panel({folio:s.folio, accion:"reactivar"});
+  assert.equal(s.estado, "nueva");
 });
 
 test("reporte: citas confirmadas, llegadas y cotizaciones por desarrollo", async () => {

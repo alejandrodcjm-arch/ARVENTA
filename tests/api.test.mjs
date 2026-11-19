@@ -14,9 +14,9 @@ const fetchReal = globalThis.fetch;
 before(async () => {
   await new Promise(ok => mock.servidor.listen(0, ok));
   Object.assign(process.env, {SUPABASE_URL:`http://127.0.0.1:${mock.servidor.address().port}`, SUPABASE_SERVICE_ROLE_KEY:LLAVE,
-    IP_SALT:"sal", REPORTE_CLAVE:"clave-secreta", RESEND_API_KEY:"re_x", AVISO_CORREO_PARA:"arventa@ejemplo.mx"});
-  // Los avisos por correo no salen a internet: se registran aquí
-  globalThis.fetch = async (url, op) => String(url).startsWith("https://api.resend.com") ? (avisos.push(JSON.parse(op.body)), new Response("{}", {status:200})) : fetchReal(url, op);
+    IP_SALT:"sal", REPORTE_CLAVE:"clave-secreta", WHATSAPP_TOKEN:"tok", WHATSAPP_PHONE_ID:"123", ARVENTA_WHATSAPP:"6184463867"});
+  // Los WhatsApp no salen a internet: se registran aquí (como si Meta los aceptara)
+  globalThis.fetch = async (url, op) => String(url).startsWith("https://graph.facebook.com") ? (avisos.push(JSON.parse(op.body)), new Response("{}", {status:200})) : fetchReal(url, op);
   for(const n of ["visita", "evento", "reporte", "salud", "contacto"]) api[n] = await import(`../api/${n}.js`);
 });
 after(() => { globalThis.fetch = fetchReal; mock.servidor.close(); });
@@ -34,13 +34,19 @@ test("los datos de data/desarrollos.json son válidos", () => {
 test("visita válida: se guarda, se avisa a ARVENTA y no guarda la IP", async () => {
   const r = await api.visita.POST(pedir(valida()));
   assert.equal(r.status, 200);
-  assert.deepEqual(await r.json(), {ok:true, folio:"V-ABCDEF"});
+  assert.deepEqual(await r.json(), {ok:true, folio:"V-ABCDEF", verificacion:"enviada"});
   const [f] = mock.tablas.solicitudes;
   assert.equal(f.telefono, "6181234567");
   assert.equal(f.trabajo_lat, 24.03); assert.equal(f.trabajo_lng, -104.67);
   assert.equal(f.aviso_enviado, true);
   assert.ok(f.ip_hash && !JSON.stringify(f).includes("10.0.0.1"));
-  assert.match(avisos[0].subject, /V-ABCDEF.*La Ciénega II/);
+  assert.ok(f.verificacion_enviada_en, "salió la verificación al cliente");
+  const [alCliente, aTi] = avisos;
+  assert.equal(alCliente.to, "526181234567"); assert.equal(alCliente.template.name, "arventa_verificar");
+  assert.match(alCliente.template.components[0].parameters[2].text, new RegExp(`/cita/\\?c=V-ABCDEF&t=${f.token}`));
+  assert.equal(aTi.to, "526184463867"); assert.equal(aTi.template.name, "arventa_aviso");
+  assert.match(aTi.template.components[0].parameters[0].text, /V-ABCDEF.*La Ciénega II/);
+  assert.ok(!/\n/.test(aTi.template.components[0].parameters[0].text), "Meta no acepta saltos de línea en parámetros");
 });
 
 test("visita: validación en el servidor", async () => {

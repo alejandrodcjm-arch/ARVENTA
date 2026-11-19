@@ -3,6 +3,6 @@ Allow: /
 Disallow: /api/
 Disallow: /reporte.html
 Disallow: /cita/
-Disallow: /asesores.html
+Disallow: /panel.html
 
 Sitemap: https://arventa.mx/sitemap.xml

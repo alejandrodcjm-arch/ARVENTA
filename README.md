@@ -73,6 +73,7 @@ Enganche + diferido + liquidación deben sumar 100. Con esto aparecen el botón 
 | `.github/workflows/` | Pruebas en cada cambio, lugares cada semana, respaldo cifrado cada semana |
 | `vercel.json` | Encabezados de seguridad y caché |
 | `anuncia.html`, `aviso-privacidad.html`, `terminos.html`, `reporte.html` | Páginas para desarrolladoras, legales y reporte |
+| `panel.html` | Tu panel (solo ARVENTA): el camino de cada solicitud por WhatsApp |
 
 ## Puesta en marcha (una sola vez)
 
@@ -91,9 +92,13 @@ Todo lo que es código ya está hecho; esto son cuentas y configuración que sol
 3. Settings → Domains: agrega `arventa.mx` (Vercel da el HTTPS).
 4. Cada rama o pull request genera una vista previa; producción sale de `main`.
 
-**3. Aviso inmediato de cada solicitud** (al menos uno)
-- Correo: cuenta en [resend.com](https://resend.com), verifica `arventa.mx` y pon `RESEND_API_KEY`, `AVISO_CORREO_PARA` y `AVISO_CORREO_DE`.
-- WhatsApp: en [callmebot.com](https://www.callmebot.com/blog/free-api-whatsapp-messages/) registra tu número y pon `CALLMEBOT_TELEFONO` y `CALLMEBOT_APIKEY`.
+**3. WhatsApp (todo sale por aquí)**
+1. En [Meta for Developers](https://developers.facebook.com) crea una app de tipo Business con **WhatsApp**, registra el número de ARVENTA y genera un token permanente (usuario del sistema). Pon `WHATSAPP_TOKEN` y `WHATSAPP_PHONE_ID`, y tu número en `ARVENTA_WHATSAPP`.
+2. En WhatsApp Manager → Plantillas crea estas tres (categoría **Utilidad**, idioma **Español (MEX)**) y espera a que las aprueben:
+   - `arventa_verificar`: "Hola {{1}}, recibimos tu solicitud para visitar {{2}}. Para confirmarla toca aquí: {{3}}"
+   - `arventa_cita`: "Nueva cita de ARVENTA {{1}} para {{2}}. {{3}}"
+   - `arventa_aviso`: "Aviso de ARVENTA: {{1}}"
+3. Mientras eso queda, tus avisos pueden llegar por [CallMeBot](https://www.callmebot.com/blog/free-api-whatsapp-messages/) (`CALLMEBOT_TELEFONO`, `CALLMEBOT_APIKEY`), y en tu panel cada mensaje se abre en WhatsApp ya escrito para que lo mandes tú. Nada se pierde.
 
 **4. GitHub**
 1. Activa la autenticación en dos pasos (también en Vercel y Supabase).
@@ -116,11 +121,15 @@ Todo lo que es código ya está hecho; esto son cuentas y configuración que sol
 
 ## Operación diaria
 
-- **Solicitudes**: Supabase → Table Editor → `solicitudes` (o la vista `pendientes`). Cambia `estado` conforme avanza: nueva → contactada → visita agendada → visita hecha → apartado → vendida / perdida.
-- **Confirmación de la cita** (la que se cobra): cada aviso de solicitud trae un enlace "Mándale su confirmación" que abre WhatsApp con el mensaje y el enlace personal del cliente (también está en la vista `pendientes`, columna `enlace_confirmacion`). Cuando el cliente toca "Confirmo mi visita", queda `confirmada_en` con fecha y hora. No depende del asesor.
-- **Llegada**: si el desarrollo tiene `aprox:false` (ubicación exacta confirmada en visita), el cliente puede tocar "Ya llegué" y se registra `llegada_en` si está a menos de 300 m. Solo se guarda la distancia.
-- **Citas que se cobran**: vista `citas_cobrables` (confirmadas, sin repetir y sin reclamo aceptado).
-- **Desarrolladoras y reclamos**: da de alta cada desarrolladora en la tabla `desarrolladoras` (instrucción en `supabase/esquema.sql`) y comparte su clave con sus asesores. Ellos reportan citas inválidas en `/asesores.html` solo con motivo (teléfono falso, duplicada o cliente previo con prueba de 60 días). Tú decides en la tabla `reclamos` (`estado`: aceptado o rechazado).
-- **Registro con la desarrolladora**: al presentar al cliente, llena `registrado_con_desarrolladora` con la fecha y hora. Es tu prueba para cobrar la comisión.
-- **Reporte para una desarrolladora**: `https://arventa.mx/reporte.html`, con la clave `REPORTE_CLAVE`. Elige solo su desarrollo antes de enseñarlo.
-- **Si alguien pide borrar sus datos**: busca su folio o teléfono en `solicitudes` y borra la fila. Sin compra, se borran solas a los 12 meses.
+Todo pasa por WhatsApp y lo sigues en **tu panel**: `https://arventa.mx/panel.html` con tu clave (`REPORTE_CLAVE`). Nadie más tiene panel.
+
+1. **Nueva**: llega la solicitud y al cliente le sale solo un WhatsApp con su enlace para confirmar. Tú recibes el aviso.
+2. **Verificada**: el cliente tocó "Confirmo mi visita". Es la prueba de que la cita es real.
+3. **Enviada**: en ese momento sale por WhatsApp la ficha de la cita a quien comercializa el desarrollo (nombre, WhatsApp, cuándo, cómo pagaría, presupuesto, zona de trabajo y lo que también vio: solo lo que el cliente aceptó compartir), con fecha y hora. **Esto es lo que se cobra.**
+4. **Visita hecha**: el cliente tocó "Ya llegué" a menos de 300 m (si el desarrollo tiene `aprox:false`), o tú la marcas.
+5. **Inválida**: si el asesor te escribe que el teléfono es falso, que es repetida o que ya era su cliente (con prueba de los 60 días anteriores), la marcas en el panel con el motivo. No se cobra.
+
+- **A quién se manda cada cita**: registra a cada desarrolladora y su WhatsApp en Supabase → tabla `desarrolladoras` (ejemplo en `supabase/esquema.sql`). Sin eso, el panel te avisa y la mandas tú con un toque.
+- **Lo que se factura**: vista `citas_cobrables` (verificadas y enviadas, sin repetir ni inválidas). El panel muestra el resumen del mes por desarrollo.
+- **Reporte para una desarrolladora**: `https://arventa.mx/reporte.html`, con la misma clave. Elige solo su desarrollo antes de enseñarlo.
+- **Si alguien pide borrar sus datos**: busca su folio o teléfono en `solicitudes` y borra la fila. Sin envío, se borran solas a los 12 meses.

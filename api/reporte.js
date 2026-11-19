@@ -22,7 +22,7 @@ export function agregar(solicitudes, eventos, desde, hasta, id, cotizaciones = [
   const ids = new Set([...sel.map(s => s.desarrollo), ...ev.filter(e => e.desarrollo).map(e => e.desarrollo), ...cotizaciones.filter(c => !id || c.desarrollo === id).map(c => c.desarrollo)]);
   const lista = [...ids].filter(k => !id || k === id).map(k => ({id:k, vistas:cuenta("ver-ficha", k), clics:cuenta("clic-agendar", k),
     compartidos:cuenta("compartir-whatsapp", k) + cuenta("compartir", k), solicitudes:sel.filter(s => s.desarrollo === k).length,
-    confirmadas:sel.filter(s => s.desarrollo === k && s.confirmada_en).length, llegadas:sel.filter(s => s.desarrollo === k && s.llegada_en).length,
+    confirmadas:sel.filter(s => s.desarrollo === k && s.verificada_en).length, enviadas:sel.filter(s => s.desarrollo === k && s.enviada_en && s.estado !== "invalida").length, llegadas:sel.filter(s => s.desarrollo === k && s.llegada_en).length,
     cotizaciones:cotizaciones.filter(c => c.desarrollo === k).length}))
     .sort((a, b) => b.solicitudes - a.solicitudes || b.vistas - a.vistas);
   const semanas = [];
@@ -37,7 +37,7 @@ export function agregar(solicitudes, eventos, desde, hasta, id, cotizaciones = [
   const suma = k => lista.reduce((a, d) => a + d[k], 0);
   const r = {
     ok:true, desde:fecha(desde), hasta:fecha(hasta), desarrollo:id || null, medicion:{ok:true, motivo:""}, minGrupo:MIN_GRUPO,
-    totales:{vistas:suma("vistas"), clics:suma("clics"), solicitudes:sel.length, compartidos:suma("compartidos"), confirmadas:suma("confirmadas"), llegadas:suma("llegadas"), cotizaciones:suma("cotizaciones")},
+    totales:{vistas:suma("vistas"), clics:suma("clics"), solicitudes:sel.length, compartidos:suma("compartidos"), confirmadas:suma("confirmadas"), enviadas:suma("enviadas"), llegadas:suma("llegadas"), cotizaciones:suma("cotizaciones")},
     desarrollos:lista, semanas, pago:contar(sel.map(s => s.pago)), cuando:contar(sel.map(s => s.cuando)),
     estados:contar(sel.map(s => s.estado)),
     zonas, zonasOtras:todasZonas.filter(z => z.n < MIN_GRUPO).reduce((a, z) => a + z.n, 0),
@@ -62,7 +62,7 @@ export async function GET(request){
   try{
     const filtroId = id ? `&desarrollo=eq.${id}` : "";
     const [solicitudes, eventos, cotizaciones] = await Promise.all([
-      sbTodo(`solicitudes?select=creado,desarrollo,cuando,pago,estado,trabajo_texto,trabajo_lat,trabajo_lng,minutos,confirmada_en,llegada_en&creado=gte.${iso}${filtroId}`),
+      sbTodo(`solicitudes?select=creado,desarrollo,cuando,pago,estado,trabajo_texto,trabajo_lat,trabajo_lng,minutos,verificada_en,enviada_en,llegada_en&creado=gte.${iso}${filtroId}`),
       sbTodo(`eventos?select=tipo,desarrollo,datos&creado=gte.${iso}&tipo=in.(ver-ficha,clic-agendar,compartir-whatsapp,compartir${id ? "" : ",presupuesto,busqueda"})${filtroId}`),
       sbTodo(`cotizaciones?select=desarrollo,origen&creado=gte.${iso}${filtroId}`)
     ]);
